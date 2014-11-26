@@ -1,0 +1,17 @@
+# Ignore all
+*
+
+# Unignore all with extensions
+!*.*
+
+# Unignore all dirs
+!*/
+
+*.o
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.pdf
+*.toc
