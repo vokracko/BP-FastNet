@@ -1,9 +1,9 @@
+#include <stdint.h>
+#define uint128_t long long
+//TODO vše i pro ipv6
 
-#define LPM_BSPL 0
-#define LPM_TMB 1
-#define LPM_SST 2
+void lpm_add(uint32_t prefix, uint8_t prefix_len, uint32_t rule);
+void lpm_init(uint32_t default_rule, uint128_t default_rule6);
+void lpm_destroy();
 
-#define LPM_HASH_JENKINS 0
-
-uint32_t calculate_hash(char * key, size_t len);
-void lpm_init(uint8_t lookup_function, uint8_t hash_function);
+uint32_t lpm_lookup(uint32_t key);
