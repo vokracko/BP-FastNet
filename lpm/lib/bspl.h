@@ -2,12 +2,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <pthread.h>
-
-#define uint128_t long long
+#include "lpm.h"
 //TODO
+/** TODO optimalizace
+	type a prefix length v jednom byte
+**/
+
 
 typedef struct _bspl_node_
 {
+	struct _bspl_node_ * left;
+	struct _bspl_node_ * right;
 	uint8_t type;
 
 	struct _bspl_node_ * next;
@@ -16,11 +21,10 @@ typedef struct _bspl_node_
 	// {
 		// struct
 		// {
-			struct _bspl_node_ * left;
-			struct _bspl_node_ * right;
+
 		// };
 
-		uint32_t rule;
+		_BSPL_RULE rule;
 		uint32_t prefix;
 		uint8_t prefix_len;
 	// };
@@ -41,7 +45,7 @@ typedef struct _bspl_node6_
 			struct _bspl_node6_ * right;
 		// };
 
-		uint32_t rule;
+		_BSPL_RULE rule;
 		uint128_t prefix;
 		uint8_t prefix_len;
 	// };
@@ -56,6 +60,7 @@ enum _BSPL_NODE_TYPES
 };
 
 #define _BSPL_HTABLE_SIZE 127
+#define _BSPL_TREE_OFFSET(bit) (bit * sizeof(struct _bspl_node *))
 
 //vrátí prvních N bitů a zbytek nuly
 #define get_bits(data, bit_count) (data & (~0L << (32 - bit_count)))

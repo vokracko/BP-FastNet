@@ -1,8 +1,5 @@
 #include "bspl.h"
 
-uint128_t _bspl_default_rule6;
-uint32_t _bspl_default_rule;
-
 _bspl_node * _bspl_root;
 _bspl_node6 * _bspl_root6;
 
@@ -27,85 +24,171 @@ uint32_t calculate_hash(uint32_t key)
 	return hash % _BSPL_HTABLE_SIZE;
 }
 
-void _bspl_leaf_pushing(_bspl_node * current, uint32_t rule_original, uint32_t rule_new)
+// TODO přepsat na iteraci, morris průchod stromem??
+/**
+ * @brief Push rule_new to all descendants with rule original
+ * @param node start node
+ * @param rule_original
+ * @param rule_new
+ */
+void _bspl_leaf_pushing(_bspl_node * node, _BSPL_RULE rule_original, _BSPL_RULE rule_new)
 {
-	if(current->rule == rule_original)
+	if(node->rule == rule_original)
 	{
-		current->rule = rule_new;
+		node->rule = rule_new;
 	}
 
-	if(current->type == _BSPL_NODE_INTERNAL)
+	if(node->type == _BSPL_NODE_INTERNAL)
 	{
-		_bspl_leaf_pushing(current->left, rule_original, rule_new);
-		_bspl_leaf_pushing(current->right, rule_original, rule_new);
+		_bspl_leaf_pushing(node->left, rule_original, rule_new);
+		_bspl_leaf_pushing(node->right, rule_original, rule_new);
 	}
 }
 
-void _bspl_node_htable_add(_bspl_node * this)
+/**
+ * @brief Insert node into bspl hash table structure
+ * @param node
+ */
+inline void _bspl_add_htable(_bspl_node * node)
 {
-	uint32_t index = calculate_hash(this->prefix);
+	uint32_t index = calculate_hash(node->prefix);
 	_bspl_node * ptr = _bspl_htable[index];
 
 	if(ptr == NULL)
 	{
-		_bspl_htable[index] = this;
+		_bspl_htable[index] = node;
 	}
 	else
 	{
 		while(ptr->next != NULL) ptr = ptr->next;
-		ptr->next = this;
+		ptr->next = node;
 	}
 }
 
-_bspl_node* _bspl_node_create()
+/**
+ * @brief Insert node into bspl tree structure
+ * @param node [description]
+ * @param parent parent node in tree structure
+ * @param bit left or right descendant
+ */
+inline void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, bool bit)
+{
+	// left => bit = 0; left is first in struct
+	// right => bit = 1; right is second in struct
+	*(parent + _BSPL_TREE_OFFSET(bit)) = node;
+}
+
+// TODO malloc na null
+/**
+ * @brief Construct empty bspl node
+ * @return pointer to constructed node
+ */
+inline _bspl_node * _bspl_create()
 {
 	_bspl_node * node;
-	// TODO malloc na null
 	node = (_bspl_node *) malloc(sizeof(_bspl_node));
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
 	node->type = _BSPL_NODE_CREATED;
 
-	// TODO přidat do hash tabulky
-
 	return node;
 }
 
-void _bspl_node_add(_bspl_node * parent, _bspl_node * this, bool bit)
+/**
+ * @brief Insert node inside bspl tree and bspl hast table structure
+ * @param node
+ * @param parent parent node
+ * @param bit left or right descendant
+ */
+inline void _bspl_add(_bspl_node * node, _bspl_node * parent, bool bit)
 {
-	_bspl_node_htable_add(this);
+	_bspl_add_tree(node, parent, bit);
+	_bspl_add_htable(node);
+}
 
-	if(bit)
+/**
+ * @brief Remove node from hash table
+ * @details Does not free memory used by node
+ * @param node
+ */
+inline void _bspl_remove_htable(_bspl_node * node)
+{
+	unsigned int index = calculate_hash(node->prefix);
+	_bspl_node * htable_node = _bspl_htable[index];
+
+	// linked list contains only one node
+	if(_bspl_htable[index] == node && node->next == NULL)
 	{
-		parent->right = this;
+		_bspl_htable[index] = NULL;
 	}
+	// first item of list is desired node
+	else if(_bspl_htable[index] == node)
+	{
+		_bspl_htable[index] = node->next;
+	}
+	// desired node is somewhere else
 	else
 	{
-		parent->left = this;
+		while(htable_node->next != node)
+		{
+			htable_node = htable_node->next;
+		}
+
+		htable_node->next = node->next;
 	}
 }
 
-// hledá ve stromové struktuře
-_bspl_node * _bspl_lookup(uint32_t prefix, uint8_t prefix_len)
+/**
+ * @brief Remove node from bspl tree structure
+ * @detail Does not free memory used by node
+ * @param parent
+ * @param bit left or right descendant
+ */
+inline void _bspl_remove_tree(_bspl_node * parent, bool bit)
+{
+	*(parent + _BSPL_TREE_OFFSET(bit)) = NULL;
+}
+
+/**
+ * @brief Remove node from all used strucures
+ * @details Frees memory used by node
+ * @param node
+ * @param parent
+ * @param bit left or right
+ */
+inline void _bspl_remove(_bspl_node * node, _bspl_node * parent, bool bit)
+{
+	_bspl_remove_tree(parent, bit);
+	_bspl_remove_htable(node);
+
+	free(node);
+}
+
+/**
+ * @brief Search in bspl tree structure
+ * @param prefix
+ * @param prefix_len
+ * @param parent[out]
+ * @param other[out]
+ * @return node
+ */
+_bspl_node * _bspl_lookup(uint32_t prefix, uint8_t prefix_len, _bspl_node ** parent, _bspl_node ** other)
 {
 	uint32_t bit_position = 31;
 	uint32_t len = 0;
 	bool bit;
 	_bspl_node * node = _bspl_root;
+	*parent = NULL;
+	*other = NULL;
 
 	do
 	{
 		bit = get_bit(prefix, bit_position--);
+		*parent = node;
 
-		if(bit)
-		{
-			node = node->right;
-		}
-		else
-		{
-			node = node->left;
-		}
+		node = (node + _BSPL_TREE_OFFSET(bit)); // node = bit ? node->right : node->left
+		*other = (node + _BSPL_TREE_OFFSET(!bit)); // *other = bit ? node->left : node->right
 
 		++len;
 
@@ -114,32 +197,33 @@ _bspl_node * _bspl_lookup(uint32_t prefix, uint8_t prefix_len)
 	return node;
 }
 
-void lpm_init(uint32_t default_rule, uint128_t default_rule6)
+/**
+ * @brief Construct bspl structures
+ * @param default_rule default rule for IPv4
+ * @param default_rule6 default rule for IPv6
+ */
+void lpm_init(_BSPL_RULE default_rule, _BSPL_RULE default_rule6)
 {
-	_bspl_default_rule = default_rule;
-	_bspl_default_rule6 = default_rule6;
-
-	//TODO kontrola na null
-
 	// INIT for IPv4
 	_bspl_root = (_bspl_node *) malloc(sizeof(_bspl_node));
 	_bspl_root->type = _BSPL_NODE_PREFIX;
-	_bspl_root->rule = _bspl_default_rule;
+	_bspl_root->rule = default_rule;
 	_bspl_root->left = NULL;
 	_bspl_root->right = NULL;
 	_bspl_root->next = NULL;
 	_bspl_root->prefix = 0;
 
 	_bspl_htable = (_bspl_node **) calloc(_BSPL_HTABLE_SIZE, sizeof(_bspl_node *));
-	_bspl_node_htable_add(_bspl_root);
+	_bspl_add_htable(_bspl_root);
 	_bspl_root->left = NULL;
 	_bspl_root->right = NULL;
 	_bspl_root->next = NULL;
 	_bspl_root->prefix = 0;
+
 	// INIT for IPv6
 	// _bspl_root6 = (_bspl_node6 *) malloc(sizeof(_bspl_node6));
 	// _bspl_root6->type = _BSPL_NODE_PREFIX;
-	// _bspl_root6->rule = _bspl_default_rule6;
+	// _bspl_root6->rule = default_rule6;
 	// _bspl_root6->left = NULL;
 	// _bspl_root6->right = NULL;
 	// _bspl_root6->next = NULL;
@@ -187,10 +271,15 @@ void lpm_destroy()
 }
 
 // TODO bude vracet na základě mallocu?
-
-// vložení nového prefixu do struktury
 //TODO bude vracet něco? pokud existuje/nepodařilo se vložit
-void lpm_add(uint32_t prefix, uint8_t prefix_len, uint32_t rule)
+
+/**
+ * @brief Insert rule into bspl structures
+ * @param prefix prefix of rule
+ * @param prefix_len [description]
+ * @param rule
+ */
+void lpm_add(uint32_t prefix, uint8_t prefix_len, _BSPL_RULE rule)
 {
 	_bspl_node* current = NULL;
 	_bspl_node* parent;
@@ -199,14 +288,6 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, uint32_t rule)
 	uint8_t len = 0;
 	uint32_t parent_rule;
 	uint32_t prefix_bits;
-
-	// if(current != NULL)
-	// {
-		// TODO řešit?
-		// prvek s takovým prefixem již existuje, pouze ho updatuju
-		// _lpm_update(current, rule);
-		// return;
-	// }
 
 	parent = _bspl_root;
 
@@ -221,22 +302,22 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, uint32_t rule)
 
 		if(other == NULL)
 		{
-			other = _bspl_node_create();
+			other = _bspl_create();
 			other->type = _BSPL_NODE_PREFIX;
 			other->prefix = prefix_bits | (!bit << (31 - len));
 			other->prefix_len = len + 1;
 			other->rule = parent_rule;
-			_bspl_node_add(parent, other, !bit);
+			_bspl_add(parent, other, !bit);
 
 		}
 
 		if(current == NULL)
 		{
-			current = _bspl_node_create();
+			current = _bspl_create();
 			current->prefix = prefix_bits | (bit << (31 - len));
 			current->prefix_len = len + 1;
 			current->rule = parent_rule;
-			_bspl_node_add(parent, current, bit);
+			_bspl_add(parent, current, bit);
 
 			if(prefix_len == len + 1)
 			{
@@ -266,39 +347,39 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, uint32_t rule)
 }
 
 
-//TODO bude vracet něco? pokud neexistuje/nepodařilo se updatovat
-void lpm_update(uint32_t prefix, uint8_t prefix_len, uint32_t rule)
+/**
+ * @brief Update rule for specified prefix
+ * @param prefix
+ * @param prefix_len
+ * @param rule new rule
+ */
+void lpm_update(uint32_t prefix, uint8_t prefix_len, _BSPL_RULE rule)
 {
-	_bspl_node * node = _bspl_lookup(prefix, prefix_len);
+	_bspl_node * parent, * other;
+	_bspl_node * node = _bspl_lookup(prefix, prefix_len, &parent, &other);
 
-	if(node == NULL)
-	{
-		lpm_add(prefix, prefix_len, rule);
-	}
-	else if(node->type == _BSPL_NODE_INTERNAL)
-	{
-		_bspl_leaf_pushing(node, node->rule, rule);
-	}
-
-	node->rule = rule;
+	_bspl_leaf_pushing(node, node->rule, rule);
 }
 
-void lpm_delete(uint32_t prefix, uint8_t prefix_len)
+/**
+ * @brief Remove node from all bspl structures
+ * @param prefix
+ * @param prefix_len
+ */
+void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 {
-	// TODO
-	// TODO
-	_bspl_node * node = _bspl_lookup(prefix, prefix_len);
-	//TODO smazat a leaf pushing
-	//TODO mazat i v tabulce
+	_bspl_node * other, * parent;
+	_bspl_node * node = _bspl_lookup(prefix, prefix_len, &parent, &other);
 
-	if(node->type == _BSPL_NODE_INTERNAL)
+	// node is leaf node, other node is leaf node and does not contain different prefix from parent node (contructed by leaf-pushing)
+	if(node->type == _BSPL_NODE_PREFIX && other->type == _BSPL_NODE_PREFIX && other->rule == parent->rule)
 	{
-		// TODO znamená že má oba potomky
-		// TODO mazat i potomky, kteří zdědily routu
+		_bspl_remove(node, parent, 0);
+		_bspl_remove(other, parent, 1);
 	}
 	else
 	{
-		// TODO najít nadřazený kde bude mít prefix a ten sem pushnout
+		_bspl_leaf_pushing(node, node->rule, parent->rule);
 	}
 }
 
@@ -336,6 +417,9 @@ void * _bspl_lookup_thread(void * key_ptr)
 
 // // hledá v tabulce algoritmem BSPL
 // TODO vrace thread_id + další fce get lookup result?
+/**
+ * @brief Search trought bspl htable for longest match
+ */
 uint32_t lpm_lookup(uint32_t key)
 {
 	pthread_t thread_id;
