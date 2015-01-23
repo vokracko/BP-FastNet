@@ -1,11 +1,8 @@
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <pthread.h>
 #include "lpm.h"
 //TODO
 /** TODO optimalizace
 	type a prefix length v jednom byte
+	pouze jeden ukazatel na potomky => budou se alokovat najednou při inicializaci ?? bude to zabírat více místa
 **/
 
 
@@ -13,21 +10,12 @@ typedef struct _bspl_node_
 {
 	struct _bspl_node_ * left;
 	struct _bspl_node_ * right;
-	uint8_t type;
-
 	struct _bspl_node_ * next;
+	uint8_t type;
+	uint32_t prefix;
+	uint8_t prefix_len;
 
-	// union
-	// {
-		// struct
-		// {
-
-		// };
-
-		_BSPL_RULE rule;
-		uint32_t prefix;
-		uint8_t prefix_len;
-	// };
+	_LPM_RULE_SIZE rule;
 
 } _bspl_node;
 
@@ -45,7 +33,7 @@ typedef struct _bspl_node6_
 			struct _bspl_node6_ * right;
 		// };
 
-		_BSPL_RULE rule;
+		_LPM_RULE_SIZE rule;
 		uint128_t prefix;
 		uint8_t prefix_len;
 	// };
@@ -56,7 +44,6 @@ enum _BSPL_NODE_TYPES
 {
 	_BSPL_NODE_INTERNAL,
 	_BSPL_NODE_PREFIX,
-	_BSPL_NODE_CREATED,
 };
 
 #define _BSPL_HTABLE_SIZE 127
