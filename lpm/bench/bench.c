@@ -1,4 +1,8 @@
 #include "../lib/lpm.h"
+#include <stdio.h>
+
+unsigned ipv6;
+_LPM_RULE default_rule;
 
 typedef struct _list
 {
@@ -31,8 +35,9 @@ uint32_t ipv6num(char * address)
 	return 0;
 }
 
-void fillTable()
+void fillTable(char * source)
 {
+	FILE * f = fopen(source, "r");
 	char destination[100];
 	char next_hop[100];
 	uint32_t next_hop4;
@@ -42,14 +47,14 @@ void fillTable()
 	list * start = NULL;
 	list * item = NULL;
 
-	while(scanf("%100s %d %100s", destination, &prefix_len, next_hop) == 3)
+	while(fscanf(f, "%100s %d %100s", destination, &prefix_len, next_hop) == 3)
 	{
 		item = start;
 		next_hop4 = ipv4num(next_hop);
 
 		while(item != NULL)
 		{
-			if(item->ip == next_hop_ip) break;
+			if(item->ip == next_hop4) break;
 			item = item->next;
 		}
 
@@ -57,7 +62,7 @@ void fillTable()
 		{
 			item = (list *) malloc(sizeof(list));
 			item->rule = rule_max++;
-			item->ip = next_hop_ip;
+			item->ip = next_hop4;
 			item->next = start;
 			start = item;
 		}
@@ -72,20 +77,20 @@ void fillTable()
 		start = start->next;
 		free(item);
 	}
+
+	fclose(f);
 }
 
-int main(int argc, char * argv[])
+double lookup(char * file)
 {
-
 	char lookup_ip[100];
+	uint32_t lookup_ip4;
 
 	clock_t time_start, time_end, time_sum = 0;
 	unsigned time_runs = 0;
+	FILE * f = fopen(file, "r");
 
-	lpm_init(0, 0);
-	fillTable();
-
-	while(scanf("%100s", lookup_ip) == 1)
+	while(fscanf(f, "%100s", lookup_ip) == 1)
 	{
 
 		lookup_ip4 = ipv4num(lookup_ip);
@@ -96,7 +101,24 @@ int main(int argc, char * argv[])
 		time_runs++;
 	}
 
-	printf("%lf\n", ((time_sum / (double) time_runs) * 1000) / CLOCKS_PER_SEC);
+	return ((time_sum / (double) time_runs) * 1000) / CLOCKS_PER_SEC;
+}
+
+int main(int argc, char * argv[])
+{
+
+	if(argc != 5)
+	{
+		puts("./bench -v4/6 default_rule source_file lookup_file");
+		return 1;
+	}
+
+
+	lpm_init(0, 0);
+	ipv6 = strcmp("-v6", argv[1]);
+	default_rule = atoi(argv[2]);
+	fillTable(argv[3]);
+	printf("avg %lfms\n", lookup(argv[4]));
 
 	lpm_destroy();
 }
