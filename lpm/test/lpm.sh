@@ -1,12 +1,12 @@
 fail=0
 pass=0
 
-for testfile in `ls $1`
+for testfile in `ls lpm`
 do
-	./cmd < $1/$testfile
+	./cmd < lpm/$testfile
 
 	if [ $? -eq 0 ]; then
-		valgrind ./cmd < $1/$testfile 2>&1 | grep 'no leaks' > /dev/null
+		valgrind ./cmd < lpm/$testfile 2>&1 | grep 'no leaks' > /dev/null
 
 		if [ $? -eq 0 ]; then
 			echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;32mPASS\033[0m $1/$testfile"
