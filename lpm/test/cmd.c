@@ -20,19 +20,10 @@ uint32_t ip2int(char * address)
 	return ip;
 }
 
-// void init(unsigned )
-// {
-// 	lpm_add(~0,1,10);
-// 	lpm_add(~0,2,20);
-// 	lpm_add(0,4,25);
-// 	lpm_add(0b11101000000000000000000000000000,5,35);
-// 	lpm_add(0b10100000000000000000000000000000, 3, 19);
-// }
-
 int main(int argc, char * argv[])
 {
 	int res;
-	int fail;
+	unsigned fail = 0;
 	unsigned first, second;
 	char ip[20] = {'\0'};
 	char cmd[20] = {'\0'};
@@ -52,7 +43,7 @@ int main(int argc, char * argv[])
 			res = lpm_lookup(ip2int(ip));
 			fail = res != second;
 
-			sprintf(line, "lookup for %s %d (%d) %s\n", ip, res, second, fail ? "FAIL" : "PASS");
+			sprintf(line, "lookup for %s %d (%d) %s\n", ip, second, res, fail ? "FAIL" : "PASS");
 
 		}
 		else if(strcmp(cmd, "add") == 0)
@@ -60,6 +51,18 @@ int main(int argc, char * argv[])
 			lpm_add(ip2int(ip), first, second);
 
 			sprintf(line, "add rule %d for %s/%d\n", second, ip, first);
+		}
+		else if(strcmp(cmd, "remove") == 0)
+		{
+			lpm_remove(ip2int(ip), first);
+
+			sprintf(line, "remove rule for %s/%d\n", ip, first);
+		}
+		else if(strcmp(cmd, "update") == 0)
+		{
+			lpm_update(ip2int(ip), first, second);
+
+			sprintf(line, "update to rule %d for %s/%d\n", second, ip, first);
 		}
 
 		if(debug) printf("%s", line);
