@@ -1,9 +1,12 @@
 CC=gcc
-FLAGS=-std=c99 -Wall -Wextra -g3
+FLAGS=-std=c99 -Wall -Wextra -g3 -O0
 
-all: bspl
+all: clean bspl
 
 bspl: bspl.o
+	ar rcs lpm.a $<
+
+tbm: tbm.o
 	ar rcs lpm.a $<
 
 clean:
