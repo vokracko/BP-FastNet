@@ -8,23 +8,13 @@ _bspl_node6 * _bspl_root6;
 _bspl_node ** _bspl_htable;
 _bspl_node6 ** _bspl_htable6;
 
-uint32_t calculate_hash(uint32_t key);
-void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE_SIZE rule_original, _LPM_RULE_SIZE rule_new);
-_bspl_node * _bspl_create();
-void _bspl_add_htable(_bspl_node * node);
-void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, bool bit);
-void _bspl_add(_bspl_node * node, _bspl_node * parent, bool bit);
-void _bspl_remove_htable(_bspl_node * node);
-void _bspl_remove_tree(_bspl_node * parent, bool bit);
-void _bspl_remove(_bspl_node * node, _bspl_node * parent, bool bit);
-
 inline uint32_t calculate_hash(uint32_t key)
 {
 	uint32_t hash, i;
 
 	for(hash = i = 0; i < 4; ++i)
 	{
-		hash += get_byte(key, i);
+		hash += GET_BYTE_LSB(key, i);
 		hash += (hash << 10);
 		hash ^= (hash >> 6);
 	}
@@ -42,7 +32,7 @@ inline uint32_t calculate_hash(uint32_t key)
  * @param rule_original
  * @param rule_new
  */
-void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE_SIZE rule_original, _LPM_RULE_SIZE rule_new)
+void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE rule_new)
 {
 	if(node->rule == rule_original)
 	{
@@ -196,7 +186,7 @@ _bspl_node * _bspl_lookup(uint32_t prefix, uint8_t prefix_len, _bspl_node ** par
 
 	do
 	{
-		bit = get_bit(prefix, bit_position--);
+		bit = GET_BIT_LSB(prefix, bit_position--);
 		*parent = node;
 		*other = *(_bspl_node **) ((void *) node + _BSPL_TREE_OFFSET(!bit));; // *other = bit ? node->left : node->right
 		node = *(_bspl_node **) ((void *) node + _BSPL_TREE_OFFSET(bit)); // node = bit ? node->right : node->left
@@ -211,7 +201,7 @@ _bspl_node * _bspl_lookup(uint32_t prefix, uint8_t prefix_len, _bspl_node ** par
  * @param default_rule default rule for IPv4
  * @param default_rule6 default rule for IPv6
  */
-void lpm_init(_LPM_RULE_SIZE default_rule, _LPM_RULE_SIZE default_rule6)
+void lpm_init(_LPM_RULE default_rule, _LPM_RULE default_rule6)
 {
 	// INIT for IPv4
 	_bspl_root = _bspl_create();
@@ -278,23 +268,20 @@ void lpm_destroy()
  * @param prefix_len [description]
  * @param rule
  */
-void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE_SIZE rule)
+void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	_bspl_node* node = NULL;
-	_bspl_node* parent;
+	_bspl_node* parent = _bspl_root;
 	_bspl_node* other;
 	bool bit;
 	uint8_t len = 0;
 	uint32_t parent_rule;
 	uint32_t prefix_bits;
 
-	parent = _bspl_root;
-
-
 	do
 	{
-		bit = get_bit(prefix, 31 - len);
-		prefix_bits = get_bits(parent->prefix, len);
+		bit = GET_BIT_MSB(prefix, len);
+		prefix_bits = 0;//GET_BITS_MSB(parent->prefix, len);
 		parent_rule = parent->rule;
 		node =  bit ? parent->right : parent->left;
 		other  =  bit ? parent->left : parent->right;
@@ -334,7 +321,7 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE_SIZE rule)
  * @param prefix_len
  * @param rule new rule
  */
-void lpm_update(uint32_t prefix, uint8_t prefix_len, _LPM_RULE_SIZE rule)
+void lpm_update(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	_bspl_node * parent, * other;
 	_bspl_node * node = _bspl_lookup(prefix, prefix_len, &parent, &other);
@@ -366,41 +353,11 @@ void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 	}
 }
 
-void * _bspl_lookup_thread(void * key_ptr)
-{
-	uint32_t key = * (uint32_t *) key_ptr;
-	uint32_t prefix_bits; // extracted part of prefix
-	uint8_t prefix_len = 32; // binary search actual length
-	uint8_t prefix_change = 32; // binary search length change
-
-	_bspl_node * node = NULL;
-
-	do
-	{
-		prefix_bits = get_bits(key, prefix_len);
-		node = _bspl_htable[calculate_hash(prefix_bits)];
-
-		while(node != NULL && (node->prefix != prefix_bits || node->prefix_len != prefix_len))
-		{
-			node = node->next;
-		}
-
-		prefix_change >>= 1;
-
-		if(node == NULL) prefix_len -= prefix_change;
-		else if(node->type == _BSPL_NODE_INTERNAL) prefix_len += prefix_change;
-		else break;
-
-	} while(prefix_change > 0);
-
-	* (uint32_t *) key_ptr = node->rule;
-
-	pthread_exit(NULL);
-}
-
-// TODO vrace thread_id + další fce get lookup result?
 /**
- * @brief Search trought bspl htable for longest match
+ * @brief Search trought htable for longest match
+ * @param key ip address
+ * @return rule number
+ * @todo vracet thread_id + další fce get lookup result?
  */
 uint32_t lpm_lookup(uint32_t key)
 {
@@ -412,7 +369,7 @@ uint32_t lpm_lookup(uint32_t key)
 
 	do
 	{
-		prefix_bits = get_bits(key, prefix_len);
+		prefix_bits = GET_BITS_MSB(key, prefix_len);
 		node = _bspl_htable[calculate_hash(prefix_bits)];
 
 		while(node != NULL && (node->prefix != prefix_bits || node->prefix_len != prefix_len))
