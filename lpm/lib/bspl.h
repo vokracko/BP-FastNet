@@ -15,7 +15,7 @@ typedef struct _bspl_node_
 	uint32_t prefix;
 	uint8_t prefix_len;
 
-	_LPM_RULE_SIZE rule;
+	_LPM_RULE rule;
 
 } _bspl_node;
 
@@ -33,7 +33,7 @@ typedef struct _bspl_node6_
 			struct _bspl_node6_ * right;
 		// };
 
-		_LPM_RULE_SIZE rule;
+		_LPM_RULE rule;
 		uint128_t prefix;
 		uint8_t prefix_len;
 	// };
@@ -49,9 +49,12 @@ enum _BSPL_NODE_TYPES
 #define _BSPL_HTABLE_SIZE 127
 #define _BSPL_TREE_OFFSET(bit) (bit * sizeof(struct _bspl_node *))
 
-//vrátí prvních N bitů a zbytek nuly
-#define get_bits(data, bit_count) (data & (~0L << (32 - bit_count)))
-#define get_bit(data, position) ((data >> (position)) & 1)
-#define get_byte(data, position) ((data >> (position * 8)) & 0xFF)
-
-
+uint32_t calculate_hash(uint32_t key);
+void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE rule_new);
+_bspl_node * _bspl_create();
+void _bspl_add_htable(_bspl_node * node);
+void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, bool bit);
+void _bspl_add(_bspl_node * node, _bspl_node * parent, bool bit);
+void _bspl_remove_htable(_bspl_node * node);
+void _bspl_remove_tree(_bspl_node * parent, bool bit);
+void _bspl_remove(_bspl_node * node, _bspl_node * parent, bool bit);
