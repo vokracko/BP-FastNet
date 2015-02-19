@@ -28,10 +28,11 @@ int main(int argc, char * argv[])
 	char ip[20] = {'\0'};
 	char cmd[20] = {'\0'};
 	char line[1024] = {'\0'};
+	FILE * handle = fopen(argv[1], "r");
 
-	int debug = argc == 2 && strcmp(argv[1], "debug") == 0;
+	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
-	while(scanf("%20s %20s %u %u", cmd, ip, &first, &second) == 4)
+	while(fscanf(handle, "%20s %20s %u %u", cmd, ip, &first, &second) == 4)
 	{
 		if(strcmp(cmd, "init") == 0)
 		{
@@ -70,6 +71,7 @@ int main(int argc, char * argv[])
 	}
 
 	lpm_destroy();
+	fclose(handle);
 
 	return EXIT_SUCCESS;
 }

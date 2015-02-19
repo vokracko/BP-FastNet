@@ -2,7 +2,7 @@
 //TODO
 /** TODO optimalizace
 	type a prefix length v jednom byte
-	pouze jeden ukazatel na potomky => budou se alokovat najednou při inicializaci ?? bude to zabírat více místa
+	pouze jeden ukazatel na potomky => budou se alokovat najednou při inicializaci -> stejně jsou potřeba pro leaf pushing
 **/
 
 

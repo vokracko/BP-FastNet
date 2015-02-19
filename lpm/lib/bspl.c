@@ -281,7 +281,7 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 	do
 	{
 		bit = GET_BIT_MSB(prefix, len);
-		prefix_bits = 0;//GET_BITS_MSB(parent->prefix, len);
+		prefix_bits = GET_BITS_MSB(parent->prefix, len);
 		parent_rule = parent->rule;
 		node =  bit ? parent->right : parent->left;
 		other  =  bit ? parent->left : parent->right;

@@ -44,39 +44,53 @@ inline uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value)
  *
  * @param prefix
  * @param prefix_len
- * @param parent [out]
- * @param bit_value [out] int value of prefix part which is used as index to internal/external
- * @param length [out] part of prefix length used as part of index to internal bitmap
+ * @param index [out] int value of prefix part which is used as index to internal/external
+ * @param is_external [in|out] which type of index should function return for input and output indicates if node is direct for remove
  * @return node
  */
-inline _tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, _tbm_node ** parent, uint8_t * bit_value, uint8_t * length)
+inline _tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, uint8_t * index, bool * is_external)
 {
+	uint8_t bit_value, length;
 	uint8_t position = 0;
+	uint32_t bitmap;
 	_tbm_node * node = _tbm_root;
-	*parent = NULL;
-	*bit_value = GET_STRIDE_BITS(prefix, position);
+	_tbm_node * parent = NULL;
+	bit_value = GET_STRIDE_BITS(prefix, position);
 
 	while(++position * STRIDE < prefix_len)
 	{
-		*bit_value = GET_STRIDE_BITS(prefix, position - 1);
+		bit_value = GET_STRIDE_BITS(prefix, position - 1);
 
 		if(node->child == NULL); // TODO mazání prefixu jež neexistuje, jak se zachovat?
 
-		if(_tbm_bitsum(node->internal, _TBM_ALL) == 1 && _tbm_bitsum(node->external, _TBM_ALL) == 1)
+		bitmap = *is_external ? node->external : node->internal;
+		if(_tbm_bitsum(bitmap, _TBM_ALL) == 1)
 		{
-			if(*parent == NULL) *parent = node;
+			if(parent == NULL) parent = node;
 		}
 		else
 		{
-			*parent = NULL;
+			parent = NULL;
 		}
 
 		// ------------------ calculate index -------------------------
-		node = &(node->child[_tbm_bitsum(node->external, *bit_value)]);
+		if((position + 1) * STRIDE < prefix_len) node = &(node->child[_tbm_bitsum(node->external, bit_value)]);
 	}
 
-	*bit_value = GET_STRIDE_BITS(prefix, position);
-	*length = prefix_len - ((position - 1) * STRIDE);
+	bit_value = GET_STRIDE_BITS(prefix, position);
+	length = prefix_len - ((position - 1) * STRIDE);
+
+	if(*is_external && parent != NULL)
+	{
+		node = parent;
+		*index = GET_STRIDE_BITS(prefix, position);
+	}
+	else
+	{
+		*index = _tbm_bitsum(node->internal, INTERNAL_INDEX(length, bit_value));
+		*is_external = false;
+	}
+
 	return node;
 }
 
@@ -134,12 +148,12 @@ inline void _tbm_reduce(_tbm_node * node, uint8_t bit_value, bool shift_child)
 
 	if(shift_child)
 	{
-		memmove(&(node->child[index_start + 1]), &(node->child[index_start]), bitsum - index_start - 1);
+		memmove(&(node->child[index_start + 1]), &(node->child[index_start]), (bitsum - index_start - 1) * sizeof(_tbm_node));
 		node->child = realloc(node->child, (bitsum - 1) * sizeof(_tbm_node));
 	}
 	else
 	{
-		memmove(&(node->rule[index_start + 1]), &(node->rule[index_start]), bitsum - index_start - 1);
+		memmove(&(node->rule[index_start + 1]), &(node->rule[index_start]), (bitsum - index_start - 1) * sizeof(_LPM_RULE));
 		node->rule = realloc(node->rule, (bitsum - 1) * sizeof(_LPM_RULE));
 	}
 }
@@ -162,10 +176,7 @@ void _tbm_destroy(_tbm_node * node)
 			_tbm_destroy(&(node->child[i]));
 		}
 
-		if(node->child != NULL)
-		{
-			free(node->child);
-		}
+		free(node->child);
 	}
 }
 
@@ -208,40 +219,33 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 
 void lpm_update(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
-	uint8_t bit_value, length;
-	_tbm_node * parent;
-	_tbm_node * node = _tbm_lookup(prefix, prefix_len, &parent, &bit_value, &length);
+	uint8_t index;
+	bool is_external = false;
+	_tbm_node * node = _tbm_lookup(prefix, prefix_len, &index, &is_external);
 
-	node->rule[_tbm_bitsum(node->internal, INTERNAL_INDEX(length, bit_value))] = rule;
+	node->rule[_tbm_bitsum(node->internal, index)] = rule;
 }
 
 void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 {
-	uint8_t bit_value, length;
-	_tbm_node * parent;
-	_tbm_node * node = _tbm_lookup(prefix, prefix_len, &parent, &bit_value, &length);
-	uint8_t index = INTERNAL_INDEX(length, bit_value);
+	uint8_t index;
+	bool is_external = true;
+	_tbm_node * node = _tbm_lookup(prefix, prefix_len, &index, &is_external);
+	// FIXME node nedostává adresu rodiče ale přímo nodu pokud se jedná o odstrannění celé větve, řádek ~75 pravděpodobný výskyt chyby, test remove-add
 
-	// node has only one prefix, the one which will be deleted
-	if(node->child == NULL && _tbm_bitsum(node->internal, _TBM_ALL) == 1)
+	// deleteting [whole branch/one] with only one prefix in it
+	if(is_external)
 	{
-		// whole branch is made only for this rule => all can be deleted
-		if(parent != NULL)
-		{
-			_tbm_destroy(parent);
-			free(parent);
-		}
-		else
-		{
-			free(node->rule);
-			node->rule = NULL;
-			node->internal = 0;
-		}
-		// todo potřebuju parent od parenta abych ho mohl reducenout a nastavit na nulu external
+		printf("%p %d %d %d\n", node, index, is_external, _tbm_bitsum(node->external, index));
+		_tbm_destroy(&(node->child[_tbm_bitsum(node->external, index)]));
+		_tbm_reduce(node, index, is_external);
+		CLEAR_BIT_MSB(node->external, index);
 	}
+	// node has only one prefix, the one which will be deleted
 	else
 	{
-		_tbm_reduce(node, index, false); // TODO
+		printf("%p %d %d\n", node, index, is_external);
+		_tbm_reduce(node, index, is_external);
 		CLEAR_BIT_MSB(node->internal, index);
 	}
 }

@@ -3,20 +3,20 @@ pass=0
 
 for testfile in `ls lpm`
 do
-	./cmd < lpm/$testfile
+	./$1 lpm/$testfile
 
 	if [ $? -eq 0 ]; then
-		valgrind ./cmd < lpm/$testfile 2>&1 | grep 'no leaks' > /dev/null
+		valgrind ./$1 lpm/$testfile 2>&1 | grep 'no leaks' > /dev/null
 
 		if [ $? -eq 0 ]; then
-			echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;32mPASS\033[0m $1/$testfile"
+			echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;32mPASS\033[0m lpm/$testfile"
 			let "pass++"
 		else
-			echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;31mFAIL\033[0m $1/$testfile"
+			echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;31mFAIL\033[0m lpm/$testfile"
 			let "fail++"
 		fi
 	else
-		echo -e " \033[1;31mFAIL\033[0m $1/$testfile"
+		echo -e " \033[1;31mFAIL\033[0m lpm/$testfile"
 		let "fail++"
 	fi
 

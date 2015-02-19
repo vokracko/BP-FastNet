@@ -22,7 +22,7 @@ typedef struct _tbm_node_
 
 uint8_t _tbm_bitsum(uint32_t key, uint8_t bit_position);
 uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value);
-_tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, _tbm_node ** parent, uint8_t * bit_value, uint8_t * length);
+_tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, uint8_t * index, bool * is_external);
 _tbm_node * _tbm_create();
 void _tbm_destroy(_tbm_node * node);
 void _tbm_extend(_tbm_node * node, uint8_t bit_value, bool shift_child);
