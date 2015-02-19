@@ -3,6 +3,7 @@
 
 # Unignore all with extensions
 !*.*
+!test/lpm/*
 
 # Unignore all dirs
 !*/
