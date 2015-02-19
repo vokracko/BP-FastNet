@@ -67,11 +67,14 @@ int main(int argc, char * argv[])
 		}
 
 		if(debug) printf("%s", line);
-		if(fail) return EXIT_FAILURE;
+		if(fail)
+		{
+			break;
+		}
 	}
 
 	lpm_destroy();
 	fclose(handle);
 
-	return EXIT_SUCCESS;
+	return fail;
 }
