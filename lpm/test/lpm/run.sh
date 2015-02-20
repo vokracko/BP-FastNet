@@ -1,5 +1,6 @@
 fail=0
 pass=0
+tmp=`mktemp`
 
 if [ $# -eq 1 ] && [ $1 = "bspl" ]; then
 	STRIDES=1
@@ -23,7 +24,8 @@ do
 		./$ALG tests/$testfile
 
 		if [ $? -eq 0 ]; then
-			valgrind ./$ALG tests/$testfile 2>&1 | grep 'no leaks' > /dev/null
+			valgrind ./$ALG tests/$testfile 2> $tmp > /dev/null
+			grep 'no leaks' $tmp > /dev/null && grep '0 errors' $tmp > /dev/null
 
 			if [ $? -eq 0 ]; then
 				echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;32mPASS\033[0m tests/$testfile"
