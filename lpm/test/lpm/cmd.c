@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include "../lib/lpm.h"
+#include "../../lib/lpm.h"
 
 uint32_t ip2int(char * address)
 {
