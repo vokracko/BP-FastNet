@@ -12,4 +12,4 @@ cmd: cmd.c
 	$(CC) $(FLAGS) cmd.c $(LIB)/lpm.a -o $(ALG) -pthread > /dev/null 2>&1
 
 clean:
-	rm bspl tbm
+	rm -rf bspl tbm 2>/dev/null

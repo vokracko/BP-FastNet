@@ -14,4 +14,4 @@ bin: .FORCE bin.c
 .FORCE:
 
 clean:
-	rm -rf bspl tbm *.dat *.png *.pdf
+	rm -rf bspl tbm *.dat *.png *.pdf 2>/dev/null
