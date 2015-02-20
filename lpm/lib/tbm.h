@@ -1,6 +1,5 @@
 #include "lpm.h"
 
-#define STRIDE 4
 #define _TBM_SIZE_INTERNAL (1 << (STRIDE + 1)) - 1
 #define _TBM_SIZE_EXTERNAL 1 << STRIDE
 #define _TBM_ALL 33

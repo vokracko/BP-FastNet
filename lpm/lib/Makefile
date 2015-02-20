@@ -1,4 +1,5 @@
 CC=gcc
+STRIDE=2
 FLAGS=-std=c99 -Wall -Wextra -g3 -O0
 
 all: clean bspl
@@ -9,7 +10,7 @@ bspl: bspl.c
 	ar rcs lpm.a bspl.o
 
 tbm: tbm.c
-	$(CC) $(FLAGS) -c tbm.c -o tbm.o
+	$(CC) $(FLAGS) -DSTRIDE=$(STRIDE) -c tbm.c -o tbm.o
 	rm -f lpm.a
 	ar rcs lpm.a tbm.o
 
