@@ -1,0 +1,1159 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"bit_",
+				"bit_value"
+			],
+			[
+				"ui",
+				"uint8_t"
+			],
+			[
+				"redu",
+				"_tbm_reduce"
+			],
+			[
+				"par",
+				"parent"
+			],
+			[
+				"uint",
+				"uint8_t"
+			],
+			[
+				"pare",
+				"parent_bit_value"
+			],
+			[
+				"paren",
+				"parent_bit_value"
+			],
+			[
+				"br",
+				"branch"
+			],
+			[
+				"bi",
+				"bit_value"
+			],
+			[
+				"bit",
+				"bit_value"
+			],
+			[
+				"c",
+				"counter"
+			],
+			[
+				"co",
+				"count"
+			],
+			[
+				"con",
+				"content"
+			],
+			[
+				"te",
+				"team_id"
+			],
+			[
+				"test-",
+				"test-bspl"
+			],
+			[
+				"lib",
+				"lib-bspl"
+			],
+			[
+				"lo",
+				"lookup_file"
+			],
+			[
+				"loo",
+				"lookup_ip4"
+			],
+			[
+				"nex",
+				"next_hop4"
+			],
+			[
+				"next",
+				"next_hop"
+			],
+			[
+				"time_",
+				"time_runs"
+			],
+			[
+				"time",
+				"time_sum"
+			],
+			[
+				"tim",
+				"time_start"
+			],
+			[
+				"time_s",
+				"time_sum"
+			],
+			[
+				"lpm_lo",
+				"lpm_lookup"
+			],
+			[
+				"ip",
+				"ipv6toint"
+			],
+			[
+				"_bpl",
+				"_bspl_root"
+			],
+			[
+				"uin",
+				"uint32_t"
+			],
+			[
+				"de",
+				"destination"
+			],
+			[
+				"_sst_node",
+				"_sst_node_"
+			],
+			[
+				"in",
+				"index_start"
+			],
+			[
+				"index",
+				"index_start"
+			],
+			[
+				"_tbm",
+				"_tbm_bitsum"
+			],
+			[
+				"shif",
+				"shift_child"
+			],
+			[
+				"_tb",
+				"_tbm_node"
+			],
+			[
+				"e",
+				"external"
+			],
+			[
+				"inde",
+				"index_start"
+			],
+			[
+				"_tbm_",
+				"_tbm_bitsum"
+			],
+			[
+				"_TBN",
+				"_TBM_SIZE_INTERNAL"
+			],
+			[
+				"int",
+				"internal"
+			],
+			[
+				"GET_",
+				"GET_BIT_MSB"
+			],
+			[
+				"_TBM",
+				"_TBM_SIZE_INTERNAL"
+			],
+			[
+				"pre",
+				"prefix"
+			],
+			[
+				"GET_B",
+				"GET_BITS_MSB"
+			],
+			[
+				"CLE",
+				"CLEAR_BIT_LSB"
+			],
+			[
+				"GET",
+				"GET_BITS_MSB"
+			],
+			[
+				"GET_BT",
+				"GET_BITS_MSB"
+			],
+			[
+				"_TB",
+				"_TBM_SIZE_EXTERNAL"
+			],
+			[
+				"def",
+				"default_rule"
+			],
+			[
+				"get_b",
+				"get_bit"
+			],
+			[
+				"u",
+				"uint8_t"
+			],
+			[
+				"lon",
+				"longest_match_node"
+			],
+			[
+				"bes",
+				"best_match_index"
+			],
+			[
+				"get",
+				"get_bits"
+			],
+			[
+				"be",
+				"best_match_node"
+			],
+			[
+				"best",
+				"best_match_index"
+			],
+			[
+				"tb",
+				"_tbm_node"
+			],
+			[
+				"_BS",
+				"_BSPL_NODE_TYPES"
+			],
+			[
+				"_bsp",
+				"_bspl_node"
+			],
+			[
+				"_BSPL",
+				"_BSPL_TREE_OFFSET"
+			],
+			[
+				"_bspl",
+				"_bspl_node_"
+			],
+			[
+				"_",
+				"_BSPL_TREE_OFFSET"
+			],
+			[
+				"uint_",
+				"uint128_t"
+			],
+			[
+				"BSPL",
+				"_BSPL_RULE6"
+			],
+			[
+				"_bspladd",
+				"_bspl_add_htable"
+			],
+			[
+				"ht",
+				"htable_node"
+			],
+			[
+				"_BSPL_NO",
+				"_BSPL_NODE_PREFIX"
+			],
+			[
+				"_bspl_remove_",
+				"_bspl_remove_htable"
+			],
+			[
+				"_bsplre",
+				"_bspl_remove_tree"
+			],
+			[
+				"hta",
+				"htable_item"
+			],
+			[
+				"_bs",
+				"_bspl_node"
+			],
+			[
+				"_bspl_hta",
+				"_bspl_htable_remove"
+			],
+			[
+				"parent",
+				"parent_rule"
+			],
+			[
+				"other",
+				"other_node"
+			],
+			[
+				"oth",
+				"other_node"
+			],
+			[
+				"pa",
+				"parent_node"
+			],
+			[
+				"_b",
+				"_bspl_node6"
+			],
+			[
+				"_bspl_",
+				"_bspl_default_rule"
+			],
+			[
+				"ke",
+				"key_ptr"
+			],
+			[
+				"_bspl_lo",
+				"_bspl_lookup_thread"
+			],
+			[
+				"th",
+				"thread_id"
+			],
+			[
+				"EX",
+				"EXIT_FAILURE"
+			],
+			[
+				"lp",
+				"lpm_destroy"
+			],
+			[
+				"rule",
+				"rule"
+			],
+			[
+				"pref",
+				"prefix_len"
+			],
+			[
+				"lpm_",
+				"lpm_lookup"
+			],
+			[
+				"prefi",
+				"prefix_len"
+			],
+			[
+				"cr",
+				"current"
+			],
+			[
+				"print",
+				"printBits"
+			],
+			[
+				"pr",
+				"printBits"
+			],
+			[
+				"rule_",
+				"rule_original"
+			],
+			[
+				"has",
+				"calculate_hash"
+			],
+			[
+				"_LPM",
+				"_LPM_NODE_INTERNAL"
+			],
+			[
+				"get_",
+				"get_bits"
+			],
+			[
+				"_lpm_node",
+				"_lpm_node_create"
+			],
+			[
+				"_lpm",
+				"_lpm_leaf_pushing"
+			],
+			[
+				"_LPM_NODE",
+				"_LPM_NODE_INTERNAL"
+			],
+			[
+				"NODE_",
+				"_LPM_NODE_INTERNAL"
+			],
+			[
+				"_lpm_",
+				"_lpm_htable"
+			],
+			[
+				"lpm_h",
+				"_lpm_htable"
+			],
+			[
+				"data",
+				"data_new"
+			],
+			[
+				"_lp",
+				"_lpm_default_rule"
+			],
+			[
+				"_de",
+				"_lpm_default_route"
+			],
+			[
+				"_lpm_de",
+				"_lpm_default_route6"
+			],
+			[
+				"_LP",
+				"_lpm_htable"
+			],
+			[
+				"inli",
+				"inline-block"
+			],
+			[
+				"per",
+				"person_id"
+			],
+			[
+				"com",
+				"companies"
+			],
+			[
+				"cre",
+				"createComponentRemoveVehicleForm"
+			],
+			[
+				"create",
+				"createComponentInsertVehicleForm"
+			],
+			[
+				"fe",
+				"fetchPairs"
+			],
+			[
+				"set",
+				"setDebugMode('23.75.345.200"
+			],
+			[
+				"bac",
+				"background-image"
+			],
+			[
+				"ba",
+				"background-repeat"
+			],
+			[
+				"back",
+				"background-attachment"
+			],
+			[
+				"text-",
+				"text-align"
+			],
+			[
+				"marg",
+				"margin-bottom"
+			],
+			[
+				"pos",
+				"position"
+			],
+			[
+				"wi",
+				"width"
+			],
+			[
+				"backgroud",
+				"background-color"
+			],
+			[
+				"ifaddr",
+				"ifaddrsConstPtr"
+			],
+			[
+				"ifa",
+				"ifaddrsPtr"
+			],
+			[
+				"ad",
+				"addr_info"
+			],
+			[
+				"TFT",
+				"TFTPProtocolException"
+			],
+			[
+				"clo",
+				"clientCount"
+			],
+			[
+				"cl",
+				"clientLock"
+			],
+			[
+				"shu",
+				"shutdown"
+			],
+			[
+				"fi",
+				"filename"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 272.0,
+		"selected_items":
+		[
+			[
+				"status",
+				"Git: Status"
+			],
+			[
+				"stat",
+				"Git: Status"
+			],
+			[
+				"code fo",
+				"Code Folding: Fold Tag Attributes"
+			],
+			[
+				"push",
+				"Git: Push"
+			],
+			[
+				"make",
+				"Makefile (test): make basic"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"statu",
+				"Git: Status"
+			],
+			[
+				"git",
+				"Git: Status"
+			],
+			[
+				"git stat",
+				"Git: Status"
+			],
+			[
+				"clean",
+				"Makefile (ISA): make clean"
+			],
+			[
+				"STATUS",
+				"Git: Status"
+			],
+			[
+				"STAT",
+				"Git: Status"
+			],
+			[
+				"buil",
+				"Build: Build"
+			],
+			[
+				"bu",
+				"Build: Build"
+			],
+			[
+				"add",
+				"Git: Add Remote"
+			],
+			[
+				"remot",
+				"Git: Remote"
+			],
+			[
+				"remote",
+				"Git: Add Remote"
+			]
+		],
+		"width": 467.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by) "
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/lv/Synchronized/FIT/BP/lpm",
+		"/home/lv/Synchronized/FIT/BP/lpm/bench",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib",
+		"/home/lv/Synchronized/FIT/BP/lpm/test",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm"
+	],
+	"file_history":
+	[
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/tbm.c",
+		"/home/lv/Synchronized/FIT/BP/.git/MERGE_MSG",
+		"/home/lv/Synchronized/FIT/BP/.gitignore",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm.sh",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/cmd.c",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm/remove-add-same",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm/simple-remove",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm/remove-add",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/tbm.h",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm/simple-update",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm/simple-update-stride",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm-bspl",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/Makefile",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/bspl.c",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/lpm/example",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/Makefile",
+		"/home/lv/Downloads/x.html",
+		"/home/lv/Downloads/libáň todo",
+		"/home/lv/Downloads/parse.php",
+		"/home/lv/Downloads/p2.php",
+		"/tmp/fz3temp-1/wpcm-match-functions.php",
+		"/tmp/fz3temp-1/class-wpcm-widget-results.php",
+		"/tmp/fz3temp-1/content-single-match.php",
+		"/tmp/fz3temp-1/single-match.php",
+		"/tmp/fz3temp-1/venue-info.php",
+		"/tmp/fz3temp-1/class-wpcm-widget-fixtures.php",
+		"/tmp/fz3temp-1/content-widget-results.php",
+		"/tmp/fz3temp-1/class-wpcm-widget-players.php",
+		"/tmp/fz3temp-1/lineup.php",
+		"/home/lv/Synchronized/FIT/BP/lpm/bench/Makefile",
+		"/home/lv/Synchronized/FIT/BP/lpm/bench/bench.c",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/bspl.h",
+		"/home/lv/Synchronized/FIT/BP/lpm/bench/ipv4-lookup",
+		"/home/lv/Synchronized/FIT/BP/lpm/bench/tmp",
+		"/home/lv/.bashrc",
+		"/home/lv/.bash_profile",
+		"/home/lv/Synchronized/FIT/BP/lpm/bench/ipv4-1k",
+		"/home/lv/Synchronized/FIT/BP/lpm/bench/ipv4",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/sst.c",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/sst.h",
+		"/home/lv/Synchronized/FIT/BP/materiály/procbench-toolset/lpm/alg_SST/SST.c",
+		"/home/lv/Downloads/triky",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/bspl/lookup",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/lpm.h",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/tmp.cpp",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/libáň todo",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/bspl/init",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/bspl/add",
+		"/home/lv/Downloads/untitled.txt",
+		"/tmp/fz3temp-1/sidebar.php",
+		"/tmp/fz3temp-1/index.php",
+		"/tmp/fz3temp-1/header.php",
+		"/tmp/fz3temp-1/footer.php",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/fit vut webtrh",
+		"/home/lv/Synchronized/FIT/BP/materiály/procbench-toolset/lpm/alg_TBM/TBM.h",
+		"/home/lv/Synchronized/FIT/BP/materiály/procbench-toolset/lpm/alg_TBM/TBM.c",
+		"/home/lv/Downloads/first.js",
+		"/home/lv/Downloads/second.js",
+		"/home/lv/Downloads/index.html",
+		"/home/lv/Downloads/kemp.sh",
+		"/home/lv/Downloads/MUAutoClicker/pick.txt",
+		"/home/lv/Downloads/MUAutoClicker/script_example.txt",
+		"/home/lv/.wine/dosdevices/z:/home/lv/Downloads/help/index.html",
+		"/home/lv/Downloads/slozxjednod.plt",
+		"/home/lv/Downloads/IMS-Prubeh-roku-jednoho-vcelyho-ulu/experiments/beeCount.plt",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/bspl/example",
+		"/home/lv/Synchronized/FIT/BP/materiály/procbench-toolset/common/bin2header.py",
+		"/home/lv/Synchronized/FIT/BP/materiály/procbench-toolset/lpm/data/bgptable_1009_4.bin",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/run.sh",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/bspl/simple-update",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/bspl/simple-remove",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/bspl/example2",
+		"/home/lv/Synchronized/littleshit/brigády",
+		"/tmp/fz3temp-1/error.log",
+		"/home/lv/Downloads/latest-bview",
+		"/home/lv/Downloads/less",
+		"/home/lv/.config/sublime-text-3/Packages/SublimeGit/SublimeGit.sublime-settings",
+		"/home/lv/Downloads/updates.20150115.0100",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/defaults.c",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/add.c",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/defaults.h",
+		"/home/lv/Downloads/ims.c",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/IMStest",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/pseudokody.c",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2012/reseni.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2013/G.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2013/A.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2005/A/reseniA_mod_by_Githris.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2005/A/reseniA.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/pojmy.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/priklady.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2013/3termin.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2013/2termin.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2013/H.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMS/semestralka/2013/B.txt",
+		"/home/lv/Synchronized/littleshit/expences.gnucash",
+		"/home/lv/Downloads/imp/otazky.txt",
+		"/home/lv/Downloads/mc.cpp",
+		"/home/lv/Downloads/ISA opory/isa",
+		"/tmp/kapitola6.pdf.pages.txt",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/basic",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/basic.c",
+		"/home/lv/Downloads/mediawiki",
+		"/home/lv/Downloads/dokuwiki",
+		"/home/lv/Synchronized/FIT/Prestiž balík/ISA/semestralka/otazky.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/ISA/semestralka/otazky2.html",
+		"/home/lv/Downloads/ISA opory/splitter.sh",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/macro.cpp",
+		"/tmp/fz3temp-1/index.html",
+		"/home/lv/Synchronized/littleshit/životopis/Lukáš Vokráčko (cs).pdf",
+		"/home/lv/Downloads/iis/.git/MERGE_MSG",
+		"/home/lv/Downloads/iis/app/config/config.neon",
+		"/home/lv/Downloads/zerobugs/README",
+		"/home/lv/Synchronized/FIT/BP/lpm/test/basic.cpp",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/lpm.cpp",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IMP/semestralka/2013 - 1.txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/ISA/semestralka/README(o zkousce).txt",
+		"/home/lv/Synchronized/FIT/Prestiž balík/IPZ/semestralka/2013/fulltext.txt",
+		"/home/lv/Downloads/13:45",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/stack.h",
+		"/home/lv/Synchronized/FIT/BP/lpm/lib/stack.c",
+		"/home/lv/Downloads/proj1.c",
+		"/home/lv/Synchronized/FIT/Projekty/IIS/app/presenters/BasePresenter.php",
+		"/home/lv/Synchronized/FIT/Projekty/IIS/app/templates/@layout.latte",
+		"/home/lv/Synchronized/FIT/Projekty/IIS/doc.html",
+		"/home/lv/Synchronized/FIT/Projekty/IIS/app/router/RouterFactory.php",
+		"/home/lv/Synchronized/FIT/Projekty/IIS/app/model/Manufacturer.php",
+		"/home/lv/Synchronized/FIT/Projekty/IIS/app/model/UserManager.php"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 90.0,
+		"where_history":
+		[
+			"",
+			"/home/lv/Synchronized/www/jiny",
+			"",
+			"/home/lv/Downloads/www/simplereader/app",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"tbm_reduce",
+			"_tbm_look",
+			"_tbm_extend",
+			"_tbm_reduce",
+			"_tbm_lookup",
+			"internal_index",
+			"venue",
+			"defaults",
+			"wpcm_match_player_row",
+			"exitst",
+			"ps1",
+			"_tbm_bitsum",
+			"~0",
+			"sizeof(node->internal) * 8 + 1",
+			"false)",
+			"_tbm_ext",
+			"_tbm_lookup",
+			"_tbm_create(",
+			"_tbm_create",
+			"GET_STR",
+			"->internal",
+			"internal",
+			"_tbm_inter",
+			"internal_index",
+			"uint8_t le",
+			"node =",
+			"child[",
+			"calloc",
+			"prefixu",
+			"<< stride",
+			"get_bit",
+			"lpm_rule_size",
+			"malloc",
+			"free(",
+			"free",
+			"->type",
+			"todo",
+			"fixme",
+			"_bspl_create",
+			"put",
+			"printf",
+			"parent",
+			"->next",
+			"current",
+			"_BSPL_TREE_OFF",
+			"_BSPL",
+			"inline",
+			"_BSPL_RULE",
+			"bool",
+			"_bspl_add_htable",
+			"_t rule",
+			"rule",
+			"this",
+			"parent_node",
+			"_bspl_lookup",
+			"append",
+			"len:",
+			"len",
+			"print",
+			"set,",
+			"(unsigned long)",
+			"(int",
+			"malloc",
+			"_BSPL_NODE_",
+			"lpm_",
+			"_lpm_default_rule",
+			"_lpm_htable",
+			"_lpm_root",
+			"_lpm_default_rule",
+			"_node6 ",
+			"_node ",
+			"_lpm_node",
+			"addvehicle",
+			"argu",
+			"missing",
+			"throw",
+			"new char",
+			"= {",
+			"= {}",
+			"cout",
+			"smaller",
+			"cou",
+			"setTi",
+			"full",
+			"setblock",
+			"isuni",
+			"settsi",
+			"setts",
+			"tsize",
+			"access",
+			"lock.",
+			"shutdown",
+			"Control Template",
+			"Device context",
+			"conte",
+			"Data Template",
+			"K čemu slouží Control Template v WPF?",
+			"Jak korektně překreslíte obsah aktuá",
+			"Událostmi řízený přístup (program)",
+			"V Qt se zpravidla pro vytvo",
+			"QObject je",
+			"K čemsi slouží Control Temp",
+			"Co je to resolution-independent ",
+			"K čemsi slouží Control Template",
+			"Kdy je správné nastavovat vlastnost (property) DataC",
+			"JavaScript je: ",
+			"Která z následujících situací není vhodná pro ",
+			"Pokud objektu Xm1HttpRequest nastavíme jeho a",
+			"Při zpracování událostí v Gtk pro následu",
+			"U režimu oken MDI (Multiple-Document In",
+			"Device context je: ",
+			"Překreslování oken ve Windows se děj",
+			"Jak se projeví nastavení barvy štětc",
+			"Při zpracování událostí v Qt pr",
+			"Součástí Qt toolkitu je nás",
+			"QML je ",
+			"QWidget je ",
+			"Co je to resolution-independent pixel",
+			"K čemu slouží Control Template v ",
+			"Který řádek obsahuje jen a pouze správ",
+			"Jakým způsobem nelze sputit kód (Java",
+			"Která datová struktura nejlépe odpovíd",
+			"Mezi výhody použití technologie AJAX ",
+			"Technologie AJAX se využívá předevš",
+			"Jakým příkazem lze přesměrovat zobrazo",
+			"U režimu oken SDI (Single-Docttment Interface) neplatí, že ",
+			"Komponenty jsou: ",
+			"Stav kláves na klávesnici a myši lze ve Windows "
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"node",
+			"",
+			"_LPM_RULE_SIZE",
+			"set.to_ulong(),",
+			"",
+			"(unsigned long",
+			"_bspl_default_rule",
+			"_bspl_htable",
+			"_bspl_root",
+			"_bspl_node",
+			"",
+			"\\n $1\\)",
+			"\\n a\\)",
+			"\\n a)",
+			"\\na)",
+			"<div class=\"actDesc\">",
+			"</a>",
+			"<a class=\"actDescHeader\" ",
+			"<em>PDF</em>",
+			"<span class=\"actName\">",
+			"<div class=\"lessonAct\">",
+			"<em>PDF</em>",
+			"<em>| PDF</em>",
+			"",
+			"<div class=\"actDesc\">",
+			"<span class=\"actName\">",
+			"<div class=\"lessonAct\">",
+			"",
+			"'",
+			"--"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 21.0
+	},
+	"input":
+	{
+		"height": 29.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 139.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.git-commit":
+	{
+		"height": 88.0
+	},
+	"output.git-init":
+	{
+		"height": 88.0
+	},
+	"output.git-push":
+	{
+		"height": 88.0
+	},
+	"project": "bp.sublime-project",
+	"replace":
+	{
+		"height": 38.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+			[
+				"exa",
+				"test/lpm/example"
+			],
+			[
+				"sere",
+				"tftpserver.cpp"
+			],
+			[
+				"tft",
+				"tftpclient.cpp"
+			],
+			[
+				"par",
+				"params.cpp"
+			],
+			[
+				"cli",
+				"tftpclient.h"
+			],
+			[
+				"clie",
+				"tftpclient.cpp"
+			],
+			[
+				"server",
+				"tftpserver.cpp"
+			],
+			[
+				"tftpse",
+				"tftpserver.h"
+			],
+			[
+				"tftp",
+				"tftpprotocolexception.cpp"
+			],
+			[
+				"feed",
+				"app/model/Feed.php"
+			],
+			[
+				"arti",
+				"app/model/Article.php"
+			],
+			[
+				"art",
+				"app/model/Article.php"
+			],
+			[
+				"ar",
+				"app/model/Article.php"
+			],
+			[
+				"sear",
+				"calls/search.php"
+			],
+			[
+				"sideb",
+				"templates/sidebar.html"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"selected_items":
+		[
+			[
+				"zevo",
+				"~/Synchronized/www/zevo/zevo.sublime-project"
+			],
+			[
+				"huro",
+				"~/Synchronized/www/huro/huro.sublime-project"
+			],
+			[
+				"iis",
+				"~/Synchronized/FIT/Projekty/IIS/iis.sublime-project"
+			],
+			[
+				"lpm",
+				"~/Synchronized/FIT/Projekty/IIS/lpm.sublime-workspace"
+			],
+			[
+				"im",
+				"~/Synchronized/FIT/Projekty/IMS/ims.sublime-project"
+			],
+			[
+				"ims",
+				"~/Synchronized/FIT/Projekty/IMS/ims.sublime-project"
+			],
+			[
+				"isa",
+				"~/Synchronized/FIT/Projekty/ISA/isa.sublime-workspace"
+			],
+			[
+				"",
+				"~/Downloads/www/simplereader/simplereader.sublime-workspace"
+			],
+			[
+				"mu",
+				"~/Downloads/www/mufilter/mufilter.sublime-workspace"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 203.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
