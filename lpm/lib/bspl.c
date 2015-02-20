@@ -104,7 +104,7 @@ inline _bspl_node * _bspl_create()
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
-	node->type = _BSPL_NODE_PREFIX;;
+	node->type = _BSPL_NODE_PREFIX;
 
 	return node;
 }
@@ -120,12 +120,7 @@ inline void _bspl_remove_htable(_bspl_node * node)
 	_bspl_node * htable_node = _bspl_htable[index];
 
 	// linked list contains only one node
-	if(_bspl_htable[index] == node && node->next == NULL)
-	{
-		_bspl_htable[index] = NULL;
-	}
-	// first item of list is desired node
-	else if(_bspl_htable[index] == node)
+	if(_bspl_htable[index] == node)
 	{
 		_bspl_htable[index] = node->next;
 	}
@@ -208,6 +203,7 @@ void lpm_init(_LPM_RULE default_rule, _LPM_RULE default_rule6)
 	_bspl_root->type = _BSPL_NODE_PREFIX;
 	_bspl_root->rule = default_rule;
 	_bspl_root->prefix = 0;
+	_bspl_root->prefix_len = 0;
 
 	_bspl_htable = (_bspl_node **) calloc(_BSPL_HTABLE_SIZE, sizeof(_bspl_node *));
 	_bspl_add_htable(_bspl_root);
@@ -343,8 +339,8 @@ void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 	// node is leaf node, other node is leaf node and does not contain different prefix from parent node (contructed by leaf-pushing)
 	if(node->type == _BSPL_NODE_PREFIX && other->type == _BSPL_NODE_PREFIX && other->rule == parent->rule)
 	{
-		_bspl_remove(node, parent, 0);
-		_bspl_remove(other, parent, 1);
+		_bspl_remove(node, parent, parent->right == node);
+		_bspl_remove(other, parent, parent->right == other);
 		parent->type = _BSPL_NODE_PREFIX;
 	}
 	else
