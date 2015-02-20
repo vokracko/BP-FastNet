@@ -118,7 +118,7 @@ int main(int argc, char * argv[])
 	ipv6 = strcmp("-v6", argv[1]);
 	default_rule = atoi(argv[2]);
 	fillTable(argv[3]);
-	printf("avg %lfms\n", lookup(argv[4]));
+	printf("%lf\n", lookup(argv[4]));
 
 	lpm_destroy();
 }
