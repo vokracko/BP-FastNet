@@ -381,6 +381,8 @@ uint32_t lpm_lookup(uint32_t key)
 
 	} while(prefix_change > 0);
 
+	if(node == NULL) return _bspl_root->rule;
+
 	return node->rule;
 
 }
