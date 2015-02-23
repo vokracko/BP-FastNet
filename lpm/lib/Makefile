@@ -1,6 +1,6 @@
 CC=gcc
 STRIDE=2
-FLAGS=-std=c99 -Wall -Wextra -g3 -O0
+FLAGS=-std=c99 -Wall -Wextra -g3
 
 all: clean bspl
 

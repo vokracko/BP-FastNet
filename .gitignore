@@ -11,6 +11,8 @@
 *.dat
 *.pdf
 *.png
+.fuse*
+*.zip
 
 bspl
 tbm

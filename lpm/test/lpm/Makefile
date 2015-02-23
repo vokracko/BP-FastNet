@@ -4,8 +4,9 @@ LIB=../../lib/
 
 all:
 	./run.sh bspl && \
-	./run.sh tbm 1 2 3 4 5 6 7 8 || \
+	./run.sh tbm 1 2 3 4 || \
 	echo -e "Tests failed"
+	# TODO FIXME doplnit 5 6 7 8 až se rozšíří velikost typů TBM bitmap
 
 cmd: cmd.c
 	make -C $(LIB) $(ALG) STRIDE=$(STRIDE) > /dev/null 2>&1
