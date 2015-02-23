@@ -1,7 +1,5 @@
 #include "bspl.h"
 
-//TODO delete když tam není add
-
 _bspl_node * _bspl_root;
 _bspl_node6 * _bspl_root6;
 
@@ -53,17 +51,24 @@ void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE ru
 inline void _bspl_add_htable(_bspl_node * node)
 {
 	uint32_t index = calculate_hash(node->prefix);
-	_bspl_node * ptr = _bspl_htable[index];
+	_bspl_node ** ptr = &_bspl_htable[index];
 
-	if(ptr == NULL)
+	while(*ptr != NULL)
 	{
-		_bspl_htable[index] = node;
+		ptr = &((*ptr)->next);
 	}
-	else
-	{
-		while(ptr->next != NULL) ptr = ptr->next;
-		ptr->next = node;
-	}
+
+	*ptr = node;
+
+	// if(ptr == NULL)
+	// {
+	// 	_bspl_htable[index] = node;
+	// }
+	// else
+	// {
+	// 	while(ptr->next != NULL) ptr = ptr->next;
+	// 	ptr->next = node;
+	// }
 }
 
 /**
