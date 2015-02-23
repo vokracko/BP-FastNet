@@ -1,9 +1,19 @@
 #include "lpm.h"
-//TODO
-/** TODO optimalizace
-	type a prefix length v jednom byte
-	pouze jeden ukazatel na potomky => budou se alokovat najednou při inicializaci -> stejně jsou potřeba pro leaf pushing
+
+/**
+	TODO optimalizace
+		type a prefix length v jednom byte
+		pouze jeden ukazatel na potomky => budou se alokovat najednou při inicializaci -> stejně jsou potřeba pro leaf pushing
+		přepsat leaf pushing na nerekurzivní
+
+	TODO ostatní
+		ošetřit všechny volání malloc
+		rozšířit pro ipv6
 **/
+
+#define _BSPL_HTABLE_SIZE 127
+#define _BSPL_TREE_OFFSET(bit) ((bit) * sizeof(struct _bspl_node *))
+
 
 
 typedef struct _bspl_node_
@@ -45,9 +55,6 @@ enum _BSPL_NODE_TYPES
 	_BSPL_NODE_INTERNAL,
 	_BSPL_NODE_PREFIX,
 };
-
-#define _BSPL_HTABLE_SIZE 127
-#define _BSPL_TREE_OFFSET(bit) (bit * sizeof(struct _bspl_node *))
 
 uint32_t calculate_hash(uint32_t key);
 void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE rule_new);
