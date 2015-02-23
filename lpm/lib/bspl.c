@@ -87,7 +87,6 @@ inline void _bspl_add(_bspl_node * node, _bspl_node * parent, bool bit)
 }
 
 
-// TODO malloc na null
 /**
  * @brief Construct empty bspl node
  * @return pointer to constructed node
@@ -112,23 +111,14 @@ inline _bspl_node * _bspl_create()
 inline void _bspl_remove_htable(_bspl_node * node)
 {
 	unsigned int index = calculate_hash(node->prefix);
-	_bspl_node * htable_node = _bspl_htable[index];
+	_bspl_node ** htable_node = &_bspl_htable[index];
 
-	// linked list contains only one node
-	if(_bspl_htable[index] == node)
+	while(*htable_node != node)
 	{
-		_bspl_htable[index] = node->next;
+		htable_node = &((*htable_node)->next);
 	}
-	// desired node is somewhere else
-	else
-	{
-		while(htable_node->next != node)
-		{
-			htable_node = htable_node->next;
-		}
 
-		htable_node->next = node->next;
-	}
+	*htable_node = (*htable_node)->next;
 }
 
 /**
