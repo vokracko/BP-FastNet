@@ -314,7 +314,6 @@ void lpm_update(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
  * @brief Remove node from all bspl structures
  * @param prefix
  * @param prefix_len
- * @todo mazat celou větev pokud je zkonstruována pouze pro jeden konkrétní prefix?
  */
 void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 {

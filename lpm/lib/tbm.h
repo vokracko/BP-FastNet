@@ -1,8 +1,24 @@
 #include "lpm.h"
 
+/**
+	TODO optimalizace
+
+	TODO ostatní
+		ošetřit všechny volání malloc
+		rozšířit pro ipv6
+		pro střídu 5 (i větší) je potřeba 2^6-1 (63 !!) bitů , což se do int32 nevejde, týká se bitmap
+		bude potřeba update jako samostatná fce? nebude to řešit add? nemá šanci zjistit zda už tam přesně tuto adresu s tímto prefixem má
+		extend/reduce do jedné fce?
+		dá se volat free na null?
+		mazat celou větev pokud je zkonstruována pouze pro jeden konkrétní prefix?
+**/
+
 #define _TBM_SIZE_INTERNAL (1 << (STRIDE + 1)) - 1
 #define _TBM_SIZE_EXTERNAL 1 << STRIDE
 #define _TBM_ALL 33
+
+#define GET_STRIDE_BITS(key, position, length) ((key) >> (sizeof(key) * 8 - ((position)+1)*STRIDE + STRIDE - length) & ~(~0 << STRIDE))
+#define INTERNAL_INDEX(length, value) ((1 << (length)) - 1 + (value))
 
 typedef struct _tbm_node_
 {
@@ -16,8 +32,7 @@ typedef struct _tbm_node_
 } _tbm_node;
 
 
-#define GET_STRIDE_BITS(key, position) ((key) >> (sizeof(key) * 8 - ((position)+1)*STRIDE ) & ~(~0 << STRIDE))
-#define INTERNAL_INDEX(length, value) ((1 << (length)) - 1 + (value))
+
 
 uint8_t _tbm_bitsum(uint32_t key, uint8_t bit_position);
 uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value);

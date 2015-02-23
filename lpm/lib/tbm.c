@@ -8,7 +8,6 @@ _tbm_node * _tbm_root;
  * @param key
  * @param bit_position stop marker
  * @return number of ones in key
- * @todo optimalizace http://stackoverflow.com/questions/109023/how-to-count-the-number-of-set-bits-in-a-32-bit-integer
  */
 inline uint8_t _tbm_bitsum(uint32_t key, uint8_t bit_position)
 {
@@ -18,7 +17,7 @@ inline uint8_t _tbm_bitsum(uint32_t key, uint8_t bit_position)
 }
 
 /**
- * @brief Calculate index for rule based on length of match
+ * @brief Calculate index for rule based on length of match, used only for lookup
  * @param bit_vector internal bitmap
  * @param bit_value part of ip address
  * @return index to node->rule
@@ -40,8 +39,7 @@ inline uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value)
 }
 
 /**
- * @brief Lookup node where prefix is located
- *
+ * @brief Lookup node where prefix is located, used by update/remove
  * @param prefix
  * @param prefix_len
  * @param index [out] int value of prefix part which is used as index to internal/external
@@ -53,18 +51,18 @@ inline _tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, uint8_t * in
 	uint8_t position = 0;
 	_tbm_node * node = _tbm_root;
 
-	bit_value = GET_STRIDE_BITS(prefix, position);
+	bit_value = GET_STRIDE_BITS(prefix, position, STRIDE);
 
 	while(++position * STRIDE < prefix_len)
 	{
-		bit_value = GET_STRIDE_BITS(prefix, position - 1);
+		bit_value = GET_STRIDE_BITS(prefix, position - 1, STRIDE);
 
 		if(node->child == NULL); // TODO mazání prefixu jež neexistuje, jak se zachovat?
 
 		node = &(node->child[_tbm_bitsum(node->external, bit_value)]);
 	}
 
-	bit_value = GET_STRIDE_BITS(prefix, position - 1);
+	bit_value = GET_STRIDE_BITS(prefix, position - 1, prefix_len - STRIDE * (position - 1));
 	length = prefix_len - ((position - 1) * STRIDE);
 
 	*index = INTERNAL_INDEX(length, bit_value);
@@ -138,7 +136,7 @@ inline void _tbm_reduce(_tbm_node * node, uint8_t bit_value, bool shift_child)
 }
 
 /**
- * @brief Destroy node its children and deallocate memory
+ * @brief Destroy node children and deallocate memory
  * @param node
  */
 void _tbm_destroy(_tbm_node * node)
@@ -176,12 +174,13 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 	uint8_t position = 0;
 	uint8_t index;
 	uint8_t bit_value;
+	uint8_t stride_len;
 
 	_tbm_node * node = _tbm_root;
 
 	while(++position * STRIDE < prefix_len)
 	{
-		bit_value = GET_STRIDE_BITS(prefix, position - 1);
+		bit_value = GET_STRIDE_BITS(prefix, position - 1, STRIDE);
 
 		if(GET_BIT_MSB(node->external, bit_value) == 0)
 		{
@@ -191,8 +190,10 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 
 		node = &(((_tbm_node *) node->child)[_tbm_bitsum(node->external, bit_value)]);
 	}
+
+	stride_len = prefix_len - (position - 1) * STRIDE;
 	//----------------------- number of bits used at this level <0, STRIDE>, value of those bits -------------
-	index = INTERNAL_INDEX(prefix_len - ((position - 1) * STRIDE), GET_STRIDE_BITS(prefix, position - 1));
+	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix, position - 1, stride_len));
 
 	_tbm_extend(node, index, false);
 	SET_BIT_MSB(node->internal, index);
@@ -237,7 +238,7 @@ uint32_t lpm_lookup(uint32_t key)
 	// while there is longer match
 	do
 	{
-		bits = GET_STRIDE_BITS(key, position++);
+		bits = GET_STRIDE_BITS(key, position++, STRIDE);
 
 		if(node->rule != NULL)
 		{
@@ -259,5 +260,3 @@ uint32_t lpm_lookup(uint32_t key)
 
 	return longest_match_node->rule[longest_match_index];
 }
-
-//TODO nějak řešit konec pokud není 32 přímo dělitelné střídou?

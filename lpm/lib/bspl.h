@@ -9,6 +9,8 @@
 	TODO ostatní
 		ošetřit všechny volání malloc
 		rozšířit pro ipv6
+		bude potřeba update jako samostatná fce? nebude to řešit add? nemá šanci zjistit zda už tam přesně tuto adresu s tímto prefixem má
+		mazat celou větev pokud je zkonstruována pouze pro jeden konkrétní prefix?
 **/
 
 #define _BSPL_HTABLE_SIZE 127
