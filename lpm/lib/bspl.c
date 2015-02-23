@@ -59,16 +59,6 @@ inline void _bspl_add_htable(_bspl_node * node)
 	}
 
 	*ptr = node;
-
-	// if(ptr == NULL)
-	// {
-	// 	_bspl_htable[index] = node;
-	// }
-	// else
-	// {
-	// 	while(ptr->next != NULL) ptr = ptr->next;
-	// 	ptr->next = node;
-	// }
 }
 
 /**
