@@ -211,9 +211,10 @@ void lpm_destroy()
 {
 	_bspl_node * node, * prev;
 	_bspl_node6 * node6, * prev6;
-	// IPv4
+
 	for(int i = 0; i < _BSPL_HTABLE_SIZE; ++i)
 	{
+		// IPv4
 		node = _bspl_htable[i];
 
 		while(node != NULL)
@@ -224,6 +225,7 @@ void lpm_destroy()
 			free(prev);
 		}
 
+		// IPv6
 		// node6 = _bspl_htable6[i];
 
 		// while(node6 != NULL)
@@ -240,14 +242,12 @@ void lpm_destroy()
 	// free(_bspl_htable6);
 }
 
-// TODO bude vracet na základě mallocu?
-//TODO bude vracet něco? pokud existuje/nepodařilo se vložit
-
 /**
  * @brief Insert rule into bspl structures
  * @param prefix prefix of rule
  * @param prefix_len [description]
  * @param rule
+ * @todo bude vracet něco? pokud existuje/nepodařilo se vložit
  */
 void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
@@ -314,10 +314,10 @@ void lpm_update(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
  * @brief Remove node from all bspl structures
  * @param prefix
  * @param prefix_len
+ * @todo mazat celou větev pokud je zkonstruována pouze pro jeden konkrétní prefix?
  */
 void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 {
-	// FIXME memleak
 	_bspl_node * other, * parent;
 	_bspl_node * node = _bspl_lookup(prefix, prefix_len, &parent, &other);
 
