@@ -17,7 +17,7 @@
 #define _TBM_SIZE_EXTERNAL 1 << STRIDE
 #define _TBM_ALL 33
 
-#define GET_STRIDE_BITS(key, position, length) ((key) >> (sizeof(key) * 8 - ((position)+1)*STRIDE + STRIDE - length) & ~(~0 << STRIDE))
+#define GET_STRIDE_BITS(key, position, length) ((key) >> (sizeof(key) * 8 - (position)*STRIDE - (length)) & ~(~0 << (length)))
 #define INTERNAL_INDEX(length, value) ((1 << (length)) - 1 + (value))
 
 typedef struct _tbm_node_

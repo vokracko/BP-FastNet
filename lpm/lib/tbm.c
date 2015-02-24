@@ -62,8 +62,8 @@ inline _tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, uint8_t * in
 		node = &(node->child[_tbm_bitsum(node->external, bit_value)]);
 	}
 
-	bit_value = GET_STRIDE_BITS(prefix, position - 1, prefix_len - STRIDE * (position - 1));
 	length = prefix_len - ((position - 1) * STRIDE);
+	bit_value = GET_STRIDE_BITS(prefix, position - 1, length);
 
 	*index = INTERNAL_INDEX(length, bit_value);
 
@@ -193,6 +193,7 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 
 	stride_len = prefix_len - (position - 1) * STRIDE;
 	//----------------------- number of bits used at this level <0, STRIDE>, value of those bits -------------
+	uint8_t tmp = GET_STRIDE_BITS(prefix, position - 1, stride_len);
 	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix, position - 1, stride_len));
 
 	_tbm_extend(node, index, false);
