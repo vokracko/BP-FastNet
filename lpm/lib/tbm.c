@@ -9,11 +9,11 @@ _tbm_node * _tbm_root;
  * @param bit_position stop marker
  * @return number of ones in key
  */
-inline uint8_t _tbm_bitsum(uint32_t key, uint8_t bit_position)
+inline uint8_t _tbm_bitsum(uint32_t bitmap, uint8_t bit_position)
 {
 	// cut off the bits at bit position and after that
-	key = GET_BITS_MSB(key, bit_position - 1);
-	return __builtin_popcount(key);
+	bitmap = GET_BITS_MSB(bitmap, bit_position - 1);
+	return __builtin_popcount(bitmap);
 }
 
 /**
@@ -162,7 +162,7 @@ void lpm_init(_LPM_RULE default_rule, _LPM_RULE default_rule6)
 {
 	_tbm_root = malloc(sizeof(_tbm_node));
 	_tbm_root->child = NULL;
-	_tbm_root->rule = calloc(_TBM_SIZE_INTERNAL, sizeof(_LPM_RULE));
+	_tbm_root->rule = malloc(sizeof(_LPM_RULE));
 	_tbm_root->rule[0] = default_rule;
 	_tbm_root->external = 0;
 	_tbm_root->internal = 0;
@@ -192,8 +192,6 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 	}
 
 	stride_len = prefix_len - (position - 1) * STRIDE;
-	//----------------------- number of bits used at this level <0, STRIDE>, value of those bits -------------
-	uint8_t tmp = GET_STRIDE_BITS(prefix, position - 1, stride_len);
 	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix, position - 1, stride_len));
 
 	_tbm_extend(node, index, false);

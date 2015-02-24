@@ -7,6 +7,7 @@
 		ošetřit všechny volání malloc
 		rozšířit pro ipv6
 		pro střídu 5 (i větší) je potřeba 2^6-1 (63 !!) bitů , což se do int32 nevejde, týká se bitmap
+			změnit _TBM_ALL, buildin_popcount × buildin_popcountll
 		bude potřeba update jako samostatná fce? nebude to řešit add? nemá šanci zjistit zda už tam přesně tuto adresu s tímto prefixem má
 		extend/reduce do jedné fce?
 		dá se volat free na null?
@@ -34,7 +35,7 @@ typedef struct _tbm_node_
 
 
 
-uint8_t _tbm_bitsum(uint32_t key, uint8_t bit_position);
+uint8_t _tbm_bitsum(uint32_t bitmap, uint8_t bit_position);
 uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value);
 _tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, uint8_t * index);
 _tbm_node * _tbm_create();
