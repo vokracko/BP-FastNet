@@ -9,8 +9,8 @@ all:
 	# TODO FIXME doplnit 5 6 7 8 až se rozšíří velikost typů TBM bitmap
 
 cmd: cmd.c
-	make -C $(LIB) $(ALG) STRIDE=$(STRIDE) > /dev/null 2>&1
-	$(CC) $(FLAGS) cmd.c $(LIB)/lpm.a -o $(ALG) -pthread > /dev/null 2>&1
+	make -C $(LIB) $(ALG) STRIDE=$(STRIDE)
+	$(CC) $(FLAGS) cmd.c $(LIB)/lpm.a -o $(ALG) -pthread
 
 clean:
 	rm -rf bspl tbm 2>/dev/null

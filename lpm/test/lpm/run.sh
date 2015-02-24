@@ -2,6 +2,7 @@ fail=0
 pass=0
 tmp=`mktemp`
 
+
 if [ $# -eq 1 ] && [ $1 = "bspl" ]; then
 	STRIDES=1
 	ALG=$1
@@ -17,7 +18,13 @@ do
 	echo -e "\e[1m======================================================================="
 	echo -e "\e[1m$ALG_UPPERCASE, stride = $stride"
 	echo -e "\e[1m-----------------------------------------------------------------------"
-	make cmd ALG=$ALG STRIDE=$stride > /dev/null
+	make cmd ALG=$ALG STRIDE=$stride > $tmp 2>&1
+
+	if [ $? -ne 0 ]; then
+		cat $tmp
+		exit 1
+	fi
+
 
 	for testfile in `ls tests`
 	do
