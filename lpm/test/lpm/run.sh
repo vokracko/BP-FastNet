@@ -16,7 +16,7 @@ for stride in $STRIDES
 do
 	ALG_UPPERCASE=`echo $ALG | tr [a-z] [A-Z]`
 	echo -e "\e[1m======================================================================="
-	echo -e "\e[1m$ALG_UPPERCASE, stride = $stride"
+	echo -e "\e[1m $ALG_UPPERCASE, stride = $stride"
 	echo -e "\e[1m-----------------------------------------------------------------------"
 	make cmd ALG=$ALG STRIDE=$stride > $tmp 2>&1
 
@@ -49,7 +49,13 @@ do
 	done
 done
 
-echo -e " \033[1;31mFAIL: $fail\033[0m, \033[1;32mPASS: $pass\033[0m"
+	echo -e "\e[1m======================================================================="
+	echo " RESULTS"
+if [ $fail -eq 0 ]; then
+	echo -e " \033[1;32mPASS: $pass\033[0m"
+else
+	echo -e " \033[1;31mFAIL: $fail\033[0m, \033[1;32mPASS: $pass\033[0m"
+fi
 
 if [ $fail -ne 0 ]; then
 	exit 1
