@@ -1,6 +1,5 @@
 #include "tbm.h"
 
-
 _tbm_node * _tbm_root;
 
 /**

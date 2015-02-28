@@ -20,6 +20,9 @@
 #define GET_BYTE_LSB(data, position) ((data >> ((position) * 8)) & 0xFF)
 #define GET_BYTE_MSB(data, position) ((data >> ((sizeof(data) - (position) - 1) * 8)) & 0xFF)
 
+#ifndef STRIDE
+#define STRIDE 2
+#endif
 
 #define uint128_t long long //TODO vyřešit
 #define _LPM_RULE uint8_t
