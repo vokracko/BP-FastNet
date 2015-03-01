@@ -5,10 +5,11 @@
 #include <stdio.h>
 #include <string.h>
 
-#define GET_BIT_LSB(data, position) ((data >> (position)) & 1)
-#define GET_BIT_MSB(data, position) ((data >> (31 - (position))) & 1)
+/ TODO +- 1 otestovat
+#define GET_BIT_LSB(data, position) ((data[position / (sizeof(*data) * 8)] >> (position)) & 1)
+#define GET_BIT_MSB(data, position, length) ((data[length - position / (sizeof(*data) * 8)] >> (31 - (position))) & 1)
 
-#define CLEAR_BIT_LSB(data, position) (data &= ~(1 << (position)))
+#define CLEAR_BIT_LSB(data, position) (data[position / (sizeof(*data) * 8)] &= ~(1 << (position)))
 #define CLEAR_BIT_MSB(data, position) (data &= ~(1 << (sizeof(data)*8-1 - (position))))
 
 #define SET_BIT_LSB(data, position) (data |= (1 << (position)))
