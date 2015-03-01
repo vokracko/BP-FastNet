@@ -20,8 +20,6 @@ void _ac_add_match(uint8_t ** matches, uint8_t * size, _AC_RULE matched_rule)
 	(*matches)[(*size)++] = matched_rule;
 }
 
-void _ac_add_node(_ac_node * current, _ac_node * next,)
-
 _ac_node * _ac_longest_match(char * text, size_t * length)
 {
 	_ac_node * node = _ac_root;
@@ -37,6 +35,31 @@ _ac_node * _ac_longest_match(char * text, size_t * length)
 	return node;
 }
 
+
+void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
+{
+	_ac_node * fallback	= _ac_root;
+	size_t length;
+	char * buffer = malloc(strlen(text) - endpos);
+	
+	for(int = 0; j < endpos; ++j)
+	{
+		fallback = _ac_root;
+	}
+	for(int i = j; i < endpos; ++i)
+	{
+		buffer[i] = text[endpos-i];
+	}
+
+	node = _ac_longest_match(buffer, &length);
+
+	if(node != _ac_root)
+	{
+		node->fallback = fallbackl;
+		return;
+	}
+
+}
 
 void init()
 {
@@ -94,16 +117,7 @@ void add(char * text, _AC_RULE rule)
 	// doplnit fail cesty
 	// pravděpodobně procházet od konce stringu a postupně vytvářet
 
-	last_node = _ac_create();
-	last_node->rule = _AC_RULE;
-
-	node = _ac_create();
-
-	while(index > length)
-	{
-		node = _ac_create();
-		_ac_add_node()
-	}
-
+	_ac_fallback(node, text, length);
+	// TODO otestovat
 	_ac_add_node();
 }
