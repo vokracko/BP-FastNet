@@ -14,5 +14,10 @@ tbm: tbm.c
 	rm -f lpm.a
 	ar rcs lpm.a tbm.o
 
+aho-corasic: aho-corasic.c
+	$(CC) $(FLAGS) -c aho-corasic.c -o aho-corasic.o
+	rm -f aho-corasic.a
+	ar rcs aho-corasic.a aho-corasic.o
+
 clean:
 	rm -rf *.o *.a *.so 2>/dev/null

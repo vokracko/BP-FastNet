@@ -11,6 +11,6 @@ typedef struct _ac_node_
 {
 	char * key;
 	struct _ac_node_ ** next;
-	struct _ac_node_ * fall;
+	struct _ac_node_ * fallback;
 	_AC_RULE rule;
 } _ac_node;
