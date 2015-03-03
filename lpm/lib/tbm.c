@@ -11,7 +11,7 @@ _tbm_node * _tbm_root;
 inline uint8_t _tbm_bitsum(uint32_t bitmap, uint8_t bit_position)
 {
 	// cut off the bits at bit position and after that
-	bitmap = GET_BITS_MSB(bitmap, bit_position - 1);
+	bitmap = GET_BITS_LSB(bitmap, bit_position);
 	return __builtin_popcount(bitmap);
 }
 
@@ -32,7 +32,7 @@ inline uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value)
 		bit_position = (1 << length) - 1 + bit_value;
 		bit_value >>= 1;
 	}
-	while(length-- >= 0 && GET_BIT_MSB(bit_vector, bit_position) == 0);
+	while(length-- >= 0 && GET_BIT_LSB(bit_vector, bit_position) == 0);
 
 	return _tbm_bitsum(bit_vector, bit_position);
 }
@@ -165,7 +165,7 @@ void lpm_init(_LPM_RULE default_rule, _LPM_RULE default_rule6)
 	_tbm_root->rule[0] = default_rule;
 	_tbm_root->external = 0;
 	_tbm_root->internal = 0;
-	SET_BIT_MSB(_tbm_root->internal, 0);
+	SET_BIT_LSB(_tbm_root->internal, 0);
 }
 
 void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
@@ -181,10 +181,10 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 	{
 		bit_value = GET_STRIDE_BITS(prefix, position - 1, STRIDE);
 
-		if(GET_BIT_MSB(node->external, bit_value) == 0)
+		if(GET_BIT_LSB(node->external, bit_value) == 0)
 		{
 			_tbm_extend(node, bit_value, true);
-			SET_BIT_MSB(node->external, bit_value);
+			SET_BIT_LSB(node->external, bit_value);
 		}
 
 		node = &(((_tbm_node *) node->child)[_tbm_bitsum(node->external, bit_value)]);
@@ -194,7 +194,7 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix, position - 1, stride_len));
 
 	_tbm_extend(node, index, false);
-	SET_BIT_MSB(node->internal, index);
+	SET_BIT_LSB(node->internal, index);
 	node->rule[_tbm_bitsum(node->internal, index)] = rule;
 }
 
@@ -213,7 +213,7 @@ void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 
 
 	_tbm_reduce(node, index, false);
-	CLEAR_BIT_MSB(node->internal, index);
+	CLEAR_BIT_LSB(node->internal, index);
 }
 
 void lpm_destroy()
@@ -254,7 +254,7 @@ uint32_t lpm_lookup(uint32_t key)
 		node = &(node->child[index]);
 	}
 	// longest_match_node is parent from current node (node contains child pointer from node operated in code above)
-	while(GET_BIT_MSB(parent->external, bits));
+	while(GET_BIT_LSB(parent->external, bits));
 
 	return longest_match_node->rule[longest_match_index];
 }
