@@ -14,8 +14,8 @@
 		mazat celou větev pokud je zkonstruována pouze pro jeden konkrétní prefix?
 **/
 
-#define _TBM_SIZE_INTERNAL (1 << (STRIDE + 1)) - 1
-#define _TBM_SIZE_EXTERNAL 1 << STRIDE
+#define _TBM_SIZE_INTERNAL ((1 << (STRIDE + 1)) - 1) / 32 + 1
+#define _TBM_SIZE_EXTERNAL (1 << STRIDE) / 32 + 1
 #define _TBM_ALL 33
 
 #define GET_STRIDE_BITS(key, position, length) ((key) >> (sizeof(key) * 8 - (position)*STRIDE - (length)) & ~(~0 << (length)))
@@ -24,9 +24,9 @@
 typedef struct _tbm_node_
 {
 	// * = MSB
-	uint32_t internal;
+	uint32_t internal[_TBM_SIZE_INTERNAL];
 	// 0000 = MSB
-	uint32_t external;
+	uint32_t external[_TBM_SIZE_EXTERNAL];
 
 	_LPM_RULE * rule;
 	struct _tbm_node_ * child;
@@ -35,8 +35,8 @@ typedef struct _tbm_node_
 
 
 
-uint8_t _tbm_bitsum(uint32_t bitmap, uint8_t bit_position);
-uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value);
+uint8_t _tbm_bitsum(uint32_t * bitmap, uint8_t bit_position);
+uint8_t _tbm_internal_index(uint32_t * bit_vector, uint8_t bit_value);
 _tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, uint8_t * index);
 _tbm_node * _tbm_create();
 void _tbm_destroy(_tbm_node * node);

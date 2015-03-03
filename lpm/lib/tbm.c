@@ -8,11 +8,20 @@ _tbm_node * _tbm_root;
  * @param bit_position stop marker
  * @return number of ones in key
  */
-inline uint8_t _tbm_bitsum(uint32_t bitmap, uint8_t bit_position)
+inline uint8_t _tbm_bitsum(uint32_t * bitmap, uint8_t bit_position)
 {
+	uint8_t sum = 0;
+	uint32_t map;
+	for(int i = 0; i < bit_position / 32; --i)
+	{
+		map = GET_BIT_LSB(bitmap[i], (bit_position - i * 32) % 32);
+		sum += __builtin_popcount(map);
+	}
+
+	return sum;
 	// cut off the bits at bit position and after that
-	bitmap = GET_BITS_MSB(bitmap, bit_position - 1);
-	return __builtin_popcount(bitmap);
+	//bitmap = GET_BITS_MSB(bitmap, bit_position - 1);
+	//return __builtin_popcount(bitmap);
 }
 
 /**
@@ -21,7 +30,7 @@ inline uint8_t _tbm_bitsum(uint32_t bitmap, uint8_t bit_position)
  * @param bit_value part of ip address
  * @return index to node->rule
  */
-inline uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value)
+inline uint8_t _tbm_internal_index(uint32_t * bit_vector, uint8_t bit_value)
 {
 	int8_t length = STRIDE;
 	uint8_t bit_position;
@@ -32,7 +41,7 @@ inline uint8_t _tbm_internal_index(uint32_t bit_vector, uint8_t bit_value)
 		bit_position = (1 << length) - 1 + bit_value;
 		bit_value >>= 1;
 	}
-	while(length-- >= 0 && GET_BIT_MSB(bit_vector, bit_position) == 0);
+	while(length-- >= 0 && GET_BIT_LSB(bit_vector[bit_position / 32], bit_position % 32) == 0);
 
 	return _tbm_bitsum(bit_vector, bit_position);
 }
@@ -80,7 +89,7 @@ inline void _tbm_extend(_tbm_node * node, uint8_t bit_value, bool shift_child)
 {
 	uint8_t bitsum;
 	uint8_t index_start;
-	uint32_t bitmap = shift_child ? node->external : node->internal;
+	uint32_t * bitmap = shift_child ? node->external : node->internal;
 
 	bitsum = _tbm_bitsum(bitmap, _TBM_ALL);
 	index_start = _tbm_bitsum(bitmap, bit_value);
@@ -117,7 +126,7 @@ inline void _tbm_reduce(_tbm_node * node, uint8_t bit_value, bool shift_child)
 {
 	uint8_t bitsum;
 	uint8_t index_start;
-	uint32_t bitmap = shift_child ? node->external : node->internal;
+	uint32_t * bitmap = shift_child ? node->external : node->internal;
 
 	bitsum = _tbm_bitsum(bitmap, _TBM_ALL);
 	index_start = _tbm_bitsum(bitmap, bit_value);
@@ -165,7 +174,7 @@ void lpm_init(_LPM_RULE default_rule, _LPM_RULE default_rule6)
 	_tbm_root->rule[0] = default_rule;
 	_tbm_root->external = 0;
 	_tbm_root->internal = 0;
-	SET_BIT_MSB(_tbm_root->internal, 0);
+	SET_BIT_LSB(_tbm_root->internal[0], 0);
 }
 
 void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
@@ -181,10 +190,10 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 	{
 		bit_value = GET_STRIDE_BITS(prefix, position - 1, STRIDE);
 
-		if(GET_BIT_MSB(node->external, bit_value) == 0)
+		if(GET_BIT_LSB(node->external[bit_value / 32], bit_value % 32) == 0)
 		{
 			_tbm_extend(node, bit_value, true);
-			SET_BIT_MSB(node->external, bit_value);
+			SET_BIT_LSB(node->external[bit_value / 32], bit_value % 32);
 		}
 
 		node = &(((_tbm_node *) node->child)[_tbm_bitsum(node->external, bit_value)]);
@@ -194,7 +203,7 @@ void lpm_add(uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix, position - 1, stride_len));
 
 	_tbm_extend(node, index, false);
-	SET_BIT_MSB(node->internal, index);
+	SET_BIT_LSB(node->internal[index / 32], index % 32);
 	node->rule[_tbm_bitsum(node->internal, index)] = rule;
 }
 
@@ -213,7 +222,7 @@ void lpm_remove(uint32_t prefix, uint8_t prefix_len)
 
 
 	_tbm_reduce(node, index, false);
-	CLEAR_BIT_MSB(node->internal, index);
+	CLEAR_BIT_LSB(node->internal[index / 32], index % 32);
 }
 
 void lpm_destroy()
@@ -254,7 +263,7 @@ uint32_t lpm_lookup(uint32_t key)
 		node = &(node->child[index]);
 	}
 	// longest_match_node is parent from current node (node contains child pointer from node operated in code above)
-	while(GET_BIT_MSB(parent->external, bits));
+	while(GET_BIT_LSB(parent->external[bits / 32], bits % 32));
 
 	return longest_match_node->rule[longest_match_index];
 }
