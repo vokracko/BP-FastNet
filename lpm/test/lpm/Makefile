@@ -10,8 +10,7 @@ bspl: .FORCE
 	@./run.sh bspl || echo -e "Tests failed"
 
 tbm: .FORCE
-	@./run.sh tbm 1 2 3 4 || echo -e "Tests failed"
-	# TODO FIXME doplnit 5 6 7 8 až se rozšíří velikost typů TBM bitmap
+	@./run.sh tbm 1 2 3 4 5 6 7 8 || echo -e "Tests failed"
 
 cmd: cmd.c
 	make -C $(LIB) $(ALG) STRIDE=$(STRIDE)
