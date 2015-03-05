@@ -3,7 +3,6 @@
 
 int main(int argc, char * argv[])
 {
-	int res;
 	unsigned fail = 0;
 	unsigned rule;;
 	char string[1024] = {'\0'};
@@ -32,16 +31,16 @@ int main(int argc, char * argv[])
 			fail = 1;
 			matches = NULL;
 			match_count = match(string, &matches);
-			
-			for(int i = 0; i < match_count; ++i)
+
+			for(unsigned i = 0; i < match_count; ++i)
 			{
-				if(matches[i] == rule) 
+				if(matches[i] == rule)
 				{
 					fail = 0;
 					break;
 				}
 			}
-			
+
 			free(matches);
 
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");
