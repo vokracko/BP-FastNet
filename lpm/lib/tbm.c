@@ -23,12 +23,13 @@ inline uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
 
 		map = GET_BITS_LSB(bitmap[i], num_bits);
 		sum += __builtin_popcount(map);
+
 	}
 
 	return sum;
 }
 
-inline void _tbm_zeros(uint32_t * bitmap, uint8_t size)
+inline void _tbm_zeros(uint32_t * bitmap, uint16_t size)
 {
 	memset(bitmap, 0, sizeof(*bitmap) * size);
 }

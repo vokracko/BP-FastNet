@@ -36,7 +36,7 @@ typedef struct _tbm_node_
 
 
 
-void _tbm_zeros(uint32_t * bitmap, uint8_t size);
+void _tbm_zeros(uint32_t * bitmap, uint16_t size);
 uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position);
 uint16_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value);
 _tbm_node * _tbm_lookup(uint32_t prefix, uint8_t prefix_len, uint16_t * index);
