@@ -4,8 +4,7 @@ OUTPUT=""
 .PHONY: .FORCE
 
 all:
-	./plot.sh 4 > ipv4-plot.data
-	gnuplot plot.plt < ipv4-plot.data
+	./plot.sh "4" "bspl tbm" "1k 10k 100k" "1 2 3 4 5 6 7 8 9 10 11 12 13 14"
 
 bin: .FORCE bin.c
 	make -C ../lib $(ALG) STRIDE=$(STRIDE)
