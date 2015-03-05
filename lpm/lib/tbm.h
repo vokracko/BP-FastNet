@@ -16,8 +16,8 @@
 
 #define _TBM_SIZE_INTERNAL ((1 << (STRIDE + 1)) - 1) / 32 + 1
 #define _TBM_SIZE_EXTERNAL (1 << STRIDE) / 32 + (((1 << STRIDE) % 32) ? 1 : 0)
-#define _TBM_ALL_EXTERNAL (_TBM_SIZE_EXTERNAL << 5)
-#define _TBM_ALL_INTERNAL (_TBM_SIZE_INTERNAL << 5)
+#define _TBM_ALL_EXTERNAL ((_TBM_SIZE_EXTERNAL) << 5)
+#define _TBM_ALL_INTERNAL ((_TBM_SIZE_INTERNAL) << 5)
 
 #define GET_STRIDE_BITS(key, position, length) ((key) >> (sizeof(key) * 8 - (position)*STRIDE - (length)) & ~(~0 << (length)))
 #define INTERNAL_INDEX(length, value) ((1 << (length)) - 1 + (value))
