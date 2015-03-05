@@ -84,20 +84,20 @@ void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
 	size_t length;
 	char * buffer = malloc(endpos+1);
 
-	for(int j = 0; j < endpos; ++j)
+	for(unsigned j = 0; j < endpos; ++j)
 	{
 		fallback = _ac_root;
 
-		for(int i = 0; i < endpos; ++i)
+		for(unsigned i = 0; i < endpos; ++i)
 		{
-			printf("text: %s. endpos: %d, i: %d\n", text, endpos, i);
+			printf("text: %s. endpos: %zu, i: %d\n", text, endpos, i);
 			buffer[i] = text[endpos-i];
 		}
 
 		buffer[endpos] = '\0';
-		node = _ac_longest_match(buffer, &length);
+		fallback = _ac_longest_match(buffer, &length);
 
-		if(node != _ac_root)
+		if(fallback != _ac_root)
 		{
 			break;
 		}
@@ -109,7 +109,7 @@ void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
 
 void _ac_destroy(_ac_node * node)
 {
-	for(int i = 0; i < strlen(node->key); ++i)
+	for(unsigned i = 0; i < strlen(node->key); ++i)
 	{
 		_ac_destroy(node->next[i]);
 	}
@@ -154,16 +154,25 @@ uint8_t match(char * text, _AC_RULE ** matches)
 		// no way to continue current way, move to the fall node
 		if(pos == NULL)
 		{
+			// do not cycle on root node with the same character
+			if(node == _ac_root)
+			{
+				++text;
+			}
+
 			node = node->fallback;
 		}
 		// continue in current way
 		else
 		{
 			node = node->next[pos - node->key];
+			++text;
 		}
 
-		++text;
+
 	}
+
+	if(node->rule != 0) _ac_add_match(matches, &size, node->rule);
 
 	return size;
 }
@@ -184,16 +193,21 @@ void add(char * text, _AC_RULE rule)
 	// todo vytvořit část konenčného automatu, který bude odpovídat tomuto textu
 	// doplnit fail cesty
 
-	for(int i = 0; i < length - longest_match_length; ++i)
+	for(unsigned i = 0; i < length - longest_match_length; ++i)
 	{
 		// TODO najít nejdelší shodu
 		new = _ac_create();
 		_ac_fallback(new, text, longest_match_length + i);
-		_ac_append(parent, new, text[longest_match_length + i]);
+		_ac_append(new, parent, text[longest_match_length + i]);
 		parent = new;
 	}
 
-	node->rule = rule;
+	/*
+	new = _ac_create();
+	_ac_fallback(new, text, strlen(text));
+	_ac_append(new, parent, text[strlen(text) - 1]);
+	*/
+	new->rule = rule;
 }
 
 /*
