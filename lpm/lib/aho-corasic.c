@@ -1,6 +1,6 @@
 #include "aho-corasic.h"
 
-_ac_node * _ac_root;
+_ac_node_root * _ac_root;
 
 
 /**
@@ -21,14 +21,18 @@ _ac_node * _ac_create()
 
 /**
  * @brief insert matched rule to matches
- * @param matches array of matches
  * @param size size of matches
  * @param matched_rule
  */
-void _ac_add_match(_AC_RULE ** matches, uint8_t * size, _AC_RULE matched_rule)
+void _ac_add_match(unsigned * size, _AC_RULE matched_rule)
 {
-	*matches = (_AC_RULE *) realloc(*matches, (*size + 1) * sizeof(_AC_RULE));
-	(*matches)[(*size)++] = matched_rule;
+	if(_ac_root->matches_size < *size + 1)
+	{
+		_ac_root->matches_size <<= 1;
+		_ac_root->matches = (_AC_RULE *) realloc(_ac_root->matches, _ac_root->matches_size * sizeof(_AC_RULE));
+	}
+
+	_ac_root->matches[(*size)++] = matched_rule;
 }
 
 /*
@@ -57,7 +61,7 @@ void _ac_append(_ac_node * node, _ac_node * parent, char character)
  */
 _ac_node * _ac_longest_match(char * text, size_t * length)
 {
-	_ac_node * node = _ac_root;
+	_ac_node * node = _ac_root->node;
 	char * pos;
 	*length = 0;
 
@@ -80,31 +84,35 @@ _ac_node * _ac_longest_match(char * text, size_t * length)
 void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
 {
 	// default fallback is root node
-	_ac_node * fallback	= _ac_root;
+	_ac_node * fallback	= _ac_root->node;
 	size_t length;
 	// TODO projit vsechny alokace a zjistit ktere muzu omezit
 	// TODO udelat root jineho typu co bude mit strukturu node jako prvni prvek a bude obsahovat vsechny tyhle buffery
-	char * buffer = malloc(endpos+1);
+
+	if(_ac_root->fallback_buffer_size < endpos + 1)
+	{
+		_ac_root->fallback_buffer_size <<= 1;
+		_ac_root->fallback_buffer = realloc(_ac_root->fallback_buffer, _ac_root->fallback_buffer_size);
+	}
 
 	for(unsigned j = 0; j < endpos; ++j)
 	{
-		fallback = _ac_root;
+		fallback = _ac_root->node;
 
 		for(unsigned i = 0; i < endpos; ++i)
 		{
-			buffer[i] = text[endpos-i];
+			_ac_root->fallback_buffer[i] = text[endpos-i];
 		}
 
-		buffer[endpos] = '\0';
-		fallback = _ac_longest_match(buffer, &length);
+		_ac_root->fallback_buffer[endpos] = '\0';
+		fallback = _ac_longest_match(_ac_root->fallback_buffer, &length);
 
-		if(fallback != _ac_root)
+		if(fallback != _ac_root->node)
 		{
 			break;
 		}
 	}
 
-	free(buffer);
 	node->fallback = fallback;
 }
 
@@ -125,8 +133,13 @@ void _ac_destroy(_ac_node * node)
  */
 void init()
 {
-	_ac_root = _ac_create();
-	_ac_root->fallback = _ac_root;
+	_ac_root = malloc(sizeof(_ac_node_root));
+	_ac_root->node = _ac_create();
+	_ac_root->node->fallback = _ac_root->node;
+	_ac_root->fallback_buffer = malloc(10);
+	_ac_root->fallback_buffer_size = 10;
+	_ac_root->matches = malloc(sizeof(_AC_RULE) * 10);
+	_ac_root->matches_size = 10;
 }
 
 /*
@@ -134,13 +147,12 @@ void init()
  * @param text input string
  * @param matches[out] array of matches
  * @return array of matches
- * @todo udržovat matches a nerealokovat pořád
  */
-uint8_t match(char * text, _AC_RULE ** matches)
+unsigned match(char * text, _AC_RULE ** matches)
 {
 	char * pos;
-	uint8_t size = 0;
-	_ac_node * node = _ac_root;
+	unsigned size = 0;
+	_ac_node * node = _ac_root->node;
 
 	while(*text != '\0')
 	{
@@ -149,14 +161,14 @@ uint8_t match(char * text, _AC_RULE ** matches)
 		// rule matched, add it to result set
 		if(node->rule != 0)
 		{
-			_ac_add_match(matches, &size, node->rule);
+			_ac_add_match(&size, node->rule);
 		}
 
 		// no way to continue current way, move to the fall node
 		if(pos == NULL)
 		{
 			// do not cycle on root node with the same character
-			if(node == _ac_root)
+			if(node == _ac_root->node)
 			{
 				++text;
 			}
@@ -173,8 +185,9 @@ uint8_t match(char * text, _AC_RULE ** matches)
 
 	}
 
-	if(node->rule != 0) _ac_add_match(matches, &size, node->rule);
+	if(node->rule != 0) _ac_add_match(&size, node->rule);
 
+	*matches = _ac_root->matches;
 	return size;
 }
 
@@ -216,5 +229,8 @@ void add(char * text, _AC_RULE rule)
  */
 void destroy()
 {
-	_ac_destroy(_ac_root);
+	_ac_destroy(_ac_root->node);
+	free(_ac_root->fallback_buffer);
+	free(_ac_root->matches);
+	free(_ac_root);
 }

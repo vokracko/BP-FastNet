@@ -41,8 +41,6 @@ int main(int argc, char * argv[])
 				}
 			}
 
-			free(matches);
-
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");
 		}
 
