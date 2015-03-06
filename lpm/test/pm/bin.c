@@ -16,7 +16,7 @@ int main(int argc, char * argv[])
 
 	init();
 
-	while(fscanf(handle, "%20s %20s %u", cmd, string, &rule) == 3)
+	while(fscanf(handle, "%20s %1024s %u", cmd, string, &rule) == 3)
 	{
 		if(strcmp(cmd, "add") == 0)
 		{
