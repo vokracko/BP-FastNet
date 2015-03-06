@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define _AC_RULE uint8_t
+#define _AC_RULE uint32_t
 
 typedef struct _ac_node_
 {

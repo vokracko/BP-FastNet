@@ -25,9 +25,9 @@ _ac_node * _ac_create()
  * @param size size of matches
  * @param matched_rule
  */
-void _ac_add_match(uint8_t ** matches, uint8_t * size, _AC_RULE matched_rule)
+void _ac_add_match(_AC_RULE ** matches, uint8_t * size, _AC_RULE matched_rule)
 {
-	*matches = (_AC_RULE *) realloc(*matches, *size + 1);
+	*matches = (_AC_RULE *) realloc(*matches, (*size + 1) * sizeof(_AC_RULE));
 	(*matches)[(*size)++] = matched_rule;
 }
 
@@ -82,6 +82,8 @@ void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
 	// default fallback is root node
 	_ac_node * fallback	= _ac_root;
 	size_t length;
+	// TODO projit vsechny alokace a zjistit ktere muzu omezit
+	// TODO udelat root jineho typu co bude mit strukturu node jako prvni prvek a bude obsahovat vsechny tyhle buffery
 	char * buffer = malloc(endpos+1);
 
 	for(unsigned j = 0; j < endpos; ++j)
@@ -90,7 +92,6 @@ void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
 
 		for(unsigned i = 0; i < endpos; ++i)
 		{
-			printf("text: %s. endpos: %zu, i: %d\n", text, endpos, i);
 			buffer[i] = text[endpos-i];
 		}
 
