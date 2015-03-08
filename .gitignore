@@ -13,6 +13,7 @@
 *.png
 .fuse*
 *.zip
+.sublime*
 
 bspl
 aho-corasic
