@@ -86,8 +86,6 @@ void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
 	// default fallback is root node
 	_ac_node * fallback	= _ac_root->node;
 	size_t length;
-	// TODO projit vsechny alokace a zjistit ktere muzu omezit
-	// TODO udelat root jineho typu co bude mit strukturu node jako prvni prvek a bude obsahovat vsechny tyhle buffery
 
 	if(_ac_root->fallback_buffer_size < endpos + 1)
 	{
@@ -204,12 +202,9 @@ void add(char * text, _AC_RULE rule)
 	_ac_node * node = _ac_longest_match(text, &longest_match_length);
 	_ac_node * parent = node;
 	_ac_node * new = NULL;
-	// todo vytvořit část konenčného automatu, který bude odpovídat tomuto textu
-	// doplnit fail cesty
 
 	for(unsigned i = 0; i < length - longest_match_length; ++i)
 	{
-		// TODO najít nejdelší shodu
 		new = _ac_create();
 		_ac_fallback(new, text, longest_match_length + i);
 		_ac_append(new, parent, text[longest_match_length + i]);
