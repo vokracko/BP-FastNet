@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-unsigned ipv6;
+unsigned ipv;
 _LPM_RULE default_rule;
 
 typedef struct _list
@@ -112,20 +112,27 @@ double lookup(lpm_root * root, char * file)
 
 int main(int argc, char * argv[])
 {
+	char input_file[100];
+	char lookup_file[100];
+
 	lpm_root * root = NULL;
 
-	if(argc != 5)
+	if(argc != 4)
 	{
-		puts("./bench -v4/6 default_rule source_file lookup_file");
+		puts("./bench -v4/6 default_rule input_size");
 		return 1;
 	}
 
+	ipv = strcmp("-v6", argv[1]) == 0 ? 6 : 4;
 
-	ipv6 = strcmp("-v6", argv[1]);
+	sprintf(input_file, "./input/IPv%d/%s", ipv, argv[3]);
+	sprintf(lookup_file, "./input/IPv%d/lookup", ipv);
+
+
 	default_rule = atoi(argv[2]);
 	root = lpm_init(default_rule);
-	fillTable(root, argv[3]);
-	printf("%lf\n", lookup(root, argv[4]));
+	fillTable(root, input_file);
+	printf("%lf\n", lookup(root, lookup_file));
 
 	lpm_destroy(root);
 }

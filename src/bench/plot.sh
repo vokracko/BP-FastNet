@@ -21,13 +21,13 @@ do
 	do
 
 		make bin ALG=$alg STRIDE=$stride > /dev/null 2>&1
-		dat_file="ipv$IPv-$alg-$stride.dat"
+		dat_file="./output/IPv$IPv/$alg-$stride.dat"
 		printf "Algorithm\t$alg-$stride\n" > $dat_file
 
 		for size in $SIZES
 		do
 			printf "benching STRIDE: $stride, SIZE: $size, ALGORITHM: $alg\n"
-			res=$(./$alg -v$IPv $DEFAULT_RULE ipv$IPv-$size ipv$IPv-lookup)
+			res=$(./$alg -v$IPv $DEFAULT_RULE $size)
 			printf "$size\t$res\n" >> $dat_file
 		done
 

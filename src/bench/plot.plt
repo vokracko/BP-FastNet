@@ -1,5 +1,5 @@
-filename_tbm(ipv, stride) = sprintf("ipv%d-tbm-%s.dat", ipv, stride)
-filename_bspl(ipv) = sprintf("ipv%d-bspl-1.dat", ipv)
+filename_tbm(ipv, stride) = sprintf("./output/IPv%d/tbm-%s.dat", ipv, stride)
+filename_bspl(ipv) = sprintf("./output/IPv%d/bspl-1.dat", ipv)
 filename_output(ipv) = sprintf("ipv%d-bench.pdf", ipv)
 
 set terminal pdf enhanced
