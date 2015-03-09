@@ -14,16 +14,11 @@ inline uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
 	uint32_t map;
 	uint8_t num_bits;
 
-	static unsigned cnt = 0;
-	++cnt;
-
 	for(int i = 0; i * 32 < bit_position; ++i)
 	{
-		printf("CNT = %d =============================\n", cnt);
 		num_bits = 32;
 		// cut off the bits at bit position and after that
 		if((i + 1) * 32 > bit_position) num_bits = (bit_position - i*32);
-		printf("bitmap %d\n bit_position %d\n num_bits %d\ni %d\n", bitmap, bit_position, num_bits, i);
 		map = GET_BITS_LSB(bitmap[i], num_bits);
 		sum += __builtin_popcount(map);
 
@@ -43,7 +38,7 @@ inline void _tbm_zeros(uint32_t * bitmap, uint16_t size)
  * @param bit_value part of ip address
  * @return index to node->rule
  */
-inline uint16_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
+inline int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
 {
 	int8_t length = STRIDE;
 	uint16_t bit_position;
@@ -55,6 +50,12 @@ inline uint16_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
 		bit_value >>= 1;
 	}
 	while(length-- >= 0 && GET_BIT_LSB(bit_vector[bit_position / 32], bit_position % 32) == 0);
+
+	if(length < 0 && GET_BIT_LSB(bit_vector[0], 0) == 0)
+	{
+		// no matching shorter prefix found, do not return 0 from bitsum
+		return -1;
+	}
 
 	return _tbm_bitsum(bit_vector, bit_position);
 }
@@ -276,21 +277,20 @@ uint32_t lpm_lookup(lpm_root * root, uint32_t key)
 	uint16_t bits;
 	uint16_t index;
 	uint16_t longest_match_index = 0;
-
+	int32_t tmp_index; // internal index can be -1 if not found
 
 	// while there is longer match
 	do
 	{
 		bits = GET_STRIDE_BITS(key, position++, STRIDE);
 
-		if(node->rule != NULL)
+		if(node->rule != NULL && (tmp_index = _tbm_internal_index(node->internal, bits)) != -1)
 		{
-			longest_match_index = _tbm_internal_index(node->internal, bits);
+			longest_match_index = tmp_index;
 			longest_match_node = node;
 		}
 
 		if(node->child == NULL) break;
-
 		// index for child pointer is bitsum from <0, (int) bits)
 		index = _tbm_bitsum(node->external, bits);
 

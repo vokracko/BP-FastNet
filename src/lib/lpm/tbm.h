@@ -22,7 +22,7 @@
 
 void _tbm_zeros(uint32_t * bitmap, uint16_t size);
 uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position);
-uint16_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value);
+int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value);
 _tbm_node * _tbm_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, uint16_t * index);
 _tbm_node * _tbm_create();
 void _tbm_destroy(_tbm_node * node);
