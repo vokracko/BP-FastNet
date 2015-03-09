@@ -1,4 +1,7 @@
-#include "../lib/lpm.h"
+#include "../lib/lpm/lpm.h"
+#include <string.h>
+#include <time.h>
+#include <stdlib.h>
 #include <stdio.h>
 
 unsigned ipv6;
@@ -35,7 +38,7 @@ uint32_t ipv6num(char * address)
 	return 0;
 }
 
-void fillTable(char * source)
+void fillTable(lpm_root * root, char * source)
 {
 	FILE * f = fopen(source, "r");
 	char destination[100];
@@ -46,6 +49,7 @@ void fillTable(char * source)
 	uint8_t rule_max = 1;
 	list * start = NULL;
 	list * item = NULL;
+
 
 	while(fscanf(f, "%100s %d %100s", destination, &prefix_len, next_hop) == 3)
 	{
@@ -67,7 +71,7 @@ void fillTable(char * source)
 			start = item;
 		}
 
-		lpm_add(ipv4num(destination), prefix_len, item->rule);
+		lpm_add(root, ipv4num(destination), prefix_len, item->rule);
 
 	}
 
@@ -81,7 +85,7 @@ void fillTable(char * source)
 	fclose(f);
 }
 
-double lookup(char * file)
+double lookup(lpm_root * root, char * file)
 {
 	char lookup_ip[100];
 	uint32_t lookup_ip4;
@@ -95,17 +99,20 @@ double lookup(char * file)
 
 		lookup_ip4 = ipv4num(lookup_ip);
 		time_start = clock();
-		lpm_lookup(lookup_ip4);
+		lpm_lookup(root, lookup_ip4);
 		time_end = clock();
 		time_sum += time_end - time_start;
 		time_runs++;
 	}
+
+	fclose(f);
 
 	return ((time_sum / (double) time_runs) * 1000) / CLOCKS_PER_SEC;
 }
 
 int main(int argc, char * argv[])
 {
+	lpm_root * root = NULL;
 
 	if(argc != 5)
 	{
@@ -114,11 +121,11 @@ int main(int argc, char * argv[])
 	}
 
 
-	lpm_init(0, 0);
 	ipv6 = strcmp("-v6", argv[1]);
 	default_rule = atoi(argv[2]);
-	fillTable(argv[3]);
-	printf("%lf\n", lookup(argv[4]));
+	root = lpm_init(default_rule);
+	fillTable(root, argv[3]);
+	printf("%lf\n", lookup(root, argv[4]));
 
-	lpm_destroy();
+	lpm_destroy(root);
 }

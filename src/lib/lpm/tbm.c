@@ -14,12 +14,16 @@ inline uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
 	uint32_t map;
 	uint8_t num_bits;
 
+	static unsigned cnt = 0;
+	++cnt;
+
 	for(int i = 0; i * 32 < bit_position; ++i)
 	{
+		printf("CNT = %d =============================\n", cnt);
 		num_bits = 32;
 		// cut off the bits at bit position and after that
 		if((i + 1) * 32 > bit_position) num_bits = (bit_position - i*32);
-
+		printf("bitmap %d\n bit_position %d\n num_bits %d\ni %d\n", bitmap, bit_position, num_bits, i);
 		map = GET_BITS_LSB(bitmap[i], num_bits);
 		sum += __builtin_popcount(map);
 
