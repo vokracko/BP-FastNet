@@ -15,6 +15,7 @@
 *.zip
 .sublime*
 
+types-precompiled.h
 bspl
 aho-corasic
 tbm
