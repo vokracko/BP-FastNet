@@ -1,24 +1,33 @@
 fail=0
 pass=0
 tmp=`mktemp`
+ALG=$2
 
-
-if [ $# -eq 1 ] && [ $1 = "bspl" ]; then
+if [ $1 = "lpm" ]; then
+	if [ $# -eq 2 ] && [ $2 = "bspl" ]; then
+		STRIDES=1
+	elif [ $2 != "bspl" ]; then
+		shift
+		shift
+		STRIDES=$@
+	fi
+else
 	STRIDES=1
-	ALG=$1
-elif [ $# -gt 1 ] && [ $1 != "bspl" ]; then
-	ALG=$1
-	shift
-	STRIDES=$@
 fi
 
 for stride in $STRIDES
 do
 	ALG_UPPERCASE=`echo $ALG | tr [a-z] [A-Z]`
 	echo -e "\e[1m======================================================================="
-	echo -e "\e[1m $ALG_UPPERCASE, stride = $stride"
+
+	if [ $ALG = "tbm" ]; then
+		echo -e "\e[1m $ALG_UPPERCASE, stride = $stride"
+	else
+		echo -e "\e[1m $ALG_UPPERCASE"
+	fi
+
 	echo -e "\e[1m-----------------------------------------------------------------------"
-	make cmd ALG=$ALG STRIDE=$stride > $tmp 2>&1
+	make bin ALG=$ALG STRIDE=$stride > $tmp 2>&1
 
 	if [ $? -ne 0 ]; then
 		cat $tmp
