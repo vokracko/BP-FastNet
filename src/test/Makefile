@@ -1,7 +1,7 @@
 CC=gcc
 FLAGS=-std=c99 -Wall -Wextra -g3 -O0
 
-.PHONY: lpm
+.PHONY: lpm pm
 
 all: lpm pm
 

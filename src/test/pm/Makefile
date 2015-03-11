@@ -5,11 +5,11 @@ LIB=../../lib/pm
 all:
 	@make aho-corasic
 
-aho-corasic: .FORCE bin
+aho-corasic: .FORCE
 	@../run.sh pm aho-corasic
 
 bin: bin.c
-	make -C $(LIB) ALG=aho-corasic
+	make -C $(LIB) lib ALG=aho-corasic
 	$(CC) $(FLAGS) bin.c $(LIB)/pm.a -o aho-corasic -pthread
 
 clean:

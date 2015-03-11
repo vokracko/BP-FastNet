@@ -40,15 +40,23 @@ do
 		./$ALG tests/$testfile
 
 		if [ $? -eq 0 ]; then
-			valgrind ./$ALG tests/$testfile 2> $tmp > /dev/null
-			grep 'no leaks' $tmp > /dev/null && grep '0 errors' $tmp > /dev/null
+			which valgrind > /dev/null 2>&1
 
 			if [ $? -eq 0 ]; then
-				echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;32mPASS\033[0m tests/$testfile"
-				let "pass++"
+
+				valgrind ./$ALG tests/$testfile 2> $tmp > /dev/null
+				grep 'no leaks' $tmp > /dev/null && grep '0 errors' $tmp > /dev/null
+
+				if [ $? -eq 0 ]; then
+					echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;32mPASS\033[0m tests/$testfile"
+					let "pass++"
+				else
+					echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;31mFAIL\033[0m tests/$testfile"
+					let "fail++"
+				fi
 			else
-				echo -e " \033[1;32mPASS\033[0m, valgrind: \033[1;31mFAIL\033[0m tests/$testfile"
-				let "fail++"
+				echo -e " \033[1;32mPASS\033[0m tests/$testfile"
+				let "pass++"
 			fi
 		else
 			echo -e " \033[1;31mFAIL\033[0m tests/$testfile"
