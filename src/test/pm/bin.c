@@ -1,4 +1,4 @@
-#include "../../lib/aho-corasic.h"
+#include "../../lib/pm/aho-corasic.h"
 
 
 int main(int argc, char * argv[])

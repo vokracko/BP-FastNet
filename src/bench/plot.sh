@@ -26,7 +26,7 @@ do
 
 		for size in $SIZES
 		do
-			printf "benching STRIDE: $stride, SIZE: $size, ALGORITHM: $alg\n"
+			printf "benching ALGORITHM: $alg, STRIDE: $stride, SIZE: $size\n"
 			res=$(./$alg -v$IPv $DEFAULT_RULE $size)
 			printf "$size\t$res\n" >> $dat_file
 		done
