@@ -18,13 +18,14 @@ typedef struct _ac_node_
 typedef struct
 {
 	_ac_node * node;
+	// text for which fallback is searched
 	char * fallback_buffer;
 	unsigned fallback_buffer_size;
 	_AC_RULE * matches;
 	unsigned matches_size;
-} _ac_node_root;
+} pm_root;
 
-void init();
-unsigned match(char * text, _AC_RULE ** matches);
-void add(char * text, _AC_RULE rule);
-void destroy();
+pm_root * init();
+unsigned match(pm_root * root, char * text, _AC_RULE ** matches);
+void add(pm_root * root, char * text, _AC_RULE rule);
+void destroy(pm_root * root);

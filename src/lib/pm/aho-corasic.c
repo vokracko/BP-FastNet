@@ -1,8 +1,5 @@
 #include "aho-corasic.h"
 
-_ac_node_root * _ac_root;
-
-
 /**
  * @brief Construct node
  * @return pointer to node
@@ -21,18 +18,19 @@ _ac_node * _ac_create()
 
 /**
  * @brief insert matched rule to matches
+ * @param root
  * @param size size of matches
  * @param matched_rule
  */
-void _ac_add_match(unsigned * size, _AC_RULE matched_rule)
+void _ac_add_match(pm_root * root, unsigned * size, _AC_RULE matched_rule)
 {
-	if(_ac_root->matches_size < *size + 1)
+	if(root->matches_size < *size + 1)
 	{
-		_ac_root->matches_size <<= 1;
-		_ac_root->matches = (_AC_RULE *) realloc(_ac_root->matches, _ac_root->matches_size * sizeof(_AC_RULE));
+		root->matches_size <<= 1;
+		root->matches = (_AC_RULE *) realloc(root->matches, root->matches_size * sizeof(_AC_RULE));
 	}
 
-	_ac_root->matches[(*size)++] = matched_rule;
+	root->matches[(*size)++] = matched_rule;
 }
 
 /*
@@ -55,13 +53,13 @@ void _ac_append(_ac_node * node, _ac_node * parent, char character)
 
 /*
  * @brief Go trought tree until there is a path to take
+ * @param node start point
  * @param text source text for which path is searched
  * @param length[out] length of matched path
  * @return last matched node
  */
-_ac_node * _ac_longest_match(char * text, size_t * length)
+_ac_node * _ac_longest_match(_ac_node * node, char * text, size_t * length)
 {
-	_ac_node * node = _ac_root->node;
 	char * pos;
 	*length = 0;
 
@@ -77,35 +75,36 @@ _ac_node * _ac_longest_match(char * text, size_t * length)
 
 /*
  * @brief Find fallback node with longest match
+ * @param root
  * @param node processed node
  * @param text text for which is fallback path searched
  * @param endpos end position in text where fallback lookup should stop
  */
-void _ac_fallback(_ac_node * node, char * text,  size_t endpos)
+void _ac_fallback(pm_root * root, _ac_node * node, char * text,  size_t endpos)
 {
 	// default fallback is root node
-	_ac_node * fallback	= _ac_root->node;
+	_ac_node * fallback	= root->node;
 	size_t length;
 
-	if(_ac_root->fallback_buffer_size < endpos + 1)
+	if(root->fallback_buffer_size < endpos + 1)
 	{
-		_ac_root->fallback_buffer_size <<= 1;
-		_ac_root->fallback_buffer = realloc(_ac_root->fallback_buffer, _ac_root->fallback_buffer_size);
+		root->fallback_buffer_size <<= 1;
+		root->fallback_buffer = realloc(root->fallback_buffer, root->fallback_buffer_size);
 	}
 
 	for(unsigned j = 0; j < endpos; ++j)
 	{
-		fallback = _ac_root->node;
+		fallback = root->node;
 
 		for(unsigned i = 0; i < endpos; ++i)
 		{
-			_ac_root->fallback_buffer[i] = text[endpos-i];
+			root->fallback_buffer[i] = text[endpos-i];
 		}
 
-		_ac_root->fallback_buffer[endpos] = '\0';
-		fallback = _ac_longest_match(_ac_root->fallback_buffer, &length);
+		root->fallback_buffer[endpos] = '\0';
+		fallback = _ac_longest_match(root->node, root->fallback_buffer, &length);
 
-		if(fallback != _ac_root->node)
+		if(fallback != root->node)
 		{
 			break;
 		}
@@ -128,29 +127,35 @@ void _ac_destroy(_ac_node * node)
 
 /*
  * @brief Init data structures
+ * @return root
  */
-void init()
+pm_root * init()
 {
-	_ac_root = malloc(sizeof(_ac_node_root));
-	_ac_root->node = _ac_create();
-	_ac_root->node->fallback = _ac_root->node;
-	_ac_root->fallback_buffer = malloc(10);
-	_ac_root->fallback_buffer_size = 10;
-	_ac_root->matches = malloc(sizeof(_AC_RULE) * 10);
-	_ac_root->matches_size = 10;
+	pm_root * root;
+
+	root = malloc(sizeof(pm_root));
+	root->node = _ac_create();
+	root->node->fallback = root->node;
+	root->fallback_buffer = malloc(10);
+	root->fallback_buffer_size = 10;
+	root->matches = malloc(sizeof(_AC_RULE) * 10);
+	root->matches_size = 10;
+
+	return root;
 }
 
 /*
  * @brief Go trought text and save matched patterns
+ * @param root
  * @param text input string
  * @param matches[out] array of matches
  * @return array of matches
  */
-unsigned match(char * text, _AC_RULE ** matches)
+unsigned match(pm_root * root, char * text, _AC_RULE ** matches)
 {
 	char * pos;
 	unsigned size = 0;
-	_ac_node * node = _ac_root->node;
+	_ac_node * node = root->node;
 
 	while(*text != '\0')
 	{
@@ -159,14 +164,14 @@ unsigned match(char * text, _AC_RULE ** matches)
 		// rule matched, add it to result set
 		if(node->rule != 0)
 		{
-			_ac_add_match(&size, node->rule);
+			_ac_add_match(root, &size, node->rule);
 		}
 
 		// no way to continue current way, move to the fall node
 		if(pos == NULL)
 		{
 			// do not cycle on root node with the same character
-			if(node == _ac_root->node)
+			if(node == root->node)
 			{
 				++text;
 			}
@@ -183,30 +188,31 @@ unsigned match(char * text, _AC_RULE ** matches)
 
 	}
 
-	if(node->rule != 0) _ac_add_match(&size, node->rule);
+	if(node->rule != 0) _ac_add_match(root, &size, node->rule);
 
-	*matches = _ac_root->matches;
+	*matches = root->matches;
 	return size;
 }
 
 // TODO možná si budu držet rule interně a uživatel ho nebude zadávat
 /*
  * @brief Add pattern to matching structure
+ * @param root
  * @param text pattern
  * @param rule number of rule, this will be returned by match in results array
  */
-void add(char * text, _AC_RULE rule)
+void add(pm_root * root, char * text, _AC_RULE rule)
 {
 	size_t longest_match_length;
 	size_t length = strlen(text);
-	_ac_node * node = _ac_longest_match(text, &longest_match_length);
+	_ac_node * node = _ac_longest_match(root->node, text, &longest_match_length);
 	_ac_node * parent = node;
 	_ac_node * new = NULL;
 
 	for(unsigned i = 0; i < length - longest_match_length; ++i)
 	{
 		new = _ac_create();
-		_ac_fallback(new, text, longest_match_length + i);
+		_ac_fallback(root, new, text, longest_match_length + i);
 		_ac_append(new, parent, text[longest_match_length + i]);
 		parent = new;
 	}
@@ -221,11 +227,12 @@ void add(char * text, _AC_RULE rule)
 
 /*
  * @brief remove datastructures from memory
+ * @param root
  */
-void destroy()
+void destroy(pm_root * root)
 {
-	_ac_destroy(_ac_root->node);
-	free(_ac_root->fallback_buffer);
-	free(_ac_root->matches);
-	free(_ac_root);
+	_ac_destroy(root->node);
+	free(root->fallback_buffer);
+	free(root->matches);
+	free(root);
 }
