@@ -1,18 +1,101 @@
 #include "aho-corasic.h"
 
+int _ac_goto(_ac_state * state, unsigned char character)
+{
+	char * pos = strchr(state->key, character);
 
-// {
+	if(!pos) return FAIL;
 
-// 	for(unsigned i = 0; i < strlen(node->key); ++i)
-// 	{
-// 		node->next[i]->fallback = prev->fallback[]
+	return pos - state->key;
+}
 
-// 		if(node->key != NULL)
-// 		{
-// 			// recurse
-// 		}
-// 	}
-// }
+bool _ac_queue_empty(pm_root * root)
+{
+	return root->queue->head == NULL;
+}
+
+void _ac_queue_insert(pm_root * root, _ac_state * state)
+{
+	_ac_queue_item * item = malloc(sizeof(_ac_queue_item));
+
+	item->state = state;
+	item->next = NULL;
+
+	if(_ac_queue_empty(root))
+	{
+		root->queue->head = root->queue->tail = item;
+	}
+	else
+	{
+		root->queue->tail->next = item;
+		root->queue->tail = item;
+	}
+}
+
+_ac_state * _ac_queue_front(pm_root * root)
+{
+	_ac_queue_item * item = root->queue->head;
+	_ac_state * state = item->state;
+
+	root->queue->head = item->next;
+
+	free(item);
+
+	return state;
+}
+
+void _ac_append_rule(_ac_state * state, _AC_RULE rule)
+{
+	++state->rule_size;
+	state->rule = realloc(state->rule, state->rule_size * sizeof(_AC_RULE));
+	state->rule[state->rule_size - 1] = rule;
+}
+
+
+void _ac_construct_failure(pm_root * root)
+{
+	_ac_state * state = root->state;
+	_ac_state * s, * r;
+	int goto_pos;
+
+	for(unsigned i = 0; i < strlen(state->key); ++i)
+	{
+		// depth 1, failure for every state at this depth is root state
+		state->next[i]->failure = root->state;
+
+		if(state->next[i] == root->state) continue;
+		// proceed next
+		_ac_queue_insert(root, state->next[i]);
+	}
+
+	while(!_ac_queue_empty(root))
+	{
+		r = _ac_queue_front(root);
+
+		unsigned length = strlen(r->key);
+
+		for(unsigned i = 0; i < length; ++i)
+		{
+			s = r->next[i];
+
+			_ac_queue_insert(root, s);
+
+			state = r->failure;
+
+			while((goto_pos = _ac_goto(state, r->key[i])) == FAIL)
+			{
+				state = state->failure;
+			}
+			s->failure = state->next[goto_pos];
+
+			for(unsigned j = 0; j < s->failure->rule_size; ++j)
+			{
+				_ac_append_rule(s, s->failure->rule[j]);
+			}
+
+		}
+	}
+}
 
 
 
@@ -20,16 +103,17 @@
  * @brief Construct node
  * @return pointer to node
  */
-_ac_node * _ac_create()
+_ac_state * _ac_create()
 {
-	_ac_node * node = (_ac_node *) malloc(sizeof(_ac_node));
-	node->rule = 0;
-	node->key = malloc(sizeof(char));
-	node->key[0] = '\0';
-	node->next = NULL;
-	node->fallback = NULL;
+	_ac_state * state = (_ac_state *) malloc(sizeof(_ac_state));
+	state->rule = NULL;
+	state->rule_size = 0;
+	state->key = malloc(sizeof(char));
+	state->key[0] = '\0';
+	state->next = NULL;
+	state->failure = NULL;
 
-	return node;
+	return state;
 }
 
 /**
@@ -55,16 +139,21 @@ void _ac_add_match(pm_root * root, unsigned * size, _AC_RULE matched_rule)
  * @param parent
  * @param character
  */
-void _ac_append(_ac_node * node, _ac_node * parent, char character)
+void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char character)
 {
+	if(parent == root->state)
+	{
+		parent->next[character - 'a'] = state;
+		return;
+	}
 	// resize arrays
 	size_t size = strlen(parent->key) + 1;
 	parent->key = realloc(parent->key, size + 1); // for extra \0
-	parent->next = realloc(parent->next, size * sizeof(_ac_node *));
+	parent->next = realloc(parent->next, size * sizeof(_ac_state *));
 	// and save new values
 	parent->key[size - 1] = character;
 	parent->key[size] = '\0';
-	parent->next[size - 1] = node;
+	parent->next[size - 1] = state;
 }
 
 /*
@@ -74,71 +163,38 @@ void _ac_append(_ac_node * node, _ac_node * parent, char character)
  * @param length[out] length of matched path
  * @return last matched node
  */
-_ac_node * _ac_longest_match(_ac_node * node, char * text, size_t * length)
+_ac_state * _ac_longest_match(pm_root * root, char * text, size_t * length)
 {
-	char * pos;
+	int goto_pos;
+	_ac_state * state = root->state;
 	*length = 0;
 
-	while(*text != '\0' && (pos = strchr(node->key, *text)) != NULL)
+	while(*text != '\0' && (goto_pos = _ac_goto(state, *text)) != FAIL)
 	{
+		state = state->next[goto_pos];
+
+		if(state == root->state) break;
 		++text;
 		++*length;
-		node = node->next[pos - node->key];
+
 	}
 
-	return node;
+	return state;
 }
 
-/*
- * @brief Find fallback node with longest match
- * @param root
- * @param node processed node
- * @param text text for which is fallback path searched
- * @param endpos end position in text where fallback lookup should stop
- */
-void _ac_fallback(pm_root * root, _ac_node * node, char * text,  size_t endpos)
+
+
+void _ac_destroy(_ac_state * state)
 {
-	// default fallback is root node
-	_ac_node * fallback	= root->node;
-	size_t length;
-
-	if(root->fallback_buffer_size < endpos + 1)
+	for(unsigned i = 0; i < strlen(state->key); ++i)
 	{
-		root->fallback_buffer_size <<= 1;
-		root->fallback_buffer = realloc(root->fallback_buffer, root->fallback_buffer_size);
+		_ac_destroy(state->next[i]);
 	}
 
-	for(unsigned j = 0; j < endpos; ++j)
-	{
-		fallback = root->node;
-
-		for(unsigned i = 0; i < endpos; ++i)
-		{
-			root->fallback_buffer[i] = text[endpos-i];
-		}
-
-		root->fallback_buffer[endpos] = '\0';
-		fallback = _ac_longest_match(root->node, root->fallback_buffer, &length);
-
-		if(fallback != root->node)
-		{
-			break;
-		}
-	}
-
-	node->fallback = fallback;
-}
-
-void _ac_destroy(_ac_node * node)
-{
-	for(unsigned i = 0; i < strlen(node->key); ++i)
-	{
-		_ac_destroy(node->next[i]);
-	}
-
-	free(node->key);
-	free(node->next);
-	free(node);
+	free(state->key);
+	free(state->next);
+	free(state->rule);
+	free(state);
 }
 
 /*
@@ -150,23 +206,26 @@ pm_root * init()
 	pm_root * root;
 
 	root = malloc(sizeof(pm_root));
-	root->node = _ac_create();
-	root->node->fallback = root->node;
-	root->fallback_buffer = malloc(10);
-	root->fallback_buffer_size = 10;
+	root->state = _ac_create();
+	root->state->key = malloc('z' - 'a' + 2);
+	root->state->next = malloc(('z' - 'a' + 1) * sizeof(_ac_state *));
+
+	for(unsigned i = 'a'; i <= 'z'; ++i)
+	{
+		root->state->key[i - 'a'] = i;
+		root->state->next[i - 'a'] = root->state;
+	}
+
+	root->state->key['z' - 'a' + 1] = '\0';
+
 	root->matches = malloc(sizeof(_AC_RULE) * 10);
 	root->matches_size = 10;
 
+	root->queue = malloc(sizeof(_ac_queue));
+	root->queue->head = NULL;
+	root->queue->tail = NULL;
+
 	return root;
-}
-
-int _ac_goto(ac_state * state, unsigned char character)
-{
-	char * pos = strchr(state->key, character);
-
-	if(!pos) return NULL;
-
-	return pos - state->key;
 }
 
 /*
@@ -179,18 +238,24 @@ int _ac_goto(ac_state * state, unsigned char character)
 unsigned match(pm_root * root, char * text, _AC_RULE ** matches)
 {
 	_ac_state * state = root->state;
+	unsigned size = 0;
 	int goto_pos;
 
 	for(size_t pos = 0; pos < strlen(text); ++pos)
 	{
-		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = _ac_failure(state);
-		state = _ac_goto(state, text[pos]);
+		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
+		state = state->next[goto_pos];
 
 		// TODO printit výstup? zjistit od kořenka
-		if(_ac_output(state) != NULL) print("%d - %s", pos, _ac_output(state));
+		for(unsigned i = 0; i < state->rule_size; ++i)
+		{
+			_ac_add_match(root, &size, state->rule[i]);
+		}
 	}
 
-	return 0; //TODO co vracet?
+	*matches = root->matches;
+
+	return size;
 }
 
 // TODO možná si budu držet rule interně a uživatel ho nebude zadávat
@@ -204,24 +269,20 @@ void add(pm_root * root, char * text, _AC_RULE rule)
 {
 	size_t longest_match_length;
 	size_t length = strlen(text);
-	_ac_node * node = _ac_longest_match(root->node, text, &longest_match_length);
-	_ac_node * parent = node;
-	_ac_node * new = NULL;
+	_ac_state * state = _ac_longest_match(root, text, &longest_match_length);
+	_ac_state * parent = state;
+	_ac_state * new = NULL;
 
 	for(unsigned i = 0; i < length - longest_match_length; ++i)
 	{
 		new = _ac_create();
-		_ac_fallback(root, new, text, longest_match_length + i);
-		_ac_append(new, parent, text[longest_match_length + i]);
+		_ac_append(root, new, parent, text[longest_match_length + i]);
 		parent = new;
 	}
 
-	/*
-	new = _ac_create();
-	_ac_fallback(new, text, strlen(text));
-	_ac_append(new, parent, text[strlen(text) - 1]);
-	*/
-	new->rule = rule;
+	_ac_append_rule(new, rule);
+
+	_ac_construct_failure(root);
 }
 
 /*
@@ -230,8 +291,19 @@ void add(pm_root * root, char * text, _AC_RULE rule)
  */
 void destroy(pm_root * root)
 {
-	_ac_destroy(root->node);
-	free(root->fallback_buffer);
+
+	for(unsigned i = 0; i < strlen(root->state->key); ++i)
+	{
+		if(root->state->next[i] == root->state) continue;
+		_ac_destroy(root->state->next[i]);
+	}
+
+	free(root->state->key);
+	free(root->state->next);
+	free(root->state);
+
 	free(root->matches);
+	free(root->queue);
 	free(root);
+
 }
