@@ -1,5 +1,21 @@
 #include "aho-corasic.h"
 
+
+// {
+
+// 	for(unsigned i = 0; i < strlen(node->key); ++i)
+// 	{
+// 		node->next[i]->fallback = prev->fallback[]
+
+// 		if(node->key != NULL)
+// 		{
+// 			// recurse
+// 		}
+// 	}
+// }
+
+
+
 /**
  * @brief Construct node
  * @return pointer to node
@@ -144,6 +160,15 @@ pm_root * init()
 	return root;
 }
 
+int _ac_goto(ac_state * state, unsigned char character)
+{
+	char * pos = strchr(state->key, character);
+
+	if(!pos) return NULL;
+
+	return pos - state->key;
+}
+
 /*
  * @brief Go trought text and save matched patterns
  * @param root
@@ -153,45 +178,19 @@ pm_root * init()
  */
 unsigned match(pm_root * root, char * text, _AC_RULE ** matches)
 {
-	char * pos;
-	unsigned size = 0;
-	_ac_node * node = root->node;
+	_ac_state * state = root->state;
+	int goto_pos;
 
-	while(*text != '\0')
+	for(size_t pos = 0; pos < strlen(text); ++pos)
 	{
-		pos = strchr(node->key, *text);
+		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = _ac_failure(state);
+		state = _ac_goto(state, text[pos]);
 
-		// rule matched, add it to result set
-		if(node->rule != 0)
-		{
-			_ac_add_match(root, &size, node->rule);
-		}
-
-		// no way to continue current way, move to the fall node
-		if(pos == NULL)
-		{
-			// do not cycle on root node with the same character
-			if(node == root->node)
-			{
-				++text;
-			}
-
-			node = node->fallback;
-		}
-		// continue in current way
-		else
-		{
-			node = node->next[pos - node->key];
-			++text;
-		}
-
-
+		// TODO printit výstup? zjistit od kořenka
+		if(_ac_output(state) != NULL) print("%d - %s", pos, _ac_output(state));
 	}
 
-	if(node->rule != 0) _ac_add_match(root, &size, node->rule);
-
-	*matches = root->matches;
-	return size;
+	return 0; //TODO co vracet?
 }
 
 // TODO možná si budu držet rule interně a uživatel ho nebude zadávat
