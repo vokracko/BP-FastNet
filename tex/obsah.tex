@@ -71,6 +71,16 @@ Skládá se pouze ze čtyř vrstev a ty jsou:
 \end{itemize}
 
 \section{Časově kritické operace}
+S neustálím zvyšováním požadavků na rychlost síťového připojení také rostou nároky na rychlost
+algoritmů, které na síťových zařízeních pracují. Při rychlostech, které jsou dnes reálné je problém se zpracováním
+síťových operací, které mají k dispozici pouze několik desítek procesorových instrukcí pro zpracování jednoho požadavku
+pokud bereme v úvahu veřejností používané procesory.
+
+Proto v posledních letech nabírá na obrátkách trend pro využítí ASIC čipů nebo programovatelných hradlových polí.
+Tyto prvky totiž umožňují rychlejší zpracování s řádově menšími požadavky.
+Tohoto rychlostního rozdílu je dosaženo právě díky specializaci čípů na provádění jedné specializované operace na což jsou uzpůsobeny
+narozdíl od obecných procesorů, které musejí zvládat mnohem větší repertoár operací.
+
 \subsection{Hledání nejdelšího prefixu}
 Hledání nejdelšího shodného prefixu se používá při směrování paketů.
 Pro docílení nejlepší efektivity při přeposílání paketů je nutné znát co nejpřesněji další místo, na které je paket třeba doručit.
