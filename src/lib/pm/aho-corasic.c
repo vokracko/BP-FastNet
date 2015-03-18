@@ -16,6 +16,7 @@ bool _ac_queue_empty(pm_root * root)
 
 void _ac_queue_insert(pm_root * root, _ac_state * state)
 {
+	// TODO nějaká fronta s obsazenými a volnými?? ať se pořád nealokuje
 	_ac_queue_item * item = malloc(sizeof(_ac_queue_item));
 
 	item->state = state;
@@ -46,9 +47,14 @@ _ac_state * _ac_queue_front(pm_root * root)
 
 void _ac_append_rule(_ac_state * state, _AC_RULE rule)
 {
-	++state->rule_size;
-	state->rule = realloc(state->rule, state->rule_size * sizeof(_AC_RULE));
-	state->rule[state->rule_size - 1] = rule;
+	for(unsigned i = 0; i < state->additional_size; ++i)
+	{
+		if(state->additional_rule[i] == rule) return;
+	}
+
+	++state->additional_size;
+	state->additional_rule = realloc(state->additional_rule, state->additional_size * sizeof(_AC_RULE));
+	state->additional_rule[state->additional_size - 1] = rule;
 }
 
 
@@ -58,13 +64,15 @@ void _ac_construct_failure(pm_root * root)
 	_ac_state * s, * r;
 	int goto_pos;
 
+	// start constructing, go throught every direct follower of root state = depth 1
 	for(unsigned i = 0; i < strlen(state->key); ++i)
 	{
 		// depth 1, failure for every state at this depth is root state
 		state->next[i]->failure = root->state;
 
+		// "every path in root state is defined" => skip those with no real follower
 		if(state->next[i] == root->state) continue;
-		// proceed next
+
 		_ac_queue_insert(root, state->next[i]);
 	}
 
@@ -74,6 +82,7 @@ void _ac_construct_failure(pm_root * root)
 
 		unsigned length = strlen(r->key);
 
+		// for every follower
 		for(unsigned i = 0; i < length; ++i)
 		{
 			s = r->next[i];
@@ -82,15 +91,18 @@ void _ac_construct_failure(pm_root * root)
 
 			state = r->failure;
 
+			// find failure path
 			while((goto_pos = _ac_goto(state, r->key[i])) == FAIL)
 			{
 				state = state->failure;
 			}
 			s->failure = state->next[goto_pos];
 
-			for(unsigned j = 0; j < s->failure->rule_size; ++j)
+			_ac_append_rule(s, s->failure->rule);
+			// copy all rules from failure state to this state
+			for(unsigned j = 0; j < s->failure->additional_size; ++j)
 			{
-				_ac_append_rule(s, s->failure->rule[j]);
+				_ac_append_rule(s, s->failure->additional_rule[j]);
 			}
 
 		}
@@ -106,8 +118,10 @@ void _ac_construct_failure(pm_root * root)
 _ac_state * _ac_create()
 {
 	_ac_state * state = (_ac_state *) malloc(sizeof(_ac_state));
-	state->rule = NULL;
-	state->rule_size = 0;
+	state->rule = 0;
+	state->additional_rule = NULL;
+	state->additional_size = 0;
+	//TODO nějak zrušit tenhle dočasný malloc
 	state->key = malloc(sizeof(char));
 	state->key[0] = '\0';
 	state->next = NULL;
@@ -182,7 +196,13 @@ _ac_state * _ac_longest_match(pm_root * root, char * text, size_t * length)
 	return state;
 }
 
-
+void _ac_free(_ac_state * state)
+{
+	free(state->key);
+	free(state->next);
+	free(state->additional_rule);
+	free(state);
+}
 
 void _ac_destroy(_ac_state * state)
 {
@@ -191,10 +211,7 @@ void _ac_destroy(_ac_state * state)
 		_ac_destroy(state->next[i]);
 	}
 
-	free(state->key);
-	free(state->next);
-	free(state->rule);
-	free(state);
+	_ac_free(state);
 }
 
 /*
@@ -247,9 +264,11 @@ unsigned match(pm_root * root, char * text, _AC_RULE ** matches)
 		state = state->next[goto_pos];
 
 		// TODO printit výstup? zjistit od kořenka
-		for(unsigned i = 0; i < state->rule_size; ++i)
+		_ac_add_match(root, &size, state->rule);
+
+		for(unsigned i = 0; i < state->additional_size; ++i)
 		{
-			_ac_add_match(root, &size, state->rule[i]);
+			_ac_add_match(root, &size, state->additional_rule[i]);
 		}
 	}
 
@@ -285,6 +304,60 @@ void add(pm_root * root, char * text, _AC_RULE rule)
 	_ac_construct_failure(root);
 }
 
+/**
+ * @brief Remove branch from prev
+ */
+void _ac_remove(_ac_state * prev, char character)
+{
+	_ac_state * state;
+	char * pos;
+	size_t key_length;
+
+	pos = strchr(prev->key, character);
+	key_length = strlen(prev->key);
+
+	for(unsigned i = pos - prev->key; i < key_length; ++i)
+	{
+		prev->key[i] = prev->key[i + 1];
+		prev->next[i] = prev->next[i + 1];
+	}
+
+	while(state->next != NULL)
+	{
+		prev = state;
+		state = state->next[0];
+		_ac_free(prev);
+	}
+
+	_ac_free(state);
+}
+
+void pm_remove(pm_root * root, char * text)
+{
+	_ac_state * state = root->state;
+	_ac_state * prev;
+
+	while(*text != '\0' && strlen(state->key) > 1)
+	{
+		prev = state;
+		state = state->next[_ac_goto(state, *text++)];
+	}
+
+	// keyword to be removed is prefix for longer keyword, delete just rule for this state
+	if(*text == '\0' && state->key != NULL)
+	{
+		state->rule = 0;
+	}
+	// this part of branch is only for this keyword and can be removed
+	else
+	{
+		// remove path from previous state to this branch
+		_ac_remove(prev, *(text - 1));
+	}
+
+	_ac_construct_failure(root);
+}
+
 /*
  * @brief remove datastructures from memory
  * @param root
@@ -298,9 +371,7 @@ void destroy(pm_root * root)
 		_ac_destroy(root->state->next[i]);
 	}
 
-	free(root->state->key);
-	free(root->state->next);
-	free(root->state);
+	_ac_free(root->state);
 
 	free(root->matches);
 	free(root->queue);

@@ -13,8 +13,9 @@ typedef struct _ac_state_
 	char * key;
 	struct _ac_state_ ** next;
 	struct _ac_state_ * failure;
-	_AC_RULE * rule;
-	_AC_RULE rule_size;
+	_AC_RULE rule;
+	_AC_RULE * additional_rule;
+	_AC_RULE additional_size;
 } _ac_state;
 
 typedef struct _ac_queue_item_
