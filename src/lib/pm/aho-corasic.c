@@ -223,8 +223,9 @@ pm_root * init()
 	pm_root * root;
 
 	root = malloc(sizeof(pm_root));
+
 	root->state = _ac_create();
-	root->state->key = malloc('z' - 'a' + 2);
+	root->state->key = realloc(root->state->key, 'z' - 'a' + 2); // + \0
 	root->state->next = malloc(('z' - 'a' + 1) * sizeof(_ac_state *));
 
 	for(unsigned i = 'a'; i <= 'z'; ++i)
@@ -355,6 +356,7 @@ void pm_remove(pm_root * root, char * text)
 		_ac_remove(prev, *(text - 1));
 	}
 
+	// TODO remove všechny zmínky o mazaném state->rule z additional
 	_ac_construct_failure(root);
 }
 
@@ -364,7 +366,6 @@ void pm_remove(pm_root * root, char * text)
  */
 void destroy(pm_root * root)
 {
-
 	for(unsigned i = 0; i < strlen(root->state->key); ++i)
 	{
 		if(root->state->next[i] == root->state) continue;
@@ -376,5 +377,4 @@ void destroy(pm_root * root)
 	free(root->matches);
 	free(root->queue);
 	free(root);
-
 }
