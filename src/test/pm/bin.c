@@ -11,16 +11,17 @@ int main(int argc, char * argv[])
 	unsigned match_count;
 	_AC_RULE * matches = NULL;
 	FILE * handle = fopen(argv[1], "r");
+	pm_root * root;
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
-	init();
+	root = init();
 
 	while(fscanf(handle, "%20s %1024s %u", cmd, string, &rule) == 3)
 	{
 		if(strcmp(cmd, "add") == 0)
 		{
-			add(string, rule);
+			add(root, string, rule);
 			fail = 0;
 
 			sprintf(line, "added  %s with rule  %d\n", string, rule);
@@ -30,7 +31,7 @@ int main(int argc, char * argv[])
 		{
 			fail = 1;
 			matches = NULL;
-			match_count = match(string, &matches);
+			match_count = match(root, string, &matches);
 
 			for(unsigned i = 0; i < match_count; ++i)
 			{
@@ -51,7 +52,7 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	destroy();
+	destroy(root);
 	fclose(handle);
 
 	return fail;
