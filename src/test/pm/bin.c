@@ -10,6 +10,7 @@ int main(int argc, char * argv[])
 	char line[2048] = {'\0'};
 	unsigned match_count;
 	_AC_RULE * matches = NULL;
+	pm_root * root;
 	FILE * handle = fopen(argv[1], "r");
 	pm_root * root;
 
@@ -38,7 +39,7 @@ int main(int argc, char * argv[])
 				if(matches[i] == rule)
 				{
 					fail = 0;
-					break;
+					//break;
 				}
 			}
 

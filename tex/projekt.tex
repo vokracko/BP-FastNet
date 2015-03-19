@@ -3,26 +3,26 @@
 % (c) 2008 Michal Bidlo
 % E-mail: bidlom AT fit vutbr cz
 %============================================================================
-% kodovaní: iso-8859-2 (zmena prikazem iconv, recode nebo cstocs)
+% kodovanÃ­: iso-8859-2 (zmena prikazem iconv, recode nebo cstocs)
 %----------------------------------------------------------------------------
-% zpracování: make, make pdf, make desky, make clean
-% pøipomínky posílejte na e-mail: bidlom AT fit.vutbr.cz
+% zpracovÃ¡nÃ­: make, make pdf, make desky, make clean
+% pÅ™ipomÃ­nky posÃ­lejte na e-mail: bidlom AT fit.vutbr.cz
 % vim: set syntax=tex encoding=latin2:
 %============================================================================
 \documentclass[cover]{fitthesis} % odevzdani do wisu - odkazy, na ktere se da klikat
 %\documentclass[cover,print]{fitthesis} % pro tisk - na odkazy se neda klikat
 %\documentclass[english,print]{fitthesis} % pro tisk - na odkazy se neda klikat
 %      \documentclass[english]{fitthesis}
-% * Je-li prace psana v anglickem jazyce, je zapotrebi u tridy pouzit 
+% * Je-li prace psana v anglickem jazyce, je zapotrebi u tridy pouzit
 %   parametr english nasledovne:
 %      \documentclass[english]{fitthesis}
-% * Neprejete-li si vysazet na prvni strane dokumentu desky, zruste 
+% * Neprejete-li si vysazet na prvni strane dokumentu desky, zruste
 %   parametr cover
 
 % zde zvolime kodovani, ve kterem je napsan text prace
 % "latin2" pro iso8859-2 nebo "cp1250" pro windows-1250, "utf8" pro "utf-8"
 %\usepackage{ucs}
-\usepackage[latin2]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage[T1, IL2]{fontenc}
 \usepackage{url}
 \DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
@@ -31,9 +31,9 @@
 
 
 % =======================================================================
-% balíèek "hyperref" vytváøí klikací odkazy v pdf, pokud tedy pou¾ijeme pdflatex
-% problém je, ¾e balíèek hyperref musí bıt uveden jako poslední, tak¾e nemù¾e
-% bıt v ¹ablonì
+% balÃ­Äek "hyperref" vytvÃ¡Å™Ã­ klikacÃ­ odkazy v pdf, pokud tedy pouÅ¾ijeme pdflatex
+% problÃ©m je, Å¾e balÃ­Äek hyperref musÃ­ bÃ½t uveden jako poslednÃ­, takÅ¾e nemÅ¯Å¾e
+% bÃ½t v Å¡ablonÄ›
 \ifWis
 \ifx\pdfoutput\undefined % nejedeme pod pdflatexem
 \else
@@ -43,7 +43,7 @@
   \definecolor{anchors}{rgb}{1,0,0}
   \def\AnchorColor{anchors}
   \def\LinkColor{links}
-  \def\pdfBorderAttrs{/Border [0 0 0] }  % bez okrajù kolem odkazù
+  \def\pdfBorderAttrs{/Border [0 0 0] }  % bez okrajÅ¯ kolem odkazÅ¯
   \pdfcompresslevel=9
 \fi
 \fi
@@ -52,53 +52,53 @@
 %---------------------------------------------------------------------------
 \projectinfo{
   %Prace
-  project=BP,            %typ prace BP/SP/DP/DR
-  year=2008,             %rok
+  project=BP,           %typ prace BP/DP
+  year=2015,             %rok
   date=\today,           %datum odevzdani
   %Nazev prace
-  title.cs={Název práce},  %nazev prace v cestine
-  title.en={Thesis title}, %nazev prace v anglictine
+  title.cs=Knihovna pro rychlÃ© zpracovÃ¡nÃ­ sÃ­Å¥ovÃ½ch dat,  %nazev prace v cestine
+  title.en=Library for Fast Network Traffic Processing, %nazev prace v anglictine
   %Autor
-  author={Jméno Pøíjmení},   %jmeno prijmeni autora
+  author=LukÃ¡Å¡ VokrÃ¡Äko,   %jmeno prijmeni autora
   %author.title.p=Bc., %titul pred jmenem (nepovinne)
   %author.title.a=PhD, %titul za jmenem (nepovinne)
   %Ustav
-  department=UPSY, % doplnte prislusnou zkratku: UPSY/UIFS/UITS/UPGM
+  department=UPSY, % doplnte spravnou zkratku ustavu: UPSY/UIFS/UITS/UPGM
   %Skolitel
-  supervisor= Jméno Pøíjmení, %jmeno prijmeni skolitele
+  supervisor=KoÅ™enek Jan, %jmeno prijmeni skolitele
   supervisor.title.p=Ing.,   %titul pred jmenem (nepovinne)
-  supervisor.title.a={Ph.D.},    %titul za jmenem (nepovinne)
-  %Klicova slova, abstrakty, prohlaseni a podekovani je mozne definovat 
+  supervisor.title.a=Ph.D.,    %titul za jmenem (nepovinne)
+  %Klicova slova, abstrakty, prohlaseni a podekovani je mozne definovat
   %bud pomoci nasledujicich parametru nebo pomoci vyhrazenych maker (viz dale)
   %===========================================================================
   %Klicova slova
-  keywords.cs={Klíèová slova v èeském jazyce.}, %klicova slova v ceskem jazyce
-  keywords.en={Klíèová slova v anglickém jazyce.}, %klicova slova v anglickem jazyce
+  keywords.cs={KlÃ­ÄovÃ¡ slova v ÄeskÃ©m jazyce.}, %klicova slova v ceskem jazyce
+  keywords.en={KlÃ­ÄovÃ¡ slova v anglickÃ©m jazyce.}, %klicova slova v anglickem jazyce
   %Abstract
-  abstract.cs={Vıtah (abstrakt) práce v èeském jazyce.}, % abstrakt v ceskem jazyce
-  abstract.en={Vıtah (abstrakt) práce v anglickém jazyce.}, % abstrakt v anglickem jazyce
+  abstract.cs={VÃ½tah (abstrakt) prÃ¡ce v ÄeskÃ©m jazyce.}, % abstrakt v ceskem jazyce
+  abstract.en={VÃ½tah (abstrakt) prÃ¡ce v anglickÃ©m jazyce.}, % abstrakt v anglickem jazyce
   %Prohlaseni
-  declaration={Prohla¹uji, ¾e jsem tuto bakaláøskou práci vypracoval samostatnì pod vedením pana ...},
+  declaration={ProhlaÅ¡uji, Å¾e jsem tuto bakalÃ¡Å™skou prÃ¡ci vypracoval samostatnÄ› pod vedenÃ­m pana ...},
   %Podekovani (nepovinne)
-  acknowledgment={Zde je mo¾né uvést podìkování vedoucímu práce a tìm, kteøí poskytli odbornou pomoc.} % nepovinne
+  acknowledgment={Zde je moÅ¾nÃ© uvÃ©st podÄ›kovÃ¡nÃ­ vedoucÃ­mu prÃ¡ce a tÄ›m, kteÅ™Ã­ poskytli odbornou pomoc.} % nepovinne
 }
 
 %Abstrakt (cesky, anglicky)
-%\abstract[cs]{Do tohoto odstavce bude zapsán vıtah (abstrakt) práce v èeském jazyce.}
-%\abstract[en]{Do tohoto odstavce bude zapsán vıtah (abstrakt) práce v anglickém jazyce.}
+%\abstract[cs]{Do tohoto odstavce bude zapsÃ¡n vÃ½tah (abstrakt) prÃ¡ce v ÄeskÃ©m jazyce.}
+%\abstract[en]{Do tohoto odstavce bude zapsÃ¡n vÃ½tah (abstrakt) prÃ¡ce v anglickÃ©m jazyce.}
 
 %Klicova slova (cesky, anglicky)
-%\keywords[cs]{Sem budou zapsána jednotlivá klíèová slova v èeském jazyce, oddìlená èárkami.}
-%\keywords[en]{Sem budou zapsána jednotlivá klíèová slova v anglickém jazyce, oddìlená èárkami.}
+%\keywords[cs]{Sem budou zapsÃ¡na jednotlivÃ¡ klÃ­ÄovÃ¡ slova v ÄeskÃ©m jazyce, oddÄ›lenÃ¡ ÄÃ¡rkami.}
+%\keywords[en]{Sem budou zapsÃ¡na jednotlivÃ¡ klÃ­ÄovÃ¡ slova v anglickÃ©m jazyce, oddÄ›lenÃ¡ ÄÃ¡rkami.}
 
 %Prohlaseni
-%\declaration{Prohla¹uji, ¾e jsem tuto bakaláøskou práci vypracoval samostatnì pod vedením pana X...
-%Dal¹í informace mi poskytli...
-%Uvedl jsem v¹echny literární prameny a publikace, ze kterıch jsem èerpal.}
+%\declaration{ProhlaÅ¡uji, Å¾e jsem tuto bakalÃ¡Å™skou prÃ¡ci vypracoval samostatnÄ› pod vedenÃ­m pana X...
+%DalÅ¡Ã­ informace mi poskytli...
+%Uvedl jsem vÅ¡echny literÃ¡rnÃ­ prameny a publikace, ze kterÃ½ch jsem Äerpal.}
 
 %Podekovani (nepovinne)
-%\acknowledgment{V této sekci je mo¾no uvést podìkování vedoucímu práce a tìm, kteøí poskytli odbornou pomoc
-%(externí zadavatel, konzultant, apod.).}
+%\acknowledgment{V tÃ©to sekci je moÅ¾no uvÃ©st podÄ›kovÃ¡nÃ­ vedoucÃ­mu prÃ¡ce a tÄ›m, kteÅ™Ã­ poskytli odbornou pomoc
+%(externÃ­ zadavatel, konzultant, apod.).}
 
 \begin{document}
   % Vysazeni titulnich stran
@@ -107,10 +107,10 @@
   % Obsah
   % ----------------------------------------------
   \tableofcontents
-  
+
   % Seznam obrazku a tabulek (pokud prace obsahuje velke mnozstvi obrazku, tak se to hodi)
   % \listoffigures
-  % \listoftables 
+  % \listoftables
 
   % Text prace
   % ----------------------------------------------
@@ -120,7 +120,7 @@
   % ----------------------------------------------
 \ifczech
   \bibliographystyle{czechiso}
-\else 
+\else
   \bibliographystyle{plain}
 %  \bibliographystyle{alpha}
 \fi
@@ -128,6 +128,6 @@
   \bibliography{literatura} % viz. literatura.bib
   \end{flushleft}
   \appendix
-  
+
   \input{prilohy} % viz. prilohy.tex
 \end{document}
