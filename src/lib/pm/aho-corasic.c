@@ -228,7 +228,7 @@ void _ac_free(_ac_state * state)
 /**
  * @brief Remove branch from prev
  */
-void _ac_remove(_ac_state * prev, char character, _AC_RULE * removed_rule)
+void _ac_remove(pm_root * root, _ac_state * prev, char character, _AC_RULE * removed_rule)
 {
 	_ac_state * state;
 	char * pos;
@@ -236,12 +236,21 @@ void _ac_remove(_ac_state * prev, char character, _AC_RULE * removed_rule)
 
 	pos = strchr(prev->key, character);
 	key_length = strlen(prev->key);
+	state = prev->next[pos - prev->key];
 
-	for(unsigned i = pos - prev->key; i < key_length; ++i)
+	if(prev == root->state)
 	{
-		prev->key[i] = prev->key[i + 1];
-		prev->next[i] = prev->next[i + 1];
+		prev->next[pos - prev->key] = root->state;
 	}
+	else
+	{
+		for(unsigned i = pos - prev->key; i < key_length; ++i)
+		{
+			prev->key[i] = prev->key[i + 1];
+			prev->next[i] = prev->next[i + 1];
+		}
+	}
+
 
 	while(state->next != NULL)
 	{
@@ -358,17 +367,24 @@ void add(pm_root * root, char * text, _AC_RULE rule)
 void pm_remove(pm_root * root, char * text)
 {
 	_ac_state * state = root->state;
-	_ac_state * prev;
+	_ac_state * saved_state = state;
+	char saved_character = *text;
 	_AC_RULE removed_rule = NONE;
 
-	while(*text != '\0' && strlen(state->key) > 1)
+
+	while(*text != '\0')
 	{
-		prev = state;
+		if(strlen(state->key) > 1)
+		{
+			saved_state = state;
+			saved_character = *text;
+		}
+
 		state = state->next[_ac_goto(state, *text++)];
 	}
 
 	// keyword to be removed is prefix for longer keyword, delete just rule for this state
-	if(*text == '\0' && state->key != NULL)
+	if(state->key != NULL)
 	{
 		removed_rule = state->rule;
 		state->rule = 0;
@@ -377,10 +393,9 @@ void pm_remove(pm_root * root, char * text)
 	else
 	{
 		// remove path from previous state to this branch
-		_ac_remove(prev, *(text - 1), &removed_rule);
+		_ac_remove(root, saved_state, saved_character, &removed_rule);
 	}
 
-	// TODO remove všechny zmínky o mazaném state->rule z additional
 	_ac_construct_failure(root, removed_rule);
 }
 

@@ -51,7 +51,7 @@ int main(int argc, char * argv[])
 		{
 			fail = 0;
 			pm_remove(root, string);
-			sprintf(line, "removed %s", string);
+			sprintf(line, "removed %s\n", string);
 		}
 
 		if(debug) printf("%s", line);

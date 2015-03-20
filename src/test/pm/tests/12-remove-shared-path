@@ -3,5 +3,7 @@ add fixa 2
 match fixafixu 1
 match fixafixu 2
 remove fixa 0
-match fixu 0
-match fixafixu 2
+match fixa 0
+match fixu 1
+match fixafixu 1
+match fixafix 0
