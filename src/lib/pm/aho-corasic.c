@@ -224,6 +224,7 @@ void _ac_free(_ac_state * state)
 	free(state);
 }
 
+// TODO pokud bude root tak pouze nastavit na root, neposouvat a nic nemazat
 /**
  * @brief Remove branch from prev
  */
