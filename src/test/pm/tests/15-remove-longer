@@ -1,0 +1,6 @@
+add bugfix 1
+add ugf 2
+match bugfix 1
+match bugfix 2
+remove bugfix 0
+match bugfix 2

@@ -43,6 +43,12 @@ int main(int argc, char * argv[])
 
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");
 		}
+		else if(strcmp(cmd, "remove") == 0)
+		{
+			fail = 0;
+			pm_remove(root, string);
+			sprintf(line, "removed %s", string);
+		}
 
 		if(debug) printf("%s", line);
 		if(fail)
