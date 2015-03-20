@@ -43,3 +43,4 @@ pm_root * init();
 unsigned match(pm_root * root, char * text, _AC_RULE ** matches);
 void add(pm_root * root, char * text, _AC_RULE rule);
 void destroy(pm_root * root);
+void pm_remove(pm_root * root, char * text);
