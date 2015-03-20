@@ -10,7 +10,6 @@ int main(int argc, char * argv[])
 	char line[2048] = {'\0'};
 	unsigned match_count;
 	_AC_RULE * matches = NULL;
-	pm_root * root;
 	FILE * handle = fopen(argv[1], "r");
 	pm_root * root;
 
@@ -42,6 +41,9 @@ int main(int argc, char * argv[])
 					//break;
 				}
 			}
+
+			// test where rule should not be found
+			if(rule == NONE) fail = 0;
 
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");
 		}

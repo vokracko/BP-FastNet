@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define FAIL -1
+#define NONE 0
 #define _AC_RULE uint32_t
 
 typedef struct _ac_state_

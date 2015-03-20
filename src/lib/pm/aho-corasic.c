@@ -1,5 +1,24 @@
 #include "aho-corasic.h"
 
+void _ac_remove_rule(_ac_state * state, _AC_RULE rule)
+{
+	for(unsigned i = 0; i < state->additional_size; ++i)
+	{
+		if(state->additional_rule[i] == rule)
+		{
+			for(unsigned j = i; j < state->additional_size - 1; ++j)
+			{
+				state->additional_rule[j] = state->additional_rule[j + 1];
+			}
+
+			--state->additional_size;
+			state->additional_rule = realloc(state->additional_rule, sizeof(_AC_RULE) * state->additional_size);
+
+			return;
+		}
+	}
+}
+
 int _ac_goto(_ac_state * state, unsigned char character)
 {
 	char * pos = strchr(state->key, character);
@@ -58,7 +77,7 @@ void _ac_append_rule(_ac_state * state, _AC_RULE rule)
 }
 
 
-void _ac_construct_failure(pm_root * root)
+void _ac_construct_failure(pm_root * root, _AC_RULE removed_rule)
 {
 	_ac_state * state = root->state;
 	_ac_state * s, * r;
@@ -98,6 +117,7 @@ void _ac_construct_failure(pm_root * root)
 			}
 			s->failure = state->next[goto_pos];
 
+			_ac_remove_rule(s, removed_rule);
 			_ac_append_rule(s, s->failure->rule);
 			// copy all rules from failure state to this state
 			for(unsigned j = 0; j < s->failure->additional_size; ++j)
@@ -118,7 +138,7 @@ void _ac_construct_failure(pm_root * root)
 _ac_state * _ac_create()
 {
 	_ac_state * state = (_ac_state *) malloc(sizeof(_ac_state));
-	state->rule = 0;
+	state->rule = NONE;
 	state->additional_rule = NULL;
 	state->additional_size = 0;
 	//TODO nějak zrušit tenhle dočasný malloc
@@ -202,6 +222,35 @@ void _ac_free(_ac_state * state)
 	free(state->next);
 	free(state->additional_rule);
 	free(state);
+}
+
+/**
+ * @brief Remove branch from prev
+ */
+void _ac_remove(_ac_state * prev, char character, _AC_RULE * removed_rule)
+{
+	_ac_state * state;
+	char * pos;
+	size_t key_length;
+
+	pos = strchr(prev->key, character);
+	key_length = strlen(prev->key);
+
+	for(unsigned i = pos - prev->key; i < key_length; ++i)
+	{
+		prev->key[i] = prev->key[i + 1];
+		prev->next[i] = prev->next[i + 1];
+	}
+
+	while(state->next != NULL)
+	{
+		prev = state;
+		state = state->next[0];
+		_ac_free(prev);
+	}
+
+	*removed_rule = state->rule;
+	_ac_free(state);
 }
 
 void _ac_destroy(_ac_state * state)
@@ -300,43 +349,16 @@ void add(pm_root * root, char * text, _AC_RULE rule)
 		parent = new;
 	}
 
-	_ac_append_rule(new, rule);
+	new->rule = rule;
 
-	_ac_construct_failure(root);
-}
-
-/**
- * @brief Remove branch from prev
- */
-void _ac_remove(_ac_state * prev, char character)
-{
-	_ac_state * state;
-	char * pos;
-	size_t key_length;
-
-	pos = strchr(prev->key, character);
-	key_length = strlen(prev->key);
-
-	for(unsigned i = pos - prev->key; i < key_length; ++i)
-	{
-		prev->key[i] = prev->key[i + 1];
-		prev->next[i] = prev->next[i + 1];
-	}
-
-	while(state->next != NULL)
-	{
-		prev = state;
-		state = state->next[0];
-		_ac_free(prev);
-	}
-
-	_ac_free(state);
+	_ac_construct_failure(root, NONE);
 }
 
 void pm_remove(pm_root * root, char * text)
 {
 	_ac_state * state = root->state;
 	_ac_state * prev;
+	_AC_RULE removed_rule = NONE;
 
 	while(*text != '\0' && strlen(state->key) > 1)
 	{
@@ -347,17 +369,18 @@ void pm_remove(pm_root * root, char * text)
 	// keyword to be removed is prefix for longer keyword, delete just rule for this state
 	if(*text == '\0' && state->key != NULL)
 	{
+		removed_rule = state->rule;
 		state->rule = 0;
 	}
 	// this part of branch is only for this keyword and can be removed
 	else
 	{
 		// remove path from previous state to this branch
-		_ac_remove(prev, *(text - 1));
+		_ac_remove(prev, *(text - 1), &removed_rule);
 	}
 
 	// TODO remove všechny zmínky o mazaném state->rule z additional
-	_ac_construct_failure(root);
+	_ac_construct_failure(root, removed_rule);
 }
 
 /*
