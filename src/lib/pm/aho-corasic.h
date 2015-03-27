@@ -14,6 +14,7 @@ typedef struct _ac_state_
 	char * key;
 	struct _ac_state_ ** next;
 	struct _ac_state_ * failure;
+	uint16_t path_count;
 	_AC_RULE rule;
 	_AC_RULE * additional_rule;
 	_AC_RULE additional_size;
@@ -39,8 +40,15 @@ typedef struct
 	unsigned matches_size;
 } pm_root;
 
+typedef struct
+{
+	char * text;
+	unsigned length;
+	_AC_RULE rule;
+} pm_pair;
+
 pm_root * init();
-unsigned match(pm_root * root, char * text, _AC_RULE ** matches);
-void add(pm_root * root, char * text, _AC_RULE rule);
+unsigned match(pm_root * root, char * text, unsigned length, _AC_RULE ** matches);
+void add(pm_root * root, pm_pair keywords[], unsigned size);
 void destroy(pm_root * root);
-void pm_remove(pm_root * root, char * text);
+void pm_remove(pm_root * root, char * text, unsigned length);

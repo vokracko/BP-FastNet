@@ -1,5 +1,6 @@
-add suffix 1
-add suffux 2
-match prefixsuffixop 1
-match prefixpostfixsuffux 2
+add suffix 6 1
+add suffux 6 2
+commit - 0 0
+match prefixsuffixop 14 1
+match prefixpostfixsuffux 19 2
 

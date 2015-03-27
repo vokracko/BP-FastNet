@@ -1,4 +1,5 @@
-add fix 1
-match sfsfixsad 1
-remove fix 0
-match sfsfixsad 0
+add fix 3 1
+commit - 0 0
+match sfsfixsad 9 1
+remove fix 3 0
+match sfsfixsad 9 0

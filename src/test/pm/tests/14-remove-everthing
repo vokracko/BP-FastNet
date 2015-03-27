@@ -1,5 +1,6 @@
-add bugfix 1
-add ugf 2
-remove ugf 0
-remove bugfix 0
-match bugfix 0
+add bugfix 6 1
+add ugf 3 2
+commit - 0 0
+remove ugf 3 0
+remove bugfix 6 0
+match bugfix 6 0

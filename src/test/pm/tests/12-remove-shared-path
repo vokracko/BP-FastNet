@@ -1,9 +1,10 @@
-add fixu 1
-add fixa 2
-match fixafixu 1
-match fixafixu 2
-remove fixa 0
-match fixa 0
-match fixu 1
-match fixafixu 1
-match fixafix 0
+add fixu 4 1
+add fixa 4 2
+commit - 0 0
+match fixafixu 8 1
+match fixafixu 8 2
+remove fixa 4 0
+match fixa 4 0
+match fixu 4 1
+match fixafixu 8 1
+match fixafix 7 0

@@ -1,7 +1,5 @@
 #include "tbm.h"
 
-// TODO problém buď v get_stride_bits nebo v bitsumu
-
 /**
  * @brief Count all ones up to given position
  * @param key
@@ -81,7 +79,7 @@ inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_
 	{
 		bit_value = GET_STRIDE_BITS(prefix, position - 1, STRIDE);
 
-		if(node->child == NULL); // TODO mazání prefixu jež neexistuje, jak se zachovat?
+		if(node->child == NULL) break;
 
 		node = &(node->child[_tbm_bitsum(node->external, bit_value)]);
 	}

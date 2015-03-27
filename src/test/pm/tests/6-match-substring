@@ -1,2 +1,3 @@
-add bugfix 1
-match nobugfixtofix 1
+add bugfix 6 1
+commit - 0 0
+match nobugfixtofix 13 1

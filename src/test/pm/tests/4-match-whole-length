@@ -1,2 +1,3 @@
-add qwertz 1
-match qwertz 1
+add qwertz 6 1
+commit - 0 0
+match qwertz 6 1

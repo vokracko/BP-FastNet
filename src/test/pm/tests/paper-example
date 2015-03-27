@@ -1,7 +1,8 @@
-add he 1
-add his 2
-add hers 3
-add she 4
-match ushers 1
-match ushers 3
-match ushers 4
+add he 2 1
+add his 3 2
+add hers 4 3
+add she 3 4
+commit - 0 0
+match ushers 6 1
+match ushers 6 3
+match ushers 6 4

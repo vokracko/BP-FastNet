@@ -19,11 +19,11 @@ void _ac_remove_rule(_ac_state * state, _AC_RULE rule)
 	}
 }
 
-int _ac_goto(_ac_state * state, unsigned char character)
+int _ac_goto(_ac_state * state, char character)
 {
-	char * pos = strchr(state->key, character);
+	char * pos = memchr(state->key, character, state->path_count);
 
-	if(!pos) return FAIL;
+	if(pos == NULL) return FAIL;
 
 	return pos - state->key;
 }
@@ -35,7 +35,6 @@ bool _ac_queue_empty(pm_root * root)
 
 void _ac_queue_insert(pm_root * root, _ac_state * state)
 {
-	// TODO nějaká fronta s obsazenými a volnými?? ať se pořád nealokuje
 	_ac_queue_item * item = malloc(sizeof(_ac_queue_item));
 
 	item->state = state;
@@ -84,7 +83,7 @@ void _ac_construct_failure(pm_root * root, _AC_RULE removed_rule)
 	int goto_pos;
 
 	// start constructing, go throught every direct follower of root state = depth 1
-	for(unsigned i = 0; i < strlen(state->key); ++i)
+	for(unsigned i = 0; i < state->path_count; ++i)
 	{
 		// depth 1, failure for every state at this depth is root state
 		state->next[i]->failure = root->state;
@@ -95,19 +94,18 @@ void _ac_construct_failure(pm_root * root, _AC_RULE removed_rule)
 		_ac_queue_insert(root, state->next[i]);
 	}
 
+
 	while(!_ac_queue_empty(root))
 	{
 		r = _ac_queue_front(root);
 
-		unsigned length = strlen(r->key);
+		unsigned length = r->path_count;
 
 		// for every follower
 		for(unsigned i = 0; i < length; ++i)
 		{
 			s = r->next[i];
-
 			_ac_queue_insert(root, s);
-
 			state = r->failure;
 
 			// find failure path
@@ -115,6 +113,7 @@ void _ac_construct_failure(pm_root * root, _AC_RULE removed_rule)
 			{
 				state = state->failure;
 			}
+
 			s->failure = state->next[goto_pos];
 
 			_ac_remove_rule(s, removed_rule);
@@ -142,8 +141,8 @@ _ac_state * _ac_create()
 	state->additional_rule = NULL;
 	state->additional_size = 0;
 	//TODO nějak zrušit tenhle dočasný malloc
-	state->key = malloc(sizeof(char));
-	state->key[0] = '\0';
+	state->key = NULL;
+	state->path_count = 0;
 	state->next = NULL;
 	state->failure = NULL;
 
@@ -177,17 +176,16 @@ void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char char
 {
 	if(parent == root->state)
 	{
-		parent->next[character - 'a'] = state;
+		parent->next[character] = state;
 		return;
 	}
 	// resize arrays
-	size_t size = strlen(parent->key) + 1;
-	parent->key = realloc(parent->key, size + 1); // for extra \0
-	parent->next = realloc(parent->next, size * sizeof(_ac_state *));
+	parent->path_count++;
+	parent->key = realloc(parent->key, parent->path_count);
+	parent->next = realloc(parent->next, parent->path_count * sizeof(_ac_state *));
 	// and save new values
-	parent->key[size - 1] = character;
-	parent->key[size] = '\0';
-	parent->next[size - 1] = state;
+	parent->key[parent->path_count - 1] = character;
+	parent->next[parent->path_count - 1] = state;
 }
 
 /*
@@ -197,18 +195,19 @@ void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char char
  * @param length[out] length of matched path
  * @return last matched node
  */
-_ac_state * _ac_longest_match(pm_root * root, char * text, size_t * length)
+_ac_state * _ac_longest_match(pm_root * root, char * text, unsigned size, size_t * length)
 {
 	int goto_pos;
 	_ac_state * state = root->state;
 	*length = 0;
+	unsigned i = 0;
 
-	while(*text != '\0' && (goto_pos = _ac_goto(state, *text)) != FAIL)
+	while(i < size && (goto_pos = _ac_goto(state, text[i])) != FAIL)
 	{
 		state = state->next[goto_pos];
 
 		if(state == root->state) break;
-		++text;
+		++i;
 		++*length;
 
 	}
@@ -224,7 +223,6 @@ void _ac_free(_ac_state * state)
 	free(state);
 }
 
-// TODO pokud bude root tak pouze nastavit na root, neposouvat a nic nemazat
 /**
  * @brief Remove branch from prev
  */
@@ -234,8 +232,9 @@ void _ac_remove(pm_root * root, _ac_state * prev, char character, _AC_RULE * rem
 	char * pos;
 	size_t key_length;
 
-	pos = strchr(prev->key, character);
-	key_length = strlen(prev->key);
+	key_length = prev->path_count;
+	--prev->path_count;
+	pos = memchr(prev->key, character, key_length);
 	state = prev->next[pos - prev->key];
 
 	if(prev == root->state)
@@ -244,7 +243,7 @@ void _ac_remove(pm_root * root, _ac_state * prev, char character, _AC_RULE * rem
 	}
 	else
 	{
-		for(unsigned i = pos - prev->key; i < key_length; ++i)
+		for(unsigned i = pos - prev->key; i < key_length - 1; ++i)
 		{
 			prev->key[i] = prev->key[i + 1];
 			prev->next[i] = prev->next[i + 1];
@@ -265,7 +264,7 @@ void _ac_remove(pm_root * root, _ac_state * prev, char character, _AC_RULE * rem
 
 void _ac_destroy(_ac_state * state)
 {
-	for(unsigned i = 0; i < strlen(state->key); ++i)
+	for(unsigned i = 0; i < state->path_count; ++i)
 	{
 		_ac_destroy(state->next[i]);
 	}
@@ -284,16 +283,15 @@ pm_root * init()
 	root = malloc(sizeof(pm_root));
 
 	root->state = _ac_create();
-	root->state->key = realloc(root->state->key, 'z' - 'a' + 2); // + \0
-	root->state->next = malloc(('z' - 'a' + 1) * sizeof(_ac_state *));
+	root->state->path_count = 255;
+	root->state->key = malloc(256);
+	root->state->next = malloc(256 * sizeof(_ac_state *));
 
-	for(unsigned i = 'a'; i <= 'z'; ++i)
+	for(unsigned i = 0; i < 256; ++i)
 	{
-		root->state->key[i - 'a'] = i;
-		root->state->next[i - 'a'] = root->state;
+		root->state->key[i] = i;
+		root->state->next[i] = root->state;
 	}
-
-	root->state->key['z' - 'a' + 1] = '\0';
 
 	root->matches = malloc(sizeof(_AC_RULE) * 10);
 	root->matches_size = 10;
@@ -312,13 +310,13 @@ pm_root * init()
  * @param matches[out] array of matches
  * @return array of matches
  */
-unsigned match(pm_root * root, char * text, _AC_RULE ** matches)
+unsigned match(pm_root * root, char * text, unsigned length, _AC_RULE ** matches)
 {
 	_ac_state * state = root->state;
 	unsigned size = 0;
 	int goto_pos;
 
-	for(size_t pos = 0; pos < strlen(text); ++pos)
+	for(size_t pos = 0; pos < length; ++pos)
 	{
 		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
 		state = state->next[goto_pos];
@@ -344,27 +342,41 @@ unsigned match(pm_root * root, char * text, _AC_RULE ** matches)
  * @param text pattern
  * @param rule number of rule, this will be returned by match in results array
  */
-void add(pm_root * root, char * text, _AC_RULE rule)
+ void add(pm_root * root, pm_pair keywords[], unsigned count)
 {
 	size_t longest_match_length;
-	size_t length = strlen(text);
-	_ac_state * state = _ac_longest_match(root, text, &longest_match_length);
-	_ac_state * parent = state;
-	_ac_state * new = NULL;
+	size_t length;
 
-	for(unsigned i = 0; i < length - longest_match_length; ++i)
+	char * text;
+
+	_ac_state * state;
+	_ac_state * parent;
+	_ac_state * new;
+
+	for(unsigned j = 0; j < count; ++j)
 	{
-		new = _ac_create();
-		_ac_append(root, new, parent, text[longest_match_length + i]);
-		parent = new;
-	}
+		text = keywords[j].text;
+		length = keywords[j].length;
 
-	new->rule = rule;
+		state = _ac_longest_match(root, text, length, &longest_match_length);
+		parent = state;
+		new = NULL;
+
+
+		for(unsigned i = 0; i < length - longest_match_length; ++i)
+		{
+			new = _ac_create();
+			_ac_append(root, new, parent, text[longest_match_length + i]);
+			parent = new;
+		}
+
+		new->rule = keywords[j].rule;
+	}
 
 	_ac_construct_failure(root, NONE);
 }
 
-void pm_remove(pm_root * root, char * text)
+void pm_remove(pm_root * root, char * text, unsigned length)
 {
 	_ac_state * state = root->state;
 	_ac_state * saved_state = state;
@@ -372,15 +384,15 @@ void pm_remove(pm_root * root, char * text)
 	_AC_RULE removed_rule = NONE;
 
 
-	while(*text != '\0')
+	for(unsigned i = 0; i < length; ++i)
 	{
-		if(strlen(state->key) > 1)
+		if(state->path_count > 0)
 		{
 			saved_state = state;
-			saved_character = *text;
+			saved_character = text[i];
 		}
 
-		state = state->next[_ac_goto(state, *text++)];
+		state = state->next[_ac_goto(state, text[i])];
 	}
 
 	// keyword to be removed is prefix for longer keyword, delete just rule for this state
@@ -405,7 +417,7 @@ void pm_remove(pm_root * root, char * text)
  */
 void destroy(pm_root * root)
 {
-	for(unsigned i = 0; i < strlen(root->state->key); ++i)
+	for(unsigned i = 0; i < root->state->path_count; ++i)
 	{
 		if(root->state->next[i] == root->state) continue;
 		_ac_destroy(root->state->next[i]);
