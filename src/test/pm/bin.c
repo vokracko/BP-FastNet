@@ -1,7 +1,7 @@
 #include "../../lib/pm/aho-corasic.h"
 
 
-void free_keywords(pm_pair * keywords, unsigned * count)
+void free_keywords(pm_keyword * keywords, unsigned * count)
 {
 	for(unsigned i = 0; i < *count; ++i)
 	{
@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 	unsigned count = 0;
 	unsigned size = 10;
 	unsigned length;
-	pm_pair * keywords = malloc(size * sizeof(pm_pair));
+	pm_keyword * keywords = malloc(size * sizeof(pm_keyword));
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 

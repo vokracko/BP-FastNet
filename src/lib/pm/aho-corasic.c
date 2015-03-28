@@ -342,7 +342,7 @@ unsigned match(pm_root * root, char * text, unsigned length, _AC_RULE ** matches
  * @param text pattern
  * @param rule number of rule, this will be returned by match in results array
  */
- void add(pm_root * root, pm_pair keywords[], unsigned count)
+ void add(pm_root * root, pm_keyword keywords[], unsigned count)
 {
 	size_t longest_match_length;
 	size_t length;

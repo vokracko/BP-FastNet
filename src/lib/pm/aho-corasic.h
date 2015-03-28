@@ -45,10 +45,10 @@ typedef struct
 	char * text;
 	unsigned length;
 	_AC_RULE rule;
-} pm_pair;
+} pm_keyword;
 
 pm_root * init();
 unsigned match(pm_root * root, char * text, unsigned length, _AC_RULE ** matches);
-void add(pm_root * root, pm_pair keywords[], unsigned size);
+void add(pm_root * root, pm_keyword keywords[], unsigned size);
 void destroy(pm_root * root);
 void pm_remove(pm_root * root, char * text, unsigned length);
