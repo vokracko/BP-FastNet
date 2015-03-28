@@ -34,21 +34,34 @@ typedef struct
 
 typedef struct
 {
-	_ac_state * state;
-	_ac_queue * queue;
-	_AC_RULE * matches;
-	unsigned matches_size;
-} pm_root;
-
-typedef struct
-{
 	char * text;
 	unsigned length;
 	_AC_RULE rule;
 } pm_keyword;
 
+typedef struct
+{
+	_AC_RULE * rule; // nalezene pravidlo
+	unsigned size;
+	unsigned count;
+	unsigned position; // pozice za pravidlem
+	char * text; // v jakem textu se hledalo
+	unsigned length; // jak je text dlouhy
+	_ac_state * state; // v jakem stavu jsem skoncil
+
+} pm_match;
+
+typedef struct
+{
+	_ac_state * state;
+	_ac_queue * queue;
+	pm_match * match;
+} pm_root;
+
+
 pm_root * init();
-unsigned match(pm_root * root, char * text, unsigned length, _AC_RULE ** matches);
+pm_match * match(pm_root * root, char * text, unsigned length);
+pm_match * match_next(pm_root * root);
 void add(pm_root * root, pm_keyword keywords[], unsigned size);
 void destroy(pm_root * root);
 void pm_remove(pm_root * root, char * text, unsigned length);

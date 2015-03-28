@@ -19,8 +19,7 @@ int main(int argc, char * argv[])
 	char string[1024] = {'\0'};
 	char cmd[20] = {'\0'};
 	char line[2048] = {'\0'};
-	unsigned match_count;
-	_AC_RULE * matches = NULL;
+	pm_match * match_ = NULL;
 	FILE * handle = fopen(argv[1], "r");
 	pm_root * root;
 	unsigned count = 0;
@@ -63,20 +62,24 @@ int main(int argc, char * argv[])
 		else if(strcmp(cmd, "match") == 0)
 		{
 			fail = 1;
-			matches = NULL;
-			match_count = match(root, string, length, &matches);
-
-			for(unsigned i = 0; i < match_count; ++i)
-			{
-				if(matches[i] == rule)
-				{
-					fail = 0;
-					//break;
-				}
-			}
+			match_ = match(root, string, length);
 
 			// test where rule should not be found
-			if(rule == NONE) fail = 0;
+			if(rule == NONE && match_ == NULL) fail = 0;
+
+			while(match_ != NULL && fail == 1)
+			{
+				if(debug) puts("match_next");
+				for(unsigned i = 0; i < match_->count; ++i)
+				{
+					if(match_->rule[i] == rule)
+					{
+						fail = 0;
+					}
+				}
+
+				match_ = match_next(root);
+			}
 
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");
 		}

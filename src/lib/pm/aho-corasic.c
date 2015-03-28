@@ -149,21 +149,16 @@ _ac_state * _ac_create()
 	return state;
 }
 
-/**
- * @brief insert matched rule to matches
- * @param root
- * @param size size of matches
- * @param matched_rule
- */
-void _ac_add_match(pm_root * root, unsigned * size, _AC_RULE matched_rule)
+
+void _ac_add_match(pm_match ** match, _AC_RULE matched_rule)
 {
-	if(root->matches_size < *size + 1)
+	if((*match)->size == (*match)->count)
 	{
-		root->matches_size <<= 1;
-		root->matches = (_AC_RULE *) realloc(root->matches, root->matches_size * sizeof(_AC_RULE));
+		(*match)->size <<= 1;
+		(*match)->rule = (_AC_RULE *) realloc((*match)->rule, (*match)->size * sizeof(_AC_RULE));
 	}
 
-	root->matches[(*size)++] = matched_rule;
+	(*match)->rule[(*match)->count++] = matched_rule;
 }
 
 /*
@@ -176,7 +171,7 @@ void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char char
 {
 	if(parent == root->state)
 	{
-		parent->next[character] = state;
+		parent->next[ (unsigned char) character] = state;
 		return;
 	}
 	// resize arrays
@@ -293,8 +288,10 @@ pm_root * init()
 		root->state->next[i] = root->state;
 	}
 
-	root->matches = malloc(sizeof(_AC_RULE) * 10);
-	root->matches_size = 10;
+	root->match = malloc(sizeof(pm_match));
+	root->match->rule = malloc(sizeof(_AC_RULE) * 10);
+	root->match->count = 0;
+	root->match->size = 10;
 
 	root->queue = malloc(sizeof(_ac_queue));
 	root->queue->head = NULL;
@@ -303,17 +300,9 @@ pm_root * init()
 	return root;
 }
 
-/*
- * @brief Go trought text and save matched patterns
- * @param root
- * @param text input string
- * @param matches[out] array of matches
- * @return array of matches
- */
-unsigned match(pm_root * root, char * text, unsigned length, _AC_RULE ** matches)
+pm_match * match(pm_root * root, char * text, unsigned length)
 {
 	_ac_state * state = root->state;
-	unsigned size = 0;
 	int goto_pos;
 
 	for(size_t pos = 0; pos < length; ++pos)
@@ -321,18 +310,56 @@ unsigned match(pm_root * root, char * text, unsigned length, _AC_RULE ** matches
 		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
 		state = state->next[goto_pos];
 
-		// TODO printit výstup? zjistit od kořenka
-		_ac_add_match(root, &size, state->rule);
-
-		for(unsigned i = 0; i < state->additional_size; ++i)
+		if(state->rule != NONE || state->additional_size > 0)
 		{
-			_ac_add_match(root, &size, state->additional_rule[i]);
+			_ac_add_match(&(root->match), state->rule);
+
+			for(unsigned i = 0; i < state->additional_size; ++i)
+			{
+				_ac_add_match(&(root->match), state->additional_rule[i]);
+			}
+
+			root->match->position = pos + 1;
+			root->match->state = state;
+			root->match->text = text;
+			root->match->length = length;
+
+			return root->match;
 		}
 	}
 
-	*matches = root->matches;
+	return NULL;
+}
 
-	return size;
+pm_match * match_next(pm_root * root)
+{
+	_ac_state * state = root->match->state;
+	int goto_pos;
+	char * text = root->match->text;
+	root->match->count = 0;
+
+	for(size_t pos = root->match->position; pos < root->match->length; ++pos)
+	{
+		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
+		state = state->next[goto_pos];
+
+		if(state->rule != NONE || state->additional_size > 0)
+		{
+			_ac_add_match(&(root->match), state->rule);
+
+			for(unsigned i = 0; i < state->additional_size; ++i)
+			{
+				_ac_add_match(&(root->match), state->additional_rule[i]);
+			}
+
+			root->match->position = pos + 1;
+			root->match->state = state;
+
+			return root->match;
+		}
+	}
+
+	return NULL;
 }
 
 // TODO možná si budu držet rule interně a uživatel ho nebude zadávat
@@ -425,7 +452,8 @@ void destroy(pm_root * root)
 
 	_ac_free(root->state);
 
-	free(root->matches);
+	free(root->match->rule);
+	free(root->match);
 	free(root->queue);
 	free(root);
 }
