@@ -1,6 +1,6 @@
-#include "aho-corasic.h"
+#include "ac.h"
 
-void _ac_remove_rule(_ac_state * state, _AC_RULE rule)
+void _ac_remove_rule(_ac_state * state, PM_RULE rule)
 {
 	for(unsigned i = 0; i < state->additional_size; ++i)
 	{
@@ -12,7 +12,7 @@ void _ac_remove_rule(_ac_state * state, _AC_RULE rule)
 			}
 
 			--state->additional_size;
-			state->additional_rule = realloc(state->additional_rule, sizeof(_AC_RULE) * state->additional_size);
+			state->additional_rule = realloc(state->additional_rule, sizeof(PM_RULE) * state->additional_size);
 
 			return;
 		}
@@ -63,7 +63,7 @@ _ac_state * _ac_queue_front(pm_root * root)
 	return state;
 }
 
-void _ac_append_rule(_ac_state * state, _AC_RULE rule)
+void _ac_append_rule(_ac_state * state, PM_RULE rule)
 {
 	for(unsigned i = 0; i < state->additional_size; ++i)
 	{
@@ -71,12 +71,12 @@ void _ac_append_rule(_ac_state * state, _AC_RULE rule)
 	}
 
 	++state->additional_size;
-	state->additional_rule = realloc(state->additional_rule, state->additional_size * sizeof(_AC_RULE));
+	state->additional_rule = realloc(state->additional_rule, state->additional_size * sizeof(PM_RULE));
 	state->additional_rule[state->additional_size - 1] = rule;
 }
 
 
-void _ac_construct_failure(pm_root * root, _AC_RULE removed_rule)
+void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 {
 	_ac_state * state = root->state;
 	_ac_state * s, * r;
@@ -137,7 +137,7 @@ void _ac_construct_failure(pm_root * root, _AC_RULE removed_rule)
 _ac_state * _ac_create()
 {
 	_ac_state * state = (_ac_state *) malloc(sizeof(_ac_state));
-	state->rule = NONE;
+	state->rule = PM_RULE_NONE;
 	state->additional_rule = NULL;
 	state->additional_size = 0;
 	//TODO nějak zrušit tenhle dočasný malloc
@@ -150,15 +150,15 @@ _ac_state * _ac_create()
 }
 
 
-void _ac_add_match(pm_match ** match, _AC_RULE matched_rule)
+void _ac_add_match(pm_result ** result, PM_RULE matched_rule)
 {
-	if((*match)->size == (*match)->count)
+	if((*result)->size == (*result)->count)
 	{
-		(*match)->size <<= 1;
-		(*match)->rule = (_AC_RULE *) realloc((*match)->rule, (*match)->size * sizeof(_AC_RULE));
+		(*result)->size <<= 1;
+		(*result)->rule = (PM_RULE *) realloc((*result)->rule, (*result)->size * sizeof(PM_RULE));
 	}
 
-	(*match)->rule[(*match)->count++] = matched_rule;
+	(*result)->rule[(*result)->count++] = matched_rule;
 }
 
 /*
@@ -221,7 +221,7 @@ void _ac_free(_ac_state * state)
 /**
  * @brief Remove branch from prev
  */
-void _ac_remove(pm_root * root, _ac_state * prev, char character, _AC_RULE * removed_rule)
+void _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * removed_rule)
 {
 	_ac_state * state;
 	char * pos;
@@ -288,10 +288,10 @@ pm_root * pm_init()
 		root->state->next[i] = root->state;
 	}
 
-	root->match = malloc(sizeof(pm_match));
-	root->match->rule = malloc(sizeof(_AC_RULE) * 10);
-	root->match->count = 0;
-	root->match->size = 10;
+	root->result = malloc(sizeof(pm_result));
+	root->result->rule = malloc(sizeof(PM_RULE) * 10);
+	root->result->count = 0;
+	root->result->size = 10;
 
 	root->queue = malloc(sizeof(_ac_queue));
 	root->queue->head = NULL;
@@ -300,7 +300,7 @@ pm_root * pm_init()
 	return root;
 }
 
-pm_match * pm_match(pm_root * root, char * text, unsigned length)
+pm_result * pm_match(pm_root * root, char * text, unsigned length)
 {
 	_ac_state * state = root->state;
 	int goto_pos;
@@ -310,52 +310,52 @@ pm_match * pm_match(pm_root * root, char * text, unsigned length)
 		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
 		state = state->next[goto_pos];
 
-		if(state->rule != NONE || state->additional_size > 0)
+		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
 		{
-			_ac_add_match(&(root->match), state->rule);
+			_ac_add_match(&(root->result), state->rule);
 
 			for(unsigned i = 0; i < state->additional_size; ++i)
 			{
-				_ac_add_match(&(root->match), state->additional_rule[i]);
+				_ac_add_match(&(root->result), state->additional_rule[i]);
 			}
 
-			root->match->position = pos + 1;
-			root->match->state = state;
-			root->match->text = text;
-			root->match->length = length;
+			root->result->position = pos + 1;
+			root->result->state = state;
+			root->result->text = text;
+			root->result->length = length;
 
-			return root->match;
+			return root->result;
 		}
 	}
 
 	return NULL;
 }
 
-pm_match * pm_match_next(pm_root * root)
+pm_result * pm_match_next(pm_root * root)
 {
-	_ac_state * state = root->match->state;
+	_ac_state * state = root->result->state;
 	int goto_pos;
-	char * text = root->match->text;
-	root->match->count = 0;
+	char * text = root->result->text;
+	root->result->count = 0;
 
-	for(size_t pos = root->match->position; pos < root->match->length; ++pos)
+	for(size_t pos = root->result->position; pos < root->result->length; ++pos)
 	{
 		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
 		state = state->next[goto_pos];
 
-		if(state->rule != NONE || state->additional_size > 0)
+		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
 		{
-			_ac_add_match(&(root->match), state->rule);
+			_ac_add_match(&(root->result), state->rule);
 
 			for(unsigned i = 0; i < state->additional_size; ++i)
 			{
-				_ac_add_match(&(root->match), state->additional_rule[i]);
+				_ac_add_match(&(root->result), state->additional_rule[i]);
 			}
 
-			root->match->position = pos + 1;
-			root->match->state = state;
+			root->result->position = pos + 1;
+			root->result->state = state;
 
-			return root->match;
+			return root->result;
 		}
 	}
 
@@ -400,7 +400,7 @@ pm_match * pm_match_next(pm_root * root)
 		new->rule = keywords[j].rule;
 	}
 
-	_ac_construct_failure(root, NONE);
+	_ac_construct_failure(root, PM_RULE_NONE);
 }
 
 void pm_remove(pm_root * root, char * text, unsigned length)
@@ -408,7 +408,7 @@ void pm_remove(pm_root * root, char * text, unsigned length)
 	_ac_state * state = root->state;
 	_ac_state * saved_state = state;
 	char saved_character = *text;
-	_AC_RULE removed_rule = NONE;
+	PM_RULE removed_rule = PM_RULE_NONE;
 
 
 	for(unsigned i = 0; i < length; ++i)
@@ -452,8 +452,8 @@ void pm_destroy(pm_root * root)
 
 	_ac_free(root->state);
 
-	free(root->match->rule);
-	free(root->match);
+	free(root->result->rule);
+	free(root->result);
 	free(root->queue);
 	free(root);
 }

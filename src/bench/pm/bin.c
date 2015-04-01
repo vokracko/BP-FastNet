@@ -53,14 +53,14 @@ double match(pm_root * root, char * file, bool first_only)
 	unsigned time_runs = 0;
 	char input[1500];
 	unsigned length;
-	pm_match * m = NULL;
+	pm_result * result = NULL;
 
 	FILE * f = fopen(file, "r");
 
 	while(fscanf(f, "%1500s", input, &length) == 2)
 	{
 		time_start = clock();
-		m = pm_match(root, input, length);
+		result = pm_match(root, input, length);
 		time_end = clock();
 		time_sum += time_end - time_start;
 
@@ -69,7 +69,7 @@ double match(pm_root * root, char * file, bool first_only)
 			while(m != NULL)
 			{
 				time_start = clock();
-				m = pm_match_next(m);
+				result = pm_match_next(root);
 				time_end = clock();
 				time_sum += time_end - time_start;
 			}

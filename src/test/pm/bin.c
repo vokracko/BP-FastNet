@@ -1,4 +1,8 @@
-#include "../../lib/pm/aho-corasic.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <inttypes.h>
+#include "../../lib/pm/pm.h"
 
 
 void free_keywords(pm_keyword * keywords, unsigned * count)
@@ -19,7 +23,7 @@ int main(int argc, char * argv[])
 	char string[1024] = {'\0'};
 	char cmd[20] = {'\0'};
 	char line[2048] = {'\0'};
-	pm_match * match_ = NULL;
+	pm_result * result = NULL;
 	FILE * handle = fopen(argv[1], "r");
 	pm_root * root;
 	unsigned count = 0;
@@ -62,23 +66,23 @@ int main(int argc, char * argv[])
 		else if(strcmp(cmd, "match") == 0)
 		{
 			fail = 1;
-			match_ = pm_match(root, string, length);
+			result = pm_match(root, string, length);
 
 			// test where rule should not be found
-			if(rule == NONE && match_ == NULL) fail = 0;
+			if(rule == PM_RULE_NONE && result == NULL) fail = 0;
 
-			while(match_ != NULL && fail == 1)
+			while(result != NULL && fail == 1)
 			{
 				if(debug) puts("match_next");
-				for(unsigned i = 0; i < match_->count; ++i)
+				for(unsigned i = 0; i < result->count; ++i)
 				{
-					if(match_->rule[i] == rule)
+					if(result->rule[i] == rule)
 					{
 						fail = 0;
 					}
 				}
 
-				match_ = pm_match_next(root);
+				result = pm_match_next(root);
 			}
 
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");
@@ -99,7 +103,7 @@ int main(int argc, char * argv[])
 
 	free(keywords);
 
-	destroy(root);
+	pm_destroy(root);
 	fclose(handle);
 
 	return fail;
