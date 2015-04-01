@@ -1,6 +1,6 @@
 OUTPUT=""
 LIB=../../lib/pm
-ALG="aho-corasic"
+ALG="ac"
 
 .PHONY: .FORCE
 

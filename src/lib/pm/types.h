@@ -33,7 +33,7 @@ typedef struct
 
 typedef struct
 {
-	char * text;
+	char * content;
 	unsigned length;
 	PM_RULE rule;
 } pm_keyword;
@@ -44,7 +44,7 @@ typedef struct
 	unsigned size; // size of rule array
 	unsigned count; // number of matches in rule array
 	unsigned position; // passition after matched rule
-	char * text; // match patterns in this text
+	char * input; // match patterns in this text
 	unsigned length; // length of text
 	_ac_state * state; // last state
 } pm_result;

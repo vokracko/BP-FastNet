@@ -1,3 +1,5 @@
+#include <stdint.h>
+#include <stdbool.h>
 #include "types-precompiled.h"
 
 pm_root * pm_init();

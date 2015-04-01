@@ -9,7 +9,7 @@ void free_keywords(pm_keyword * keywords, unsigned * count)
 {
 	for(unsigned i = 0; i < *count; ++i)
 	{
-		free(keywords[i].text);
+		free(keywords[i].content);
 	}
 
 	*count = 0;
@@ -49,8 +49,8 @@ int main(int argc, char * argv[])
 
 			keywords[count].rule = rule;
 			keywords[count].length = length;
-			keywords[count].text = malloc(length);
-			memcpy(keywords[count].text, string, length);
+			keywords[count].content = malloc(length);
+			memcpy(keywords[count].content, string, length);
 			++count;
 
 			sprintf(line, "added  %s with rule %d\n", string, rule);

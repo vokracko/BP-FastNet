@@ -190,14 +190,14 @@ void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char char
  * @param length[out] length of matched path
  * @return last matched node
  */
-_ac_state * _ac_longest_match(pm_root * root, char * text, unsigned size, size_t * length)
+_ac_state * _ac_longest_match(pm_root * root, char * keyword_content, unsigned size, size_t * length)
 {
 	int goto_pos;
 	_ac_state * state = root->state;
 	*length = 0;
 	unsigned i = 0;
 
-	while(i < size && (goto_pos = _ac_goto(state, text[i])) != FAIL)
+	while(i < size && (goto_pos = _ac_goto(state, keyword_content[i])) != FAIL)
 	{
 		state = state->next[goto_pos];
 
@@ -300,14 +300,14 @@ pm_root * pm_init()
 	return root;
 }
 
-pm_result * pm_match(pm_root * root, char * text, unsigned length)
+pm_result * pm_match(pm_root * root, char * input, unsigned length)
 {
 	_ac_state * state = root->state;
 	int goto_pos;
 
 	for(size_t pos = 0; pos < length; ++pos)
 	{
-		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
+		while((goto_pos = _ac_goto(state, input[pos])) == FAIL) state = state->failure;
 		state = state->next[goto_pos];
 
 		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
@@ -321,7 +321,7 @@ pm_result * pm_match(pm_root * root, char * text, unsigned length)
 
 			root->result->position = pos + 1;
 			root->result->state = state;
-			root->result->text = text;
+			root->result->input = input;
 			root->result->length = length;
 
 			return root->result;
@@ -335,12 +335,12 @@ pm_result * pm_match_next(pm_root * root)
 {
 	_ac_state * state = root->result->state;
 	int goto_pos;
-	char * text = root->result->text;
+	char * input = root->result->input;
 	root->result->count = 0;
 
 	for(size_t pos = root->result->position; pos < root->result->length; ++pos)
 	{
-		while((goto_pos = _ac_goto(state, text[pos])) == FAIL) state = state->failure;
+		while((goto_pos = _ac_goto(state, input[pos])) == FAIL) state = state->failure;
 		state = state->next[goto_pos];
 
 		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
@@ -374,7 +374,7 @@ pm_result * pm_match_next(pm_root * root)
 	size_t longest_match_length;
 	size_t length;
 
-	char * text;
+	char * keyword_content;
 
 	_ac_state * state;
 	_ac_state * parent;
@@ -382,10 +382,10 @@ pm_result * pm_match_next(pm_root * root)
 
 	for(unsigned j = 0; j < count; ++j)
 	{
-		text = keywords[j].text;
+		keyword_content = keywords[j].content;
 		length = keywords[j].length;
 
-		state = _ac_longest_match(root, text, length, &longest_match_length);
+		state = _ac_longest_match(root, keyword_content, length, &longest_match_length);
 		parent = state;
 		new = NULL;
 
@@ -393,7 +393,7 @@ pm_result * pm_match_next(pm_root * root)
 		for(unsigned i = 0; i < length - longest_match_length; ++i)
 		{
 			new = _ac_create();
-			_ac_append(root, new, parent, text[longest_match_length + i]);
+			_ac_append(root, new, parent, keyword_content[longest_match_length + i]);
 			parent = new;
 		}
 
@@ -403,11 +403,11 @@ pm_result * pm_match_next(pm_root * root)
 	_ac_construct_failure(root, PM_RULE_NONE);
 }
 
-void pm_remove(pm_root * root, char * text, unsigned length)
+void pm_remove(pm_root * root, char * keyword_content, unsigned length)
 {
 	_ac_state * state = root->state;
 	_ac_state * saved_state = state;
-	char saved_character = *text;
+	char saved_character = *keyword_content;
 	PM_RULE removed_rule = PM_RULE_NONE;
 
 
@@ -416,10 +416,10 @@ void pm_remove(pm_root * root, char * text, unsigned length)
 		if(state->path_count > 0)
 		{
 			saved_state = state;
-			saved_character = text[i];
+			saved_character = keyword_content[i];
 		}
 
-		state = state->next[_ac_goto(state, text[i])];
+		state = state->next[_ac_goto(state, keyword_content[i])];
 	}
 
 	// keyword to be removed is prefix for longer keyword, delete just rule for this state

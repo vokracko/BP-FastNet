@@ -1,14 +1,15 @@
 #include "../../lib/pm/pm.h"
 #include <string.h>
 #include <time.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-void free_keywords(pm_keyword * keywords, index)
+void free_keywords(pm_keyword * keywords, unsigned  index)
 {
 	for(unsigned i = 0; i <= index; ++i)
 	{
-		free(keywords[i].text);
+		free(keywords[i].content);
 	}
 }
 
@@ -16,6 +17,7 @@ void fillKeywords(pm_root * root, char * source)
 {
 	FILE * f = fopen(source, "r");
 	char keyword[1024];
+	pm_keyword * keywords;
 	unsigned rule;
 	unsigned length;
 	unsigned index = 0;
@@ -28,14 +30,14 @@ void fillKeywords(pm_root * root, char * source)
 		if(index + 1 == size)
 		{
 			size += 10;
-			keywords = realloc(size * sizeof(pm_keyword))
+			keywords = realloc(keywords, size * sizeof(pm_keyword));
 		}
 
-		keywords[i].length = length;
-		keywords[i].rule = rule;
-		keywords[i].text = malloc(length);
+		keywords[index].length = length;
+		keywords[index].rule = rule;
+		keywords[index].content = malloc(length);
 
-		memcpy(keywords[i].text, keyword, length);
+		memcpy(keywords[index].content, keyword, length);
 
 		index++;
 	}
@@ -66,7 +68,7 @@ double match(pm_root * root, char * file, bool first_only)
 
 		if(!first_only)
 		{
-			while(m != NULL)
+			while(result != NULL)
 			{
 				time_start = clock();
 				result = pm_match_next(root);
@@ -100,6 +102,6 @@ int main(int argc, char * argv[])
 	root = pm_init();
 
 	fillKeywords(root, argv[2]);
-	printf("%lf\n", match(root, argv[3]), first_only);
+	printf("%lf\n", match(root, argv[3], first_only));
 	pm_destroy(root);
 }
