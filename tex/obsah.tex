@@ -94,13 +94,28 @@ Oba jsou variací obecně n-árního stromu.
 Pro hledání potřetězců je implementován algoritmus autorů Aho a Corasicové. Tento algoritmus používá pro zjištění shody s podřetězcem konceptu konečného automatu. Při každé iteraci algoritmu se provede přechod o jeden znak.
 
 \subsubsection{Normálně}
+
+TODO aho-corasic
+
 \subsubsection{Regulární výrazy}
+
+TODO konstrukce NFA
+TODO konstrukce DFA z NFA
+TODO konstrukce MDFA z DFA
+== 3 strany
+
+
 \subsection{}
+
 \chapter{Návrh API knihovny}
 Knihovna je navržena s důrazem na snadnou rozšiřitelnost případnými dalšími algoritmy.
 Knihovna je taktéž navržena tak, aby bylo velmi snadné používat pouze jednu z operací, které knihovna implementuje.
 To je vhodné pro použití v úzce specializovaných zařízení, jimž tak bude stačit menší množství paměti pro uložení knihovny.
 Každá podknihovna lze vytvořit jedním příkazem ve své složce a také poskytuje vlastní rozhraní, které lze vložit do používaných algoritmů.
+
+Důvod pro vlastní implementaci regulární výrazů je možnost zvolit nejvhodnější algoritmus pro danou operaci.
+Dalším důvodem je převod implementace do akcelerovaného hardware.
+Nějvýznamějším důvod pro vlastní implementaci je provádění několika regulárních výrazů najednou na jednom vstupní textu a vracení čísla regulárního výrazu, který vstupnímu textu vyhovuje, což není možné docílit při použití stadardní implementace ze stdlib, {\tt regex}
 
 \chapter{Výsledky}
 
