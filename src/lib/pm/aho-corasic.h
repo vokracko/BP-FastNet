@@ -59,9 +59,9 @@ typedef struct
 } pm_root;
 
 
-pm_root * init();
-pm_match * match(pm_root * root, char * text, unsigned length);
-pm_match * match_next(pm_root * root);
-void add(pm_root * root, pm_keyword keywords[], unsigned size);
-void destroy(pm_root * root);
+pm_root * pm_init();
+pm_match * pm_match(pm_root * root, char * text, unsigned length);
+pm_match * pm_match_next(pm_root * root);
+void pm_add(pm_root * root, pm_keyword keywords[], unsigned size);
+void pm_destroy(pm_root * root);
 void pm_remove(pm_root * root, char * text, unsigned length);

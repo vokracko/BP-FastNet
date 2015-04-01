@@ -29,7 +29,7 @@ int main(int argc, char * argv[])
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
-	root = init();
+	root = pm_init();
 
 	while(fscanf(handle, "%20s %1024s %u %u", cmd, string, &length, &rule) == 4)
 	{
@@ -54,7 +54,7 @@ int main(int argc, char * argv[])
 		}
 		else if(strcmp(cmd, "commit") == 0)
 		{
-			add(root, keywords, count);
+			pm_add(root, keywords, count);
 			fail = 0;
 			free_keywords(keywords, &count);
 			sprintf(line, "rules commited to search struture\n");
@@ -62,7 +62,7 @@ int main(int argc, char * argv[])
 		else if(strcmp(cmd, "match") == 0)
 		{
 			fail = 1;
-			match_ = match(root, string, length);
+			match_ = pm_match(root, string, length);
 
 			// test where rule should not be found
 			if(rule == NONE && match_ == NULL) fail = 0;
@@ -78,7 +78,7 @@ int main(int argc, char * argv[])
 					}
 				}
 
-				match_ = match_next(root);
+				match_ = pm_match_next(root);
 			}
 
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");

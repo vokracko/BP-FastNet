@@ -271,7 +271,7 @@ void _ac_destroy(_ac_state * state)
  * @brief Init data structures
  * @return root
  */
-pm_root * init()
+pm_root * pm_init()
 {
 	pm_root * root;
 
@@ -300,7 +300,7 @@ pm_root * init()
 	return root;
 }
 
-pm_match * match(pm_root * root, char * text, unsigned length)
+pm_match * pm_match(pm_root * root, char * text, unsigned length)
 {
 	_ac_state * state = root->state;
 	int goto_pos;
@@ -331,7 +331,7 @@ pm_match * match(pm_root * root, char * text, unsigned length)
 	return NULL;
 }
 
-pm_match * match_next(pm_root * root)
+pm_match * pm_match_next(pm_root * root)
 {
 	_ac_state * state = root->match->state;
 	int goto_pos;
@@ -369,7 +369,7 @@ pm_match * match_next(pm_root * root)
  * @param text pattern
  * @param rule number of rule, this will be returned by match in results array
  */
- void add(pm_root * root, pm_keyword keywords[], unsigned count)
+ void pm_add(pm_root * root, pm_keyword keywords[], unsigned count)
 {
 	size_t longest_match_length;
 	size_t length;
@@ -442,7 +442,7 @@ void pm_remove(pm_root * root, char * text, unsigned length)
  * @brief remove datastructures from memory
  * @param root
  */
-void destroy(pm_root * root)
+void pm_destroy(pm_root * root)
 {
 	for(unsigned i = 0; i < root->state->path_count; ++i)
 	{
