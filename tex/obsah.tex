@@ -15,7 +15,7 @@ ISO/OSI model je používán pouze jako referenční model, není známo jeho re
 Tento model je rozdělen na 7 vrstev.
 
 \begin{itemize}
-\item{Fyzická vrstva}
+\item{Fyzická vrstva / Vrstva síťového rozhraní}
 \item{Linková vrstva}
 \item{Síťová vrstva}
 \item{Transportní vrstva}
@@ -23,6 +23,13 @@ Tento model je rozdělen na 7 vrstev.
 \item{Prezentační vrstva}
 \item{Aplikační vrstva}
 \end{itemize}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/layers.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:layers}
+\end{figure}
 
 \subsubsection{Fyzická vrstva / Vrstva síťového rozhraní}
 Nejnižší vrstva v obou zmíněných modelech pracuje s daty na úrovni bytů a stará se o jejich přenos po přenosovém médiu.
@@ -89,13 +96,21 @@ Pro dosažení větší rychlosti je routovací tabulka v paměti směrovače ul
 V této práci jsou pro uložení routovací tabulky využity algoritmy {\tt Binary search on prefix length} a {\tt TreeBitmap}.
 Oba jsou variací obecně n-árního stromu.
 
-
 \subsection{Hledání podřetězců}
 Pro hledání potřetězců je implementován algoritmus autorů Aho a Corasicové. Tento algoritmus používá pro zjištění shody s podřetězcem konceptu konečného automatu. Při každé iteraci algoritmu se provede přechod o jeden znak.
 
-\subsubsection{Normálně}
+\subsubsection{Aho-Corasick}
+efektivita aho-coracick algoritmu je velkým dílem závislá na tom, zda se veškerá paměť použitá k uložení vyhledávaných slov veljde do cache paměti stroje, na kterém poběží.
 
-TODO aho-corasic
+Na klasickém desktopovém počítači je několik vrstev cache pamětí.
+Pokud budeme brát v úvahu jednotlivé vrstvy samostatně, tak do
+velikost jednoho stavu automatu se může výrazně lišit v závislosti počtu následovníků a počtu
+pravidel, které nejsou přímo v tomto stavu, ale jsou to podřetězce tohoto stavu.
+Tyto podřetězce byly zjištěny iterativním procházením automatu od hloubky 0 a procházení tzv. failure cest, kdy každý stav navštívený failure průchodem obsahující pravidlo znamená že stav, pro který se hledá failure cesta obsahuje podpravidlo vyhovující právě tomuto stavu.
+L1 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
+L2 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
+L3 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
+L4 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
 
 \subsubsection{Regulární výrazy}
 
@@ -113,13 +128,25 @@ Knihovna je taktéž navržena tak, aby bylo velmi snadné používat pouze jedn
 To je vhodné pro použití v úzce specializovaných zařízení, jimž tak bude stačit menší množství paměti pro uložení knihovny.
 Každá podknihovna lze vytvořit jedním příkazem ve své složce a také poskytuje vlastní rozhraní, které lze vložit do používaných algoritmů.
 
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/header-dependencies.pdf}
+\caption{Diagram závislostí hlavičkových souborů}
+\label{fig:header-dependecies}
+\end{figure}
+
 Důvod pro vlastní implementaci regulární výrazů je možnost zvolit nejvhodnější algoritmus pro danou operaci.
 Dalším důvodem je převod implementace do akcelerovaného hardware.
 Nějvýznamějším důvod pro vlastní implementaci je provádění několika regulárních výrazů najednou na jednom vstupní textu a vracení čísla regulárního výrazu, který vstupnímu textu vyhovuje, což není možné docílit při použití stadardní implementace ze stdlib, {\tt regex}
 
 \chapter{Výsledky}
+\section{Hledání nejdelšího shodného prefixu}
 
 \chapter{Závěr}
 Závěrečná kapitola obsahuje zhodnocení dosažených výsledků se zvlášť vyznačeným vlastním přínosem studenta. Povinně se zde objeví i zhodnocení z pohledu dalšího vývoje projektu, student uvede náměty vycházející ze zkušeností s řešeným projektem a uvede rovněž návaznosti na právě dokončené projekty.
+
+\section{Další vývoj projektu}
+
+Jako další kroky pro vylepšení knihovny bych zvolil optimalizaci implementovaných algoritmů dle
 
 %=========================================================================
