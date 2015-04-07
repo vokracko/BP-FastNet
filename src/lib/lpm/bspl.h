@@ -1,18 +1,5 @@
 #include "common.h"
 
-/**
-	TODO optimalizace
-		type a prefix length v jednom byte
-		pouze jeden ukazatel na potomky => budou se alokovat najednou při inicializaci -> stejně jsou potřeba pro leaf pushing
-		přepsat leaf pushing na nerekurzivní
-
-	TODO ostatní
-		ošetřit všechny volání malloc
-		rozšířit pro ipv6
-		bude potřeba update jako samostatná fce? nebude to řešit add? nemá šanci zjistit zda už tam přesně tuto adresu s tímto prefixem má
-		mazat celou větev pokud je zkonstruována pouze pro jeden konkrétní prefix?
-**/
-
 #define _BSPL_HTABLE_SIZE 127
 #define _BSPL_TREE_OFFSET(bit) ((bit) * sizeof(struct _bspl_node *))
 

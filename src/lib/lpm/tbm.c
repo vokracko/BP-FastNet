@@ -146,7 +146,6 @@ inline void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child)
  * @param node
  * @param bit_value
  * @param shift_child 1 => change size of node->child otherwise node->rule
- * @todo implementovat mazání celých větví které na konci obsahují pouze jeden prefix? bude nutné procházet všechny potomky
  */
 inline void _tbm_reduce(_tbm_node * node, uint16_t bit_value, bool shift_child)
 {
@@ -269,7 +268,7 @@ void lpm_destroy(lpm_root * root)
 uint32_t lpm_lookup(lpm_root * root, uint32_t key)
 {
 	_tbm_node * node = root;
-	_tbm_node * parent = NULL; //TODO nějak ošetřit
+	_tbm_node * parent = NULL;
 	_tbm_node * longest_match_node = root;
 	uint8_t position = 0;
 	uint16_t bits;

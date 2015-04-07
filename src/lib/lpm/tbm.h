@@ -1,19 +1,5 @@
 #include "common.h"
 
-/**
-	TODO optimalizace
-
-	TODO ostatní
-		ošetřit všechny volání malloc
-		rozšířit pro ipv6
-		pro střídu 5 (i větší) je potřeba 2^6-1 (63 !!) bitů , což se do int32 nevejde, týká se bitmap
-			změnit _TBM_ALL, buildin_popcount × buildin_popcountll
-		bude potřeba update jako samostatná fce? nebude to řešit add? nemá šanci zjistit zda už tam přesně tuto adresu s tímto prefixem má
-		extend/reduce do jedné fce?
-		dá se volat free na null?
-		mazat celou větev pokud je zkonstruována pouze pro jeden konkrétní prefix?
-**/
-
 #define _TBM_ALL_EXTERNAL ((_TBM_SIZE_EXTERNAL) << 5)
 #define _TBM_ALL_INTERNAL ((_TBM_SIZE_INTERNAL) << 5)
 

@@ -1,4 +1,4 @@
-#define uint128_t long long //TODO vyřešit, použít pole jako u TBM?
+#define uint128_t long long
 #define _LPM_RULE uint8_t
 
 #ifdef bspl // ########################################################

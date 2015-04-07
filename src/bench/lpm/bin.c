@@ -30,9 +30,6 @@ uint32_t ipv4num(char * address)
 	return ip;
 }
 
-/**
- * @todo
- */
 uint32_t ipv6num(char * address)
 {
 	return 0;
