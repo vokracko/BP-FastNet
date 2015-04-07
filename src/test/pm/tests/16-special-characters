@@ -1,0 +1,14 @@
+add //// 4 1
+add \x00(){ 4 2
+add a\x04\x82\x01\x00 5 3
+commit - 0 0
+match (){} 4 0
+match \x00\x01(){} 6 0
+match \x00(){} 5 2
+match a\x04\x82\x00\x01 5 0
+match a\x04\x82\x01\x00 5 3
+match \x00\x2F//\x00/ 6 0
+match \x00\x2F//\x2F\x00/ 6 1
+remove a\x04\x82\x01\x00 5 0
+match a\x04\x82\x01\x00 5 0
+
