@@ -16,6 +16,29 @@ void free_keywords(pm_keyword * keywords, unsigned * count)
 
 }
 
+void handle_escape(char * input)
+{
+	unsigned pos = 0;
+	unsigned len = strlen(input);
+	unsigned i = 0;
+
+	while(i < len)
+	{
+		if(input[i] == '\\' && input[i + 1] == 'x')
+		{
+			sscanf(input + i + 2, "%2x", &(input[pos]));
+			i += 3;
+		}
+		else
+		{
+			input[pos] = input[i];
+		}
+
+		++pos;
+		++i;
+	}
+}
+
 int main(int argc, char * argv[])
 {
 	unsigned fail = 0;
@@ -37,6 +60,8 @@ int main(int argc, char * argv[])
 
 	while(fscanf(handle, "%20s %1024s %u %u", cmd, string, &length, &rule) == 4)
 	{
+		handle_escape(string);
+
 		if(strcmp(cmd, "add") == 0)
 		{
 			fail = 0;
@@ -53,7 +78,7 @@ int main(int argc, char * argv[])
 			memcpy(keywords[count].content, string, length);
 			++count;
 
-			sprintf(line, "added  %s with rule %d\n", string, rule);
+			sprintf(line, "added %s with rule %d\n", string, rule);
 
 		}
 		else if(strcmp(cmd, "commit") == 0)
@@ -61,7 +86,7 @@ int main(int argc, char * argv[])
 			pm_add(root, keywords, count);
 			fail = 0;
 			free_keywords(keywords, &count);
-			sprintf(line, "rules commited to search struture\n");
+			sprintf(line, "rules commited to search structure\n");
 		}
 		else if(strcmp(cmd, "match") == 0)
 		{
