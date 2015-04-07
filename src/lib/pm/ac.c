@@ -2,6 +2,8 @@
 
 void _ac_remove_rule(_ac_state * state, PM_RULE rule)
 {
+	assert(state != NULL);
+
 	for(unsigned i = 0; i < state->additional_size; ++i)
 	{
 		if(state->additional_rule[i] == rule)
@@ -21,6 +23,8 @@ void _ac_remove_rule(_ac_state * state, PM_RULE rule)
 
 int _ac_goto(_ac_state * state, char character)
 {
+	assert(state != NULL);
+
 	char * pos = memchr(state->key, character, state->path_count);
 
 	if(pos == NULL) return FAIL;
@@ -30,11 +34,18 @@ int _ac_goto(_ac_state * state, char character)
 
 bool _ac_queue_empty(pm_root * root)
 {
+	assert(root != NULL);
+	assert(root->queue != NULL);
+
 	return root->queue->head == NULL;
 }
 
 void _ac_queue_insert(pm_root * root, _ac_state * state)
 {
+	assert(root != NULL);
+	assert(root->queue != NULL);
+	assert(state != NULL);
+
 	_ac_queue_item * item = malloc(sizeof(_ac_queue_item));
 
 	item->state = state;
@@ -53,6 +64,9 @@ void _ac_queue_insert(pm_root * root, _ac_state * state)
 
 _ac_state * _ac_queue_front(pm_root * root)
 {
+	assert(root != NULL);
+	assert(root->queue != NULL);
+
 	_ac_queue_item * item = root->queue->head;
 	_ac_state * state = item->state;
 
@@ -65,6 +79,8 @@ _ac_state * _ac_queue_front(pm_root * root)
 
 void _ac_append_rule(_ac_state * state, PM_RULE rule)
 {
+	assert(state != NULL);
+
 	for(unsigned i = 0; i < state->additional_size; ++i)
 	{
 		if(state->additional_rule[i] == rule) return;
@@ -78,6 +94,9 @@ void _ac_append_rule(_ac_state * state, PM_RULE rule)
 
 void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 {
+	assert(root != NULL);
+	assert(root->queue != NULL);
+
 	_ac_state * state = root->state;
 	_ac_state * s, * r;
 	int goto_pos;
@@ -140,7 +159,6 @@ _ac_state * _ac_create()
 	state->rule = PM_RULE_NONE;
 	state->additional_rule = NULL;
 	state->additional_size = 0;
-	//TODO nějak zrušit tenhle dočasný malloc
 	state->key = NULL;
 	state->path_count = 0;
 	state->next = NULL;
@@ -152,6 +170,9 @@ _ac_state * _ac_create()
 
 void _ac_add_match(pm_result ** result, PM_RULE matched_rule)
 {
+	assert(result != NULL);
+	assert(*result != NULL);
+
 	if((*result)->size == (*result)->count)
 	{
 		(*result)->size <<= 1;
@@ -169,6 +190,10 @@ void _ac_add_match(pm_result ** result, PM_RULE matched_rule)
  */
 void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char character)
 {
+	assert(root != NULL);
+	assert(state != NULL);
+	assert(parent != NULL);
+
 	if(parent == root->state)
 	{
 		parent->next[ (unsigned char) character] = state;
@@ -192,6 +217,9 @@ void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char char
  */
 _ac_state * _ac_longest_match(pm_root * root, char * keyword_content, unsigned size, size_t * length)
 {
+	assert(root != NULL);
+	assert(length != NULL);
+
 	int goto_pos;
 	_ac_state * state = root->state;
 	*length = 0;
@@ -212,6 +240,8 @@ _ac_state * _ac_longest_match(pm_root * root, char * keyword_content, unsigned s
 
 void _ac_free(_ac_state * state)
 {
+	assert(state != NULL);
+
 	free(state->key);
 	free(state->next);
 	free(state->additional_rule);
@@ -223,6 +253,9 @@ void _ac_free(_ac_state * state)
  */
 void _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * removed_rule)
 {
+	assert(root != NULL);
+	assert(prev != NULL);
+
 	_ac_state * state;
 	char * pos;
 	size_t key_length;
@@ -259,6 +292,8 @@ void _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * remo
 
 void _ac_destroy(_ac_state * state)
 {
+	assert(state != NULL);
+
 	for(unsigned i = 0; i < state->path_count; ++i)
 	{
 		_ac_destroy(state->next[i]);
@@ -302,6 +337,9 @@ pm_root * pm_init()
 
 pm_result * pm_match(pm_root * root, char * input, unsigned length)
 {
+	assert(root != NULL);
+	assert(input != NULL);
+
 	_ac_state * state = root->state;
 	int goto_pos;
 
@@ -333,6 +371,9 @@ pm_result * pm_match(pm_root * root, char * input, unsigned length)
 
 pm_result * pm_match_next(pm_root * root)
 {
+	assert(root != NULL);
+	assert(root->result != NULL);
+
 	_ac_state * state = root->result->state;
 	int goto_pos;
 	char * input = root->result->input;
@@ -362,7 +403,6 @@ pm_result * pm_match_next(pm_root * root)
 	return NULL;
 }
 
-// TODO možná si budu držet rule interně a uživatel ho nebude zadávat
 /*
  * @brief Add pattern to matching structure
  * @param root
@@ -371,6 +411,9 @@ pm_result * pm_match_next(pm_root * root)
  */
  void pm_add(pm_root * root, pm_keyword keywords[], unsigned count)
 {
+	assert(root != NULL);
+	assert(keywords != NULL);
+
 	size_t longest_match_length;
 	size_t length;
 
@@ -405,6 +448,9 @@ pm_result * pm_match_next(pm_root * root)
 
 void pm_remove(pm_root * root, char * keyword_content, unsigned length)
 {
+	assert(root != NULL);
+	assert(keyword_content != NULL);
+
 	_ac_state * state = root->state;
 	_ac_state * saved_state = state;
 	char saved_character = *keyword_content;
@@ -444,6 +490,10 @@ void pm_remove(pm_root * root, char * keyword_content, unsigned length)
  */
 void pm_destroy(pm_root * root)
 {
+	assert(root != NULL);
+	assert(root->state != NULL);
+	assert(root->result != NULL);
+
 	for(unsigned i = 0; i < root->state->path_count; ++i)
 	{
 		if(root->state->next[i] == root->state) continue;

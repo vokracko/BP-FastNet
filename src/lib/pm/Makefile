@@ -3,6 +3,7 @@ STRIDE=2
 FLAGS=-std=c99 -Wall -Wextra -g3
 ALG=ac
 
+all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
 all: lib
 
 lib: $(ALG).c precompile-headers

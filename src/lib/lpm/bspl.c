@@ -29,6 +29,9 @@ inline uint32_t calculate_hash(uint32_t key)
  */
 void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE rule_new)
 {
+	assert(node != NULL);
+	assert(rule_original != rule_new);
+
 	if(node->rule == rule_original)
 	{
 		node->rule = rule_new;
@@ -48,6 +51,10 @@ void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE ru
  */
 inline void _bspl_add_htable(lpm_root * root, _bspl_node * node)
 {
+	assert(root != NULL);
+	assert(node != NULL);
+	assert(root->htable != NULL);
+
 	uint32_t index = calculate_hash(node->prefix);
 	_bspl_node ** ptr = &root->htable[index];
 
@@ -67,6 +74,8 @@ inline void _bspl_add_htable(lpm_root * root, _bspl_node * node)
  */
 inline void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, bool bit)
 {
+	assert(parent != NULL);
+	assert(node != NULL);
 	// left => bit = 0; left is first in struct
 	// right => bit = 1; right is second in struct
 	*( (_bspl_node **) ((void *) parent + _BSPL_TREE_OFFSET(bit))) = node;
@@ -81,6 +90,11 @@ inline void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, bool bit)
  */
 inline void _bspl_add(lpm_root * root, _bspl_node * node, _bspl_node * parent, bool bit)
 {
+	assert(root != NULL);
+	assert(root->htable != NULL);
+	assert(node != NULL);
+	assert(parent != NULL);
+
 	_bspl_add_tree(node, parent, bit);
 	_bspl_add_htable(root, node);
 }
@@ -110,6 +124,10 @@ inline _bspl_node * _bspl_create()
  */
 inline void _bspl_remove_htable(lpm_root * root,_bspl_node * node)
 {
+	assert(root != NULL);
+	assert(node != NULL);
+	assert(root->htable != NULL);
+
 	unsigned int index = calculate_hash(node->prefix);
 	_bspl_node ** htable_node = &root->htable[index];
 
@@ -129,6 +147,8 @@ inline void _bspl_remove_htable(lpm_root * root,_bspl_node * node)
  */
 inline void _bspl_remove_tree(_bspl_node * parent, bool bit)
 {
+	assert(parent != NULL);
+
 	*((_bspl_node **) ((void *) parent + _BSPL_TREE_OFFSET(bit))) = NULL;
 }
 
@@ -142,6 +162,11 @@ inline void _bspl_remove_tree(_bspl_node * parent, bool bit)
  */
 inline void _bspl_remove(lpm_root * root, _bspl_node * node, _bspl_node * parent, bool bit)
 {
+	assert(root != NULL);
+	assert(root->htable != NULL);
+	assert(node != NULL);
+	assert(parent != NULL);
+
 	_bspl_remove_tree(parent, bit);
 	_bspl_remove_htable(root, node);
 
@@ -157,8 +182,11 @@ inline void _bspl_remove(lpm_root * root, _bspl_node * node, _bspl_node * parent
  * @param other[out]
  * @return node
  */
-_bspl_node * _bspl_lookup(lpm_root * root,uint32_t prefix, uint8_t prefix_len, _bspl_node ** parent, _bspl_node ** other)
+_bspl_node * _bspl_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _bspl_node ** parent, _bspl_node ** other)
 {
+	assert(root != NULL);
+	assert(root->tree != NULL);
+
 	uint32_t bit_position = 31;
 	uint32_t len = 0;
 	bool bit;
@@ -168,6 +196,8 @@ _bspl_node * _bspl_lookup(lpm_root * root,uint32_t prefix, uint8_t prefix_len, _
 
 	do
 	{
+		assert(node != NULL);
+
 		bit = GET_BIT_LSB(prefix, bit_position--);
 		*parent = node;
 		*other = *(_bspl_node **) ((void *) node + _BSPL_TREE_OFFSET(!bit));; // *other = bit ? node->left : node->right
@@ -205,6 +235,9 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
  */
 void lpm_destroy(lpm_root * root)
 {
+	assert(root != NULL);
+	assert(root->htable != NULL);
+
 	_bspl_node * node, * prev;
 
 	for(int i = 0; i < _BSPL_HTABLE_SIZE; ++i)
@@ -235,6 +268,9 @@ void lpm_destroy(lpm_root * root)
  */
 void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
+	assert(root != NULL);
+	assert(root->tree != NULL);
+
 	_bspl_node* node = NULL;
 	_bspl_node* parent = root->tree;
 	_bspl_node* other;
@@ -245,6 +281,8 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 
 	do
 	{
+		assert(parent != NULL);
+
 		bit = GET_BIT_MSB(prefix, len);
 		prefix_bits = GET_BITS_MSB(parent->prefix, len);
 		parent_rule = parent->rule;
@@ -289,8 +327,12 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
  */
 void lpm_update(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
+	assert(root != NULL);
+
 	_bspl_node * parent, * other;
 	_bspl_node * node = _bspl_lookup(root, prefix, prefix_len, &parent, &other);
+
+	assert(node != NULL);
 
 	_bspl_leaf_pushing(node, node->rule, rule);
 }
@@ -303,18 +345,28 @@ void lpm_update(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE 
  */
 void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
 {
+	assert(root != NULL);
+
 	_bspl_node * other, * parent;
 	_bspl_node * node = _bspl_lookup(root, prefix, prefix_len, &parent, &other);
 
 	// node is leaf node, other node is leaf node and does not contain different prefix from parent node (contructed by leaf-pushing)
+
+	assert(node != NULL);
+	assert(other != NULL);
+
 	if(node->type == _BSPL_NODE_PREFIX && other->type == _BSPL_NODE_PREFIX && other->rule == parent->rule)
 	{
+		assert(parent != NULL);
+
 		_bspl_remove(root, node, parent, parent->right == node);
 		_bspl_remove(root, other, parent, parent->right == other);
 		parent->type = _BSPL_NODE_PREFIX;
 	}
 	else
 	{
+		assert(node != NULL);
+
 		_bspl_leaf_pushing(node, node->rule, parent->rule);
 	}
 }
@@ -324,10 +376,12 @@ void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
  * @param root
  * @param key ip address
  * @return rule number
- * @todo vracet thread_id + další fce get lookup result?
  */
 uint32_t lpm_lookup(lpm_root * root, uint32_t key)
 {
+	assert(root != NULL);
+	assert(root->htable != NULL);
+
 	uint32_t prefix_bits; // extracted part of prefix
 	uint8_t prefix_len = 32; // binary search actual length
 	uint8_t prefix_change = 32; // binary search length change
