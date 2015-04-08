@@ -32,51 +32,6 @@ int _ac_goto(_ac_state * state, char character)
 	return pos - state->key;
 }
 
-bool _ac_queue_empty(pm_root * root)
-{
-	assert(root != NULL);
-	assert(root->queue != NULL);
-
-	return root->queue->head == NULL;
-}
-
-void _ac_queue_insert(pm_root * root, _ac_state * state)
-{
-	assert(root != NULL);
-	assert(root->queue != NULL);
-	assert(state != NULL);
-
-	_ac_queue_item * item = malloc(sizeof(_ac_queue_item));
-
-	item->state = state;
-	item->next = NULL;
-
-	if(_ac_queue_empty(root))
-	{
-		root->queue->head = root->queue->tail = item;
-	}
-	else
-	{
-		root->queue->tail->next = item;
-		root->queue->tail = item;
-	}
-}
-
-_ac_state * _ac_queue_front(pm_root * root)
-{
-	assert(root != NULL);
-	assert(root->queue != NULL);
-
-	_ac_queue_item * item = root->queue->head;
-	_ac_state * state = item->state;
-
-	root->queue->head = item->next;
-
-	free(item);
-
-	return state;
-}
-
 void _ac_append_rule(_ac_state * state, PM_RULE rule)
 {
 	assert(state != NULL);
@@ -99,6 +54,7 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 
 	_ac_state * state = root->state;
 	_ac_state * s, * r;
+	list_item_value list_value;
 	int goto_pos;
 
 	// start constructing, go throught every direct follower of root state = depth 1
@@ -109,14 +65,15 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 
 		// "every path in root state is defined" => skip those with no real follower
 		if(state->next[i] == root->state) continue;
-
-		_ac_queue_insert(root, state->next[i]);
+		list_value.pointer = state->next[i];
+		list_append_front(root->queue, list_value);
 	}
 
 
-	while(!_ac_queue_empty(root))
+	while(!list_empty(root->queue))
 	{
-		r = _ac_queue_front(root);
+		list_value = list_pop(root->queue);
+		r = (_ac_state *) list_value.pointer;
 
 		unsigned length = r->path_count;
 
@@ -124,7 +81,8 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		for(unsigned i = 0; i < length; ++i)
 		{
 			s = r->next[i];
-			_ac_queue_insert(root, s);
+			list_value.pointer = s;
+			list_append_front(root->queue, list_value);
 			state = r->failure;
 
 			// find failure path
@@ -328,7 +286,7 @@ pm_root * pm_init()
 	root->result->count = 0;
 	root->result->size = 10;
 
-	root->queue = malloc(sizeof(_ac_queue));
+	root->queue = malloc(sizeof(list));
 	root->queue->head = NULL;
 	root->queue->tail = NULL;
 

@@ -8,6 +8,8 @@
 
 #ifdef ac
 
+#include "../general/list.h"
+
 typedef struct _ac_state_
 {
 	char * key;
@@ -18,18 +20,6 @@ typedef struct _ac_state_
 	PM_RULE * additional_rule;
 	PM_RULE additional_size;
 } _ac_state;
-
-typedef struct _ac_queue_item_
-{
-	struct _ac_queue_item_ * next;
-	_ac_state * state;
-} _ac_queue_item;
-
-typedef struct
-{
-	_ac_queue_item * head;
-	_ac_queue_item * tail;
-} _ac_queue;
 
 typedef struct
 {
@@ -52,7 +42,7 @@ typedef struct
 typedef struct
 {
 	_ac_state * state;
-	_ac_queue * queue;
+	list * queue;
 	pm_result * result;
 } pm_root;
 
