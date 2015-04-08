@@ -21,12 +21,14 @@ void handle_escape(char * input)
 	unsigned pos = 0;
 	unsigned len = strlen(input);
 	unsigned i = 0;
+	unsigned hexnum;
 
 	while(i < len)
 	{
 		if(input[i] == '\\' && input[i + 1] == 'x')
 		{
-			sscanf(input + i + 2, "%2x", &(input[pos]));
+			sscanf(input + i + 2, "%2x", &hexnum);
+			input[pos] = hexnum;
 			i += 3;
 		}
 		else
