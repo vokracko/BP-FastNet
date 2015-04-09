@@ -128,6 +128,11 @@ Knihovna je taktéž navržena tak, aby bylo velmi snadné používat pouze jedn
 To je vhodné pro použití v úzce specializovaných zařízení, jimž tak bude stačit menší množství paměti pro uložení knihovny.
 Každá podknihovna lze vytvořit jedním příkazem ve své složce a také poskytuje vlastní rozhraní, které lze vložit do používaných algoritmů.
 
+hlavičkové soubory jsou rozděleny na veřejné a privátní rozhraní, kde privátní rozhraní je používáno pouze uvnitř knihovny. Hierarchickou strukturu je možné vidět na obrázku \ref{fig:header-dependecies}.
+
+Jako výchozí hlavičkový soubor je použit types.h, který obsahuje definice datových struktur pro všechny algoritmy v podknihovně, které musí být viditelné i z veřejného rozhraní. Dalším souborem je types-precompiled.h, který je generován z types.h při překladu když se vybírá používaný algoritmus. common.h je hlavičkový soubor společný pro všechny algoritmy v podknihovně a algortihm.h pak obsahuje deklarace právě pro jeden konkrétní algoritmus.
+sublib.h je pak hlavičkový soubor, který tvoří veřejné rozhraní ke knihovním funkcím.
+
 \begin{figure}[!htb]
 \centering
 \includegraphics[scale=.25]{fig/header-dependencies.pdf}
