@@ -25,11 +25,47 @@ void handle_escape(char * input)
 
 	while(i < len)
 	{
-		if(input[i] == '\\' && input[i + 1] == 'x')
+		if(input[i] == '\\')
 		{
-			sscanf(input + i + 2, "%2x", &hexnum);
-			input[pos] = hexnum;
-			i += 3;
+			switch(input[i + 1])
+			{
+				case 'x':
+					sscanf(input + i + 2, "%2x", &hexnum);
+					input[pos] = hexnum;
+					i += 3;
+					break;
+
+				case '\\':
+					input[pos] = '\\';
+					++i;
+					break;
+
+				case 'n':
+					input[pos] = '\n';
+					++i;
+					break;
+
+				case 'r':
+					input[pos] = '\n';
+					++i;
+					break;
+
+				case 't':
+					input[pos] = '\n';
+					++i;
+					break;
+
+				case '0':
+					input[pos] = '\0';
+					++i;
+					break;
+
+				default:
+					input[pos] = '\\';
+					--i;
+					break;
+			}
+
 		}
 		else
 		{
