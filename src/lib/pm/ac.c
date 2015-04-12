@@ -54,7 +54,7 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 
 	_ac_state * state = root->state;
 	_ac_state * s, * r;
-	list_item_value list_value;
+	queue_item_value value;
 	int goto_pos;
 
 	// start constructing, go throught every direct follower of root state = depth 1
@@ -65,15 +65,15 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 
 		// "every path in root state is defined" => skip those with no real follower
 		if(state->next[i] == root->state) continue;
-		list_value.pointer = state->next[i];
-		list_append_back(root->queue, list_value, POINTER);
+		value.pointer = state->next[i];
+		_queue_insert(root->queue, value, POINTER);
 	}
 
 
-	while(!list_empty(root->queue))
+	while(!_queue_empty(root->queue))
 	{
-		list_value = list_pop(root->queue);
-		r = (_ac_state *) list_value.pointer;
+		value = _queue_pop_front(root->queue);
+		r = (_ac_state *) value.pointer;
 
 		unsigned length = r->path_count;
 
@@ -81,8 +81,8 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		for(unsigned i = 0; i < length; ++i)
 		{
 			s = r->next[i];
-			list_value.pointer = s;
-			list_append_back(root->queue, list_value, POINTER);
+			value.pointer = s;
+			_queue_insert(root->queue, value, POINTER);
 			state = r->failure;
 
 			// find failure path
@@ -100,7 +100,6 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 			{
 				_ac_append_rule(s, s->failure->additional_rule[j]);
 			}
-
 		}
 	}
 }
@@ -286,7 +285,7 @@ pm_root * pm_init()
 	root->result->count = 0;
 	root->result->size = 10;
 
-	root->queue = list_init();
+	root->queue = _queue_init();
 
 	return root;
 }
@@ -456,7 +455,7 @@ void pm_destroy(pm_root * root)
 		_ac_destroy(root->state->next[i]);
 	}
 
-	list_destroy(root->queue);
+	_queue_destroy(root->queue);
 	_ac_free(root->state);
 	free(root->result->rule);
 	free(root->result);

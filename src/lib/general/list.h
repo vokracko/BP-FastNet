@@ -3,13 +3,14 @@ enum
 {
 	POINTER,
 	CHARACTER,
-	SHORT
+	NUMBER
 };
 
 typedef union
 {
 	void * pointer;
 	char character;
+	short number;
 } list_item_value;
 
 typedef struct list_item
@@ -26,6 +27,12 @@ typedef struct
 	unsigned size;
 } list;
 
+typedef list stack;
+typedef list queue;
+
+typedef list_item_value stack_item_value;
+typedef list_item_value queue_item_value;
+
 unsigned list_size(list * root);
 void list_destroy(list * root);
 list * list_init();
@@ -33,3 +40,6 @@ _Bool list_empty(list * root);
 void list_append_front(list * root, list_item_value value, char value_type);
 void list_append_back(list * root, list_item_value value, char value_type);
 list_item_value list_pop(list * root);
+list_item_value list_front(list * root);
+
+

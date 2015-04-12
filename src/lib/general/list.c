@@ -2,6 +2,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+
+
 _Bool list_empty(list * root)
 {
 	assert(root != NULL);
@@ -82,6 +84,8 @@ list * list_init()
 	list * root = malloc(sizeof(list));
 	root->head = root->tail = NULL;
 	root->size = 0;
+
+	return root;
 }
 
 void list_destroy(list * root)
@@ -94,4 +98,9 @@ void list_destroy(list * root)
 	}
 
 	free(root);
+}
+
+list_item_value list_first(list * root)
+{
+	return root->head->value;
 }

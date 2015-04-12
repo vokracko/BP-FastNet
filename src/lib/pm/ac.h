@@ -7,6 +7,3 @@
 #include "common.h"
 
 #define FAIL -1
-
-
-
