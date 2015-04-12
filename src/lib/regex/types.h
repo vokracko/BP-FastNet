@@ -8,6 +8,21 @@
 
 #ifdef dfa
 
+typedef struct _state
+{
+	short * key;
+	struct _state ** next;
+	unsigned length;
+} _state;
+
+typedef struct
+{
+	_state * start;
+	_state * end;
+} _construction_block;
+
+typedef _state regex_pattern;
+
 #endif
 
 #ifdef ddfa

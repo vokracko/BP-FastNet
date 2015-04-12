@@ -1,1 +1,19 @@
 #include "common.h"
+
+enum SYMBOLS
+{
+	OPEN_PAREN = 200,
+	OPEN_BRACKET,
+	CLOSE_PAREN,
+	CLOSE_BRACKET,
+
+	OR,
+
+	PLUS,
+	QUESTION_MARK,
+	STAR,
+	CONCATENATION,
+	DOT
+};
+
+#define EPSILON 400
