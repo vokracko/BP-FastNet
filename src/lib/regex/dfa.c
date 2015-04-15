@@ -590,6 +590,9 @@ int match(regex_pattern * pattern, char * input, unsigned length)
 		}
 	}
 
+	_queue_destroy(start);
+	_queue_destroy(end);
+
 	return result;
 
 }
