@@ -10,9 +10,12 @@
 
 typedef struct _state
 {
-	short * key;
+	char * key;
 	struct _state ** next;
+	struct _state ** next_epsilon;
 	unsigned length;
+	unsigned length_epsilon;
+	unsigned char end_state;
 } _state;
 
 typedef struct
