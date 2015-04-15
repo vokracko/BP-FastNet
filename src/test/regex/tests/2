@@ -1,0 +1,3 @@
+construct [abcd]* 7 1
+match aabcda 6 1
+match eee 3 -1

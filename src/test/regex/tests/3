@@ -1,0 +1,3 @@
+construct a* 6 1
+match aaaaa 5 1
+match bb 2 -1
