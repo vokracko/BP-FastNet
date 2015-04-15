@@ -82,6 +82,7 @@ int main(int argc, char * argv[])
 
 	while(fscanf(handle, "%20s %1024s %u %u", cmd, string, &length, &number) == 4)
 	{
+		if(cmd[0] == '#') continue;
 
 		if(strcmp(cmd, "construct") == 0)
 		{
@@ -89,7 +90,7 @@ int main(int argc, char * argv[])
 			handle_escape(string);
 
 			pattern = parse(string, length, number);
-			fail = pattern == NULL;
+			fail = number != 0 && pattern == NULL;
 			// if(!fail) regex_free(pattern);
 		}
 
