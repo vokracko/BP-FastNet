@@ -66,11 +66,11 @@ _Bool is_quantificator(short symbol)
 
 _Bool is_valid(short current, short prev)
 {
-	if(is_quantificator(current) && (is_quantificator(prev) || prev == '|' || prev == '(')) return 0;
-	else if(current == ']' && !is_char(prev)) return 0;
-	else if(current == ')' && (prev == ')' || prev == '|')) return 0;
-	else if(current == '|' && (prev == '(' || prev == '|')) return 0;
-	else if((is_quantificator(current) || current == ']' || current == ')' || current == '|') && prev == START) return 0;
+	if(is_quantificator(current) && (is_quantificator(prev) || prev == OR || prev == OPEN_PAREN)) return 0;
+	else if(current == CLOSE_BRACKET && !is_char(prev)) return 0;
+	else if(current == CLOSE_PAREN && (prev == CLOSE_PAREN || prev == OR)) return 0;
+	else if(current == OR && (prev == OPEN_PAREN || prev == OR)) return 0;
+	else if((is_quantificator(current) || current == CLOSE_BRACKET || current == CLOSE_PAREN || current == OR) && prev == START) return 0;
 
 	return 1;
 }
@@ -232,9 +232,10 @@ void operation_concatenation(stack * stack_state)
 	second = _stack_pop(stack_state).pointer;
 	first = _stack_pop(stack_state).pointer;
 
-	_add_epsilon_transition(first->end, second->start);
-	first->end = second->start;
+	memcpy(first->end, second->start, sizeof(_state));
+	first->end = second->end;
 
+	free(second->start);
 	free(second);
 
 	value.pointer = first;
@@ -515,7 +516,7 @@ regex_pattern * parse(char * input, unsigned length, unsigned char regex_number)
 	block->end->end_state = regex_number;
 	result = block->start;
 
-	if(_stack_size(stack_state) != 0) return clear(stack_operation, stack_state);
+	if(!_stack_empty(stack_state) || !_stack_empty(stack_operation)) return clear(stack_operation, stack_state);
 
 	_stack_destroy(stack_operation);
 	_stack_destroy(stack_state);
@@ -526,6 +527,8 @@ regex_pattern * parse(char * input, unsigned length, unsigned char regex_number)
 
 void regex_free(regex_pattern * pattern)
 {
+	if(pattern == NULL) return;
+
 	list * list_freed = list_init();
 
 	state_destroy(list_freed, pattern);
