@@ -20,6 +20,8 @@ typedef struct list_item
 	list_item_value value;
 } list_item;
 
+typedef list_item stack_item;
+
 typedef struct
 {
 	list_item * head;

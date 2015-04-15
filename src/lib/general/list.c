@@ -100,7 +100,7 @@ void list_destroy(list * root)
 	free(root);
 }
 
-list_item_value list_first(list * root)
+list_item_value list_front(list * root)
 {
 	return root->head->value;
 }
