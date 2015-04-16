@@ -260,49 +260,39 @@ void _dfa_or(stack * stack_)
 	_stack_push(stack_, value, POINTER);
 }
 
-void _dfa_star(stack * stack_)
-{
-	assert(stack_ != NULL);
-	assert(_stack_size(stack_) >= 2);
-
-	stack_item_value value;
-	_dfa_block * first;
-	_dfa_state * epsilon = _dfa_create_state();
-
-	value = _stack_pop(stack_);
-	assert(value.number == STAR);
-	first = _stack_pop(stack_).pointer;
-
-	_dfa_add_epsilon_transition(first->end, first->start);
-	_dfa_add_epsilon_transition(first->end, epsilon);
-	first->end = epsilon;
-
-	epsilon = _dfa_create_state();
-	_dfa_add_epsilon_transition(epsilon, first->start);
-	first->start = epsilon;
-	_dfa_add_epsilon_transition(first->start, first->end);
-
-	value.pointer = first;
-	_stack_push(stack_, value, POINTER);
-}
-
-void _dfa_question_mark(stack * stack_)
+void _dfa_quantificator(stack * stack_, short operation)
 {
 	assert(stack_ != NULL);
 	assert(_stack_size(stack_) >= 2);
 
 	stack_item_value value;
 	_dfa_block * block;
+	_dfa_state * epsilon;
 
 	value = _stack_pop(stack_);
-	assert(value.number == QUESTION_MARK);
-
+	assert(value.number == operation);
 	block = _stack_pop(stack_).pointer;
-	_dfa_add_epsilon_transition(block->start, block->end);
+
+
+	if(operation != QUESTION_MARK)
+	{
+		epsilon = _dfa_create_state();
+		_dfa_add_epsilon_transition(block->end, block->start);
+		_dfa_add_epsilon_transition(block->end, epsilon);
+		block->end = epsilon;
+
+		epsilon = _dfa_create_state();
+		_dfa_add_epsilon_transition(epsilon, block->start);
+		block->start = epsilon;
+	}
+
+	if(operation != PLUS)
+	{
+		_dfa_add_epsilon_transition(block->start, block->end);
+	}
 
 	value.pointer = block;
 	_stack_push(stack_, value, POINTER);
-
 }
 
 /**
@@ -356,8 +346,9 @@ unsigned _dfa_precedence(stack * stack_, short current)
 void _dfa_reduce(stack * stack_)
 {
 	stack_item_value value;
+	short symbol = _stack_top_operation(stack_).number;
 
-	switch(_stack_top_operation(stack_).number)
+	switch(symbol)
 	{
 		case OR:
 			_dfa_or(stack_);
@@ -368,11 +359,9 @@ void _dfa_reduce(stack * stack_)
 			break;
 
 		case STAR:
-			_dfa_star(stack_);
-			break;
-
+		case PLUS:
 		case QUESTION_MARK:
-			_dfa_question_mark(stack_);
+			_dfa_quantificator(stack_, symbol);
 			break;
 
 		case OPEN_PAREN:
@@ -445,19 +434,9 @@ _dfa_state * _dfa_construct(regex_pattern pattern)
 
 			switch(current)
 			{
-				case OPEN_PAREN:
-					value.number = OPEN_PAREN;
-					_stack_push(stack_, value, NUMBER);
-					prev = OPEN_PAREN;
-					break;
+
 
 				case CLOSE_PAREN:
-					break;
-
-				case CONCAT:
-					prev = CONCAT;
-					value.number = CONCAT;
-					_stack_push(stack_, value, NUMBER);
 					break;
 
 				case DOT:
@@ -473,22 +452,15 @@ _dfa_state * _dfa_construct(regex_pattern pattern)
 					prev = CLOSE_BRACKET;
 					break;
 
+				case CONCAT:
+				case OPEN_PAREN:
 				case STAR:
-					value.number = STAR;
-					_stack_push(stack_, value, NUMBER);
-					prev = STAR;
-					break;
-
 				case QUESTION_MARK:
-					value.number = QUESTION_MARK;
-					_stack_push(stack_, value, NUMBER);
-					prev = QUESTION_MARK;
-					break;
-
 				case OR:
-					value.number = OR;
+				case PLUS:
+					prev = current;
+					value.number = current;
 					_stack_push(stack_, value, NUMBER);
-					prev = OR;
 					break;
 
 				default:

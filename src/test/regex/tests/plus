@@ -1,0 +1,5 @@
+add a+ 2 1
+commit - 0 0
+match a 1 1
+match aaaaa 5 1
+match b 1 -1
