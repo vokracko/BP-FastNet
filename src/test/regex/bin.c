@@ -50,7 +50,6 @@ void handle_escape(char * input)
 
 				default:
 					input[pos] = '\\';
-					--i;
 					break;
 			}
 
@@ -65,41 +64,74 @@ void handle_escape(char * input)
 	}
 }
 
+void free_patterns(regex_pattern patterns[], unsigned * count)
+{
+	for(unsigned i = 0; i < *count; ++i)
+	{
+		free(patterns[i].input);
+	}
+
+	*count = 0;
+}
+
 int main(int argc, char * argv[])
 {
-	unsigned fail = 0;
-	unsigned number;
+	char line[2048] = {'\0'};
 	char string[1024] = {'\0'};
 	char cmd[20] = {'\0'};
-	char line[2048] = {'\0'};
-	FILE * handle = fopen(argv[1], "r");
+
+	unsigned id;
 	unsigned length;
+	unsigned fail = 0;
+	unsigned count = 0;
+	unsigned size = 10;
+
+	FILE * handle = fopen(argv[1], "r");
 	int result;
-	regex_pattern * pattern;
+
+	regex_root * root;
+	regex_pattern * patterns = malloc(sizeof(regex_pattern) * size);
 
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
-	while(fscanf(handle, "%20s %1024s %u %u", cmd, string, &length, &number) == 4)
+	while(fscanf(handle, "%20s %1024s %u %u", cmd, string, &length, &id) == 4)
 	{
+		handle_escape(string);
+
 		if(cmd[0] == '#') continue;
 
-		if(strcmp(cmd, "construct") == 0)
+		if(strcmp(cmd, "add") == 0)
 		{
-			sprintf(line, "constructed %s\n", string);
-			handle_escape(string);
+			if(count + 1 == size)
+			{
+				size += 10;
+				patterns = realloc(patterns, sizeof(regex_pattern) * size);
+			}
 
-			pattern = parse(string, length, number);
-			fail = number != 0 && pattern == NULL;
-			// if(!fail) regex_free(pattern);
+			patterns[count].input = malloc(length);
+			memcpy(patterns[count].input, string, length);
+			patterns[count].length = length;
+			patterns[count].id = id;
+			count++;
+
+			sprintf(line, "added %s with id %d\n", string, id);
+		}
+
+		if(strcmp(cmd, "commit") == 0)
+		{
+			root = regex_construct(patterns, count);
+			fail = root == NULL;
+			free_patterns(patterns, &count);
+
+			sprintf(line, "commit %s\n", fail ? "FAIL" : "PASS");
 		}
 
 		if(strcmp(cmd, "match") == 0)
 		{
-			handle_escape(string);
 
-			result = match(pattern, string, length);
-			fail = result != number;
+			result = regex_match(root, string, length);
+			fail = result != id;
 			sprintf(line, "matching againts %s with result %s\n", string, fail ? "FAIL" : "PASS");
 		}
 
@@ -110,7 +142,8 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	regex_free(pattern);
+	regex_destroy(root);
+	free(patterns);
 	fclose(handle);
 
 	return fail;
