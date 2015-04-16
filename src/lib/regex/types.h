@@ -8,23 +8,34 @@
 
 #ifdef dfa
 
-typedef struct _state
+typedef struct _dfa_state
 {
 	char * key;
-	struct _state ** next;
-	struct _state ** next_epsilon;
+	struct _dfa_state ** next;
+	struct _dfa_state ** next_epsilon;
 	unsigned length;
 	unsigned length_epsilon;
-	unsigned char end_state;
-} _state;
+	unsigned char id;
+} _dfa_state;
 
 typedef struct
 {
-	_state * start;
-	_state * end;
-} _construction_block;
+	_dfa_state * start;
+	_dfa_state * end;
+} _dfa_block;
 
-typedef _state regex_pattern;
+typedef struct
+{
+	unsigned length;
+	unsigned char id;
+	char * input;
+} regex_pattern;
+
+typedef struct
+{
+	unsigned count;
+	_dfa_state ** patterns;
+} regex_root;
 
 #endif
 

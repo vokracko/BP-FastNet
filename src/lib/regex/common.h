@@ -12,6 +12,8 @@
 #define _stack_push list_append_front
 #define _stack_pop list_pop
 #define _stack_top list_front
+#define _stack_top_operation(stack) list_first_type(stack, NUMBER)
+#define _stack_free_pointers list_free_pointers
 
 #define _queue_init list_init
 #define _queue_empty list_empty
