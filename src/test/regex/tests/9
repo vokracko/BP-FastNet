@@ -1,1 +1,4 @@
-construct (abc*)*.*[abc]|(a|b)cd 22 0
+add a|b 3 1
+add [abc]|(a|b)cd 13 2
+add (abc*)*.*[abc]|(a|b)cd 22 3
+commit - 0 0

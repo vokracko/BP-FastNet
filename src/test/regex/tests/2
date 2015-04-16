@@ -1,3 +1,4 @@
-construct [abcd]* 7 1
+add [abcd]* 7 1
+commit - 0 0
 match aabcda 6 1
 match eee 3 -1

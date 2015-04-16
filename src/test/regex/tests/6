@@ -1,1 +1,2 @@
-construct .* 2 0
+add .* 2 0
+commit - 0 0

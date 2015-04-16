@@ -1,1 +1,2 @@
-construct a(b*)a 6 0
+add a(b*)a 6 1
+commit - 0 0

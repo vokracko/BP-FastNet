@@ -1,4 +1,5 @@
-construct [abcd] 6 1
+add [abcd] 6 1
+commit - 0 0
 match a 1 1
 match b 1 1
 match c 1 1
