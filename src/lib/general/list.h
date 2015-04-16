@@ -43,5 +43,7 @@ void list_append_front(list * root, list_item_value value, char value_type);
 void list_append_back(list * root, list_item_value value, char value_type);
 list_item_value list_pop(list * root);
 list_item_value list_front(list * root);
-
+list_item_value list_first_type(list * root, char type);
+void list_free_pointers(list * root, void (*function)(void*));
+_Bool list_search(list * root, list_item_value, char value_type);
 

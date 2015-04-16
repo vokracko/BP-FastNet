@@ -104,3 +104,55 @@ list_item_value list_front(list * root)
 {
 	return root->head->value;
 }
+
+list_item_value list_first_type(list * root, char type)
+{
+	assert(!list_empty(root));
+
+	list_item * item = root->head;
+
+	while(item != NULL)
+	{
+		if(item->value_type == type) return item->value;
+		item = item->next;
+	}
+
+	assert(0);
+}
+
+void list_free_pointers(list * root, void (*function)(void*))
+{
+	list_item * item = root->head;
+
+	while(item != NULL)
+	{
+		if(item->value_type == POINTER)
+		{
+			function(item->value.pointer);
+		}
+
+		item = item->next;
+	}
+}
+
+_Bool list_search(list * root, list_item_value value, char value_type)
+{
+	list_item * item = root->head;
+
+	while(item != NULL)
+	{
+		switch(value_type)
+		{
+			case POINTER:
+				if(item->value.pointer == value.pointer) return 1;
+
+			case NUMBER:
+				if(item->value.number == value.number) return 1;
+		}
+
+		item = item->next;
+	}
+
+	return 0;
+}
+
