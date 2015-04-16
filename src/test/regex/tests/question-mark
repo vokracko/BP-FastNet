@@ -1,0 +1,6 @@
+add ab? 3 1
+commit - 0 0
+match a 1 1
+match ab 2 1
+match abb 3 -1
+match b 1 -1
