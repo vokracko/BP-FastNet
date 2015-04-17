@@ -88,14 +88,19 @@ list * list_init()
 	return root;
 }
 
-void list_destroy(list * root)
+void list_clear(list * root)
 {
-	assert(root != NULL);
-
 	while(!list_empty(root))
 	{
 		list_pop(root);
 	}
+}
+
+void list_destroy(list * root)
+{
+	assert(root != NULL);
+
+	list_clear(root);
 
 	free(root);
 }
@@ -156,3 +161,16 @@ _Bool list_search(list * root, list_item_value value, char value_type)
 	return 0;
 }
 
+list_item_value * list_find(list * root, list_item_value value, int (*match) (list_item_value, list_item_value))
+{
+	list_item * item = root->head;
+
+	while(item != NULL)
+	{
+		if(match(item->value, value) == 0) return &(item->value);
+
+		item = item->next;
+	}
+
+	return NULL;
+}
