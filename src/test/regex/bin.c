@@ -121,7 +121,7 @@ int main(int argc, char * argv[])
 		if(strcmp(cmd, "commit") == 0)
 		{
 			root = regex_construct(patterns, count);
-			fail = root == NULL;
+			fail = root == NULL && id == 1;
 			free_patterns(patterns, &count);
 
 			sprintf(line, "commit %s\n", fail ? "FAIL" : "PASS");
@@ -129,7 +129,6 @@ int main(int argc, char * argv[])
 
 		if(strcmp(cmd, "match") == 0)
 		{
-
 			result = regex_match(root, string, length);
 			fail = result != id;
 			sprintf(line, "matching againts %s with result %s\n", string, fail ? "FAIL" : "PASS");
