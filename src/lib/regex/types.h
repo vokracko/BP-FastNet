@@ -12,17 +12,26 @@ typedef struct _dfa_state
 {
 	char * key;
 	struct _dfa_state ** next;
-	struct _dfa_state ** next_epsilon;
 	unsigned length;
-	unsigned length_epsilon;
 	unsigned char id;
 } _dfa_state;
 
+typedef struct _nfa_state
+{
+	char * key;
+	struct _nfa_state ** next;
+	unsigned length;
+	unsigned char id;
+
+	struct _nfa_state ** next_epsilon;
+	unsigned length_epsilon;
+} _nfa_state;
+
 typedef struct
 {
-	_dfa_state * start;
-	_dfa_state * end;
-} _dfa_block;
+	_nfa_state * start;
+	_nfa_state * end;
+} _nfa_block;
 
 typedef struct
 {
@@ -31,11 +40,7 @@ typedef struct
 	char * input;
 } regex_pattern;
 
-typedef struct
-{
-	unsigned count;
-	_dfa_state ** patterns;
-} regex_root;
+typedef struct _nfa_state regex_root;
 
 #endif
 

@@ -61,3 +61,9 @@ char precedence_table[12][12] =
 	{REDUCE,REDUCE,REDUCE,FAIL,FAIL,FAIL,FAIL,REDUCE,FAIL,FIN,FAIL,REDUCE},
 	{REDUCE,REDUCE,REDUCE,SHIFT,FAIL,FAIL,FAIL,SHIFT,FAIL,SHIFT,FAIL,REDUCE}
 };
+
+typedef struct
+{
+	_dfa_state * dfa_state;
+	list * nfa_states;
+} _dfa_pair;
