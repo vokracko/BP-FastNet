@@ -80,7 +80,7 @@ int main(int argc, char * argv[])
 	char string[1024] = {'\0'};
 	char cmd[20] = {'\0'};
 
-	unsigned id;
+	int id;
 	unsigned length;
 	unsigned fail = 0;
 	unsigned count = 0;
@@ -121,7 +121,7 @@ int main(int argc, char * argv[])
 		if(strcmp(cmd, "commit") == 0)
 		{
 			root = regex_construct(patterns, count);
-			fail = root == NULL && id == 1;
+			fail = root == NULL && id == -1;
 			free_patterns(patterns, &count);
 
 			sprintf(line, "commit %s\n", fail ? "FAIL" : "PASS");
