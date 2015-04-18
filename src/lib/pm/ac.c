@@ -270,7 +270,7 @@ pm_root * pm_init()
 	root = malloc(sizeof(pm_root));
 
 	root->state = _ac_create();
-	root->state->path_count = 255;
+	root->state->path_count = 256;
 	root->state->key = malloc(256);
 	root->state->next = malloc(256 * sizeof(_ac_state *));
 
@@ -386,7 +386,6 @@ pm_result * pm_match_next(pm_root * root)
 		state = _ac_longest_match(root, keyword_content, length, &longest_match_length);
 		parent = state;
 		new = NULL;
-
 
 		for(unsigned i = 0; i < length - longest_match_length; ++i)
 		{
