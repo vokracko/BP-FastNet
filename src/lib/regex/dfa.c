@@ -88,14 +88,14 @@ void _nfa_state_destroy(list * list_freed, _nfa_state * state)
 	for(unsigned i = 0; i < state->length; ++i)
 	{
 		value.pointer = state->next[i];
-		if(list_search(list_freed, value, POINTER)) continue;
+		if(list_contains(list_freed, value, POINTER)) continue;
 		_nfa_state_destroy(list_freed, value.pointer);
 	}
 
 	for(unsigned i = 0; i < state->length_epsilon; ++i)
 	{
 		value.pointer = state->next_epsilon[i];
-		if(list_search(list_freed, value, POINTER)) continue;
+		if(list_contains(list_freed, value, POINTER)) continue;
 		_nfa_state_destroy(list_freed, value.pointer);
 	}
 
@@ -119,7 +119,7 @@ void _dfa_state_destroy(list * list_freed, _dfa_state * state)
 	for(unsigned i = 0; i < state->length; ++i)
 	{
 		value.pointer = state->next[i];
-		if(list_search(list_freed, value, POINTER)) continue;
+		if(list_contains(list_freed, value, POINTER)) continue;
 		_dfa_state_destroy(list_freed, value.pointer);
 	}
 
@@ -630,7 +630,7 @@ int _dfa_match_processed(list_item_value first, list_item_value second)
 
 	while(first_item != NULL)
 	{
-		if(!list_search(second_list, first_item->value, POINTER)) return 0;
+		if(!list_contains(second_list, first_item->value, POINTER)) return 0;
 
 		first_item = first_item->next;
 	}

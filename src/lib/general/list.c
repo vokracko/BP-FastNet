@@ -140,7 +140,7 @@ void list_free_pointers(list * root, void (*function)(void*))
 	}
 }
 
-_Bool list_search(list * root, list_item_value value, char value_type)
+_Bool list_contains(list * root, list_item_value value, char value_type)
 {
 	list_item * item = root->head;
 
