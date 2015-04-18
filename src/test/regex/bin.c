@@ -89,7 +89,7 @@ int main(int argc, char * argv[])
 	FILE * handle = fopen(argv[1], "r");
 	int result;
 
-	regex_root * root;
+	regex_root * root = NULL;
 	regex_pattern * patterns = malloc(sizeof(regex_pattern) * size);
 
 
@@ -120,6 +120,7 @@ int main(int argc, char * argv[])
 
 		if(strcmp(cmd, "commit") == 0)
 		{
+			regex_destroy(root);
 			root = regex_construct(patterns, count);
 			fail = root == NULL && id == -1;
 			free_patterns(patterns, &count);
