@@ -102,6 +102,30 @@ void _nfa_state_destroy(list * list_freed, _nfa_state * state)
 	_nfa_state_free(state);
 }
 
+void _dfa_state_free(_dfa_state * state)
+{
+	free(state->key);
+	free(state->next);
+	free(state);
+}
+
+void _dfa_state_destroy(list * list_freed, _dfa_state * state)
+{
+	list_item_value value;
+	value.pointer = state;
+
+	list_append_front(list_freed, value, POINTER);
+
+	for(unsigned i = 0; i < state->length; ++i)
+	{
+		value.pointer = state->next[i];
+		if(list_search(list_freed, value, POINTER)) continue;
+		_dfa_state_destroy(list_freed, value.pointer);
+	}
+
+	_dfa_state_free(state);
+}
+
 void _nfa_block_destroy(void * block)
 {
 	list * list_freed = list_init(); //FIXME NULL possible
@@ -114,6 +138,7 @@ void _nfa_block_destroy(void * block)
 
 _nfa_state * _nfa_create_state()
 {
+	static counter = 0;
 	_nfa_state * state = malloc(sizeof(_nfa_state));
 
 	if(state == NULL) return NULL;
@@ -124,6 +149,7 @@ _nfa_state * _nfa_create_state()
 	state->length = 0;
 	state->length_epsilon = 0;
 	state->id = ID_NONE;
+	state->num = ++counter;
 
 	return state;
 }
@@ -228,10 +254,12 @@ void _concat(stack * stack_)
 	assert(value.number == CONCAT);
 	first = _stack_pop(stack_).pointer;
 
-	memcpy(first->end, second->start, sizeof(_nfa_state));
+	_nfa_add_epsilon_transition(first->end, second->start);
+
+	// memcpy(first->end, second->start, sizeof(_nfa_state));
 	first->end = second->end;
 
-	free(second->start);
+	// free(second->start);
 	free(second);
 
 	value.pointer = first;
@@ -500,18 +528,30 @@ _nfa_state * _nfa_construct(regex_pattern pattern)
 
 _dfa_state * _dfa_create_state()
 {
+	static counter = 0;
 	_dfa_state * state = malloc(sizeof(_dfa_state)); //FIXME null
 
 	state->length = 0;
 	state->next = NULL;
+	state->key = NULL;
+	state->id = ID_NONE;
+	state->num = ++counter;
 
 	return state;
 
 }
 
-void _dfa_epsilon_closure(list * nfa)
+list * _dfa_epsilon_closure(list * nfa)
 {
-	list_item * item = nfa->head;
+	list * closure = list_init();
+
+	closure->head = nfa->head;
+	closure->tail = nfa->tail;
+	closure->size = nfa->size;
+
+	bzero(nfa, sizeof(list));
+
+	list_item * item = closure->head;
 	list_item_value value;
 	unsigned length;
 
@@ -522,20 +562,20 @@ void _dfa_epsilon_closure(list * nfa)
 		for(unsigned i = 0; i < length; ++i)
 		{
 			value.pointer = ((_nfa_state *) item->value.pointer)->next_epsilon[i];
-			list_append_back(nfa, value, POINTER);
+			list_append_unique(closure, value, POINTER);
 		}
 
 		item = item->next;
 	}
+
+	return closure;
 }
 
 void _dfa_move(list * input_states, list * output_states, char character)
 {
-	list_clear(output_states);
-
 	list_item * item = input_states->head;
 	list_item_value value;
-	_dfa_state * state;
+	_nfa_state * state;
 	void * position;
 
 	while(item != NULL)
@@ -545,7 +585,7 @@ void _dfa_move(list * input_states, list * output_states, char character)
 		if((position = memchr(state->key, character, state->length)) != NULL)
 		{
 			value.pointer = state->next[(char *) position - state->key];
-			list_append_front(output_states, value, POINTER);
+			list_append_unique(output_states, value, POINTER);
 		}
 
 		item = item->next;
@@ -554,8 +594,25 @@ void _dfa_move(list * input_states, list * output_states, char character)
 
 _dfa_pair * _dfa_create_pair(list * nfa_states)
 {
+	list_item * item = nfa_states->head;
+	unsigned char id;
 	_dfa_pair * pair = malloc(sizeof(_dfa_pair)); // FIXME null
 	pair->dfa_state = _dfa_create_state(); //FIXME null
+
+
+	while(item != NULL)
+	{
+		id = ((_nfa_state *) item->value.pointer)->id;
+		if(id != ID_NONE)
+		{
+			pair->dfa_state->id = id;
+			break;
+		}
+
+		item = item->next;
+	}
+
+
 	pair->nfa_states = nfa_states;
 
 	return pair;
@@ -564,21 +621,27 @@ _dfa_pair * _dfa_create_pair(list * nfa_states)
 int _dfa_match_processed(list_item_value first, list_item_value second)
 {
 	list_item * first_item = ((_dfa_pair *)first.pointer)->nfa_states->head;
-	list_item * second_item = ((_dfa_pair *)second.pointer)->nfa_states->head;
+	list * second_list = ((list *)second.pointer);
 
 	unsigned first_size = ((_dfa_pair *)first.pointer)->nfa_states->size;
-	unsigned second_size = ((_dfa_pair *)second.pointer)->nfa_states->size;
+	unsigned second_size = second_list->size;
 
-	if(first_size != second_size) return -1;
+	if(first_size != second_size) return 0;
 
 	while(first_item != NULL)
 	{
-		if(first_item->value.pointer == second_item->value.pointer) return 0;
+		if(!list_search(second_list, first_item->value, POINTER)) return 0;
 
 		first_item = first_item->next;
 	}
 
-	return -1;
+	return 1;
+}
+
+void _dfa_free_pairs(void * pointer)
+{
+	list_destroy(((_dfa_pair *) pointer)->nfa_states);
+	free(pointer);
 }
 
 void * _dfa_convert(_nfa_state * root)
@@ -586,22 +649,26 @@ void * _dfa_convert(_nfa_state * root)
 	list_item_value value;
 	_dfa_pair * pair;
 	_dfa_pair * new_pair;
-	_dfa_pair * existing_pair;
+	list_item_value * existing_pair;
 	_dfa_state * dfa_root;
+	list * closure_states;
 	list * nfa_list = list_init();
 	list * move_states = list_init();
-	list * pairs_processed = list_init();
+	list * pairs_created = list_init();
 	stack * pairs_unprocessed = _stack_init();
 
 	value.pointer = root;
 	list_append_front(nfa_list, value, POINTER);
-	_dfa_epsilon_closure(nfa_list);
+	closure_states = _dfa_epsilon_closure(nfa_list);
 
-	pair = _dfa_create_pair(nfa_list);
+	list_destroy(nfa_list);
+
+	pair = _dfa_create_pair(closure_states);
 	dfa_root = pair->dfa_state;
 
 	value.pointer = pair;
 	_stack_push(pairs_unprocessed, value, POINTER);
+	list_append_back(pairs_created, value, POINTER);
 
 	while(!_stack_empty(pairs_unprocessed))
 	{
@@ -610,29 +677,41 @@ void * _dfa_convert(_nfa_state * root)
 		for(unsigned char i = 0; i <= 127; ++i)
 		{
 			_dfa_move(pair->nfa_states, move_states, i);
-			_dfa_epsilon_closure(move_states);
+			closure_states = _dfa_epsilon_closure(move_states);
 
-			value.pointer = pair;
-			existing_pair = list_find(pairs_processed, value, _dfa_match_processed)->pointer;
+			if(closure_states->size == 0)
+			{
+				list_destroy(closure_states);
+				continue;
+			}
+
+			value.pointer = closure_states;
+			existing_pair = list_find(pairs_created, value, _dfa_match_processed);
 
 			if(existing_pair == NULL)
 			{
-				new_pair = _dfa_create_pair(move_states);
+				new_pair = _dfa_create_pair(closure_states);
+				_dfa_add_transition(pair->dfa_state, i, new_pair->dfa_state);
 				value.pointer = new_pair;
 				_stack_push(pairs_unprocessed, value, POINTER);
-
-				_dfa_add_transition(pair->dfa_state, i, new_pair->dfa_state);
+				list_append_back(pairs_created, value, POINTER);
 			}
 			else
 			{
-				_dfa_add_transition(pair->dfa_state, i, existing_pair->dfa_state);
+				list_destroy(closure_states);
+				_dfa_add_transition(pair->dfa_state, i, ((_dfa_pair *) existing_pair->pointer)->dfa_state);
 			}
 		}
-
-
-		value.pointer = pair;
-		list_append_back(pairs_processed, value, POINTER);
 	}
+
+	list_destroy(move_states);
+	list_destroy(pairs_unprocessed);
+	list_free_pointers(pairs_created, _dfa_free_pairs);
+	list_destroy(pairs_created);
+
+	list * freed = list_init();
+	_nfa_state_destroy(freed, root);
+	list_destroy(freed);
 
 	return dfa_root;
 
@@ -644,17 +723,14 @@ regex_root * regex_construct(regex_pattern * patterns, unsigned count)
 	_nfa_state * regex;
 	regex_root * root;
 
-
-
 	for(i = 0; i < count; ++i)
 	{
 		regex = _nfa_construct(patterns[i]);
 
 		if(regex == NULL)
 		{
-			root = NULL;
+			return NULL;
 			// TODO vyřešit chyby
-			break;
 		}
 
 		if(i == 0)
@@ -667,7 +743,7 @@ regex_root * regex_construct(regex_pattern * patterns, unsigned count)
 		}
 	}
 
-	return root;
+	return _dfa_convert(root);
 }
 
 void regex_destroy(regex_root * root)
@@ -676,7 +752,7 @@ void regex_destroy(regex_root * root)
 
 	list * list_freed = list_init(); //FIXME NULL possible
 
-	_nfa_state_destroy(list_freed, root);
+	_dfa_state_destroy(list_freed, root);
 	list_destroy(list_freed);
 }
 
@@ -686,7 +762,7 @@ int regex_match(regex_root * root, char * input, unsigned length)
 	queue * end = _queue_init(); //FIXME NULL possible
 	queue * swap_pointer;
 	queue_item_value value;
-	_nfa_state * state;
+	_dfa_state * state;
 	unsigned position = 0;
 	int result = -1;
 	void * char_position;
@@ -699,13 +775,14 @@ int regex_match(regex_root * root, char * input, unsigned length)
 	{
 		while(!_queue_empty(start))
 		{
+			// TODO zůstávat ve stavu startu/konce
 			state = _queue_pop_front(start).pointer;
 
-			for(unsigned i = 0; i < state->length_epsilon; ++i)
-			{
-				value.pointer = state->next_epsilon[i];
-				_queue_insert(start, value, POINTER); //FIXME NULL possible
-			}
+			// for(unsigned i = 0; i < state->length_epsilon; ++i)
+			// {
+			// 	value.pointer = state->next_epsilon[i];
+			// 	_queue_insert(start, value, POINTER); //FIXME NULL possible
+			// }
 
 			if((char_position = memchr(state->key, input[position], state->length))) // OR final state
 			{
@@ -731,11 +808,11 @@ int regex_match(regex_root * root, char * input, unsigned length)
 			break;
 		}
 
-		for(unsigned i = 0; i < state->length_epsilon; ++i)
-		{
-			value.pointer = state->next_epsilon[i];
-			_queue_insert(start, value, POINTER); //FIXME NULL possible
-		}
+		// for(unsigned i = 0; i < state->length_epsilon; ++i)
+		// {
+		// 	value.pointer = state->next_epsilon[i];
+		// 	_queue_insert(start, value, POINTER); //FIXME NULL possible
+		// }
 	}
 
 	_queue_destroy(start);

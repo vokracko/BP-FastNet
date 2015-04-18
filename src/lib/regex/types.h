@@ -14,6 +14,7 @@ typedef struct _dfa_state
 	struct _dfa_state ** next;
 	unsigned length;
 	unsigned char id;
+	unsigned num;
 } _dfa_state;
 
 typedef struct _nfa_state
@@ -25,6 +26,7 @@ typedef struct _nfa_state
 
 	struct _nfa_state ** next_epsilon;
 	unsigned length_epsilon;
+	unsigned num;
 } _nfa_state;
 
 typedef struct
@@ -40,7 +42,7 @@ typedef struct
 	char * input;
 } regex_pattern;
 
-typedef struct _nfa_state regex_root;
+typedef struct _dfa_state regex_root;
 
 #endif
 
