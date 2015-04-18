@@ -167,10 +167,24 @@ list_item_value * list_find(list * root, list_item_value value, int (*match) (li
 
 	while(item != NULL)
 	{
-		if(match(item->value, value) == 0) return &(item->value);
+		if(match(item->value, value)) return &(item->value);
 
 		item = item->next;
 	}
 
 	return NULL;
+}
+
+void list_append_unique(list * root, list_item_value value, char value_type)
+{
+	list_item * item = root->head;
+
+	while(item != NULL)
+	{
+		if(item->value.pointer == value.pointer) return;
+
+		item = item->next;
+	}
+
+	list_append_back(root, value, value_type);
 }

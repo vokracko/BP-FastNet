@@ -48,3 +48,4 @@ void list_free_pointers(list * root, void (*function)(void*));
 _Bool list_search(list * root, list_item_value, char value_type);
 void list_clear(list * root);
 list_item_value * list_find(list * root, list_item_value value, int (*match) (list_item_value, list_item_value));
+void list_append_unique(list * root, list_item_value value, char value_type);
