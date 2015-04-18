@@ -422,16 +422,6 @@ _Bool _quantificator(stack * stack_, short operation)
 	assert(value.number == operation);
 	block = _stack_pop(stack_).pointer;
 
-	if(operation != PLUS)
-	{
-		res = _nfa_add_epsilon_transition(block->start, block->end);
-
-		if(res == 0)
-		{
-			_nfa_block_destroy(block);
-			return 0;
-		}
-	}
 	if(operation != QUESTION_MARK)
 	{
 		res = _nfa_add_epsilon_transition(block->end, block->start);
@@ -479,6 +469,17 @@ _Bool _quantificator(stack * stack_, short operation)
 		}
 
 		block->start = epsilon;
+	}
+
+	if(operation != PLUS)
+	{
+		res = _nfa_add_epsilon_transition(block->start, block->end);
+
+		if(res == 0)
+		{
+			_nfa_block_destroy(block);
+			return 0;
+		}
 	}
 
 	value.pointer = block;
