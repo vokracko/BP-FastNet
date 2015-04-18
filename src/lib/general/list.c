@@ -11,15 +11,26 @@ _Bool list_empty(list * root)
 	return root->size == 0;
 }
 
-void list_append_back(list * root, list_item_value value, char value_type)
+list_item * _list_item_create(list_item_value value, char value_type)
 {
-	assert(root != NULL);
-
 	list_item * item = malloc(sizeof(list_item));
+
+	if(item == NULL) return NULL;
 
 	item->value_type = value_type;
 	item->value = value;
 	item->next = NULL;
+
+	return item;
+}
+
+_Bool list_append_back(list * root, list_item_value value, char value_type)
+{
+	assert(root != NULL);
+
+	list_item * item = _list_item_create(value, value_type);
+
+	if(item == NULL) return 0;
 
 	if(list_empty(root))
 	{
@@ -32,17 +43,17 @@ void list_append_back(list * root, list_item_value value, char value_type)
 	}
 
 	++root->size;
+
+	return 1;
 }
 
-void list_append_front(list * root, list_item_value value, char value_type)
+_Bool list_append_front(list * root, list_item_value value, char value_type)
 {
 	assert(root != NULL);
 
-	list_item * item = malloc(sizeof(list_item));
+	list_item * item = _list_item_create(value, value_type);
 
-	item->value_type = value_type;
-	item->value = value;
-	item->next = NULL;
+	if(item == NULL) return 0;
 
 	if(list_empty(root))
 	{
@@ -55,11 +66,12 @@ void list_append_front(list * root, list_item_value value, char value_type)
 	}
 
 	++root->size;
+
+	return 1;
 }
 
 list_item_value list_pop(list * root)
 {
-	assert(root != NULL);
 	assert(!list_empty(root));
 
 	list_item * item = root->head;
@@ -76,12 +88,17 @@ list_item_value list_pop(list * root)
 
 unsigned list_size(list * root)
 {
+	assert(root != NULL);
+
 	return root->size;
 }
 
 list * list_init()
 {
 	list * root = malloc(sizeof(list));
+
+	if(root == NULL) return NULL;
+
 	root->head = root->tail = NULL;
 	root->size = 0;
 
@@ -96,17 +113,16 @@ void list_clear(list * root)
 	}
 }
 
-void list_destroy(list * root)
+void list_destroy(void * root)
 {
-	assert(root != NULL);
-
-	list_clear(root);
-
+	list_clear((list *) root);
 	free(root);
 }
 
 list_item_value list_front(list * root)
 {
+	assert(!list_empty(root));
+
 	return root->head->value;
 }
 
@@ -127,6 +143,8 @@ list_item_value list_first_type(list * root, char type)
 
 void list_free_pointers(list * root, void (*function)(void*))
 {
+	assert(root != NULL);
+
 	list_item * item = root->head;
 
 	while(item != NULL)
@@ -142,6 +160,8 @@ void list_free_pointers(list * root, void (*function)(void*))
 
 _Bool list_contains(list * root, list_item_value value, char value_type)
 {
+	assert(root != NULL);
+
 	list_item * item = root->head;
 
 	while(item != NULL)
@@ -175,16 +195,18 @@ list_item_value * list_find(list * root, list_item_value value, int (*match) (li
 	return NULL;
 }
 
-void list_append_unique(list * root, list_item_value value, char value_type)
+_Bool list_append_unique(list * root, list_item_value value, char value_type)
 {
+	assert(root != NULL);
+
 	list_item * item = root->head;
 
 	while(item != NULL)
 	{
-		if(item->value.pointer == value.pointer) return;
+		if(item->value.pointer == value.pointer) return 0;
 
 		item = item->next;
 	}
 
-	list_append_back(root, value, value_type);
+	return list_append_back(root, value, value_type);
 }
