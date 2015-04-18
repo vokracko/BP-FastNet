@@ -1,5 +1,6 @@
 #include "common.h"
 #include <strings.h>
+#include <limits.h>
 
 enum SYMBOLS
 {

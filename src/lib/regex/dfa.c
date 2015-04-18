@@ -227,7 +227,7 @@ _nfa_block * _nfa_create_dot_block()
 {
 	_nfa_block * block = _nfa_create_block(0); //FIXME NULL possible
 
-	for(unsigned char i = 1; i < 128; ++i)
+	for(int i = CHAR_MIN; i < CHAR_MAX; ++i)
 	{
 		_nfa_add_transition(block->start, i, block->end); //FIXME NULL possible
 		// TODO kontroloval res a když chyba tak break a odmazat všechny stavy
@@ -674,7 +674,7 @@ void * _dfa_convert(_nfa_state * root)
 	{
 		pair = _stack_pop(pairs_unprocessed).pointer;
 
-		for(unsigned char i = 0; i <= 127; ++i)
+		for(int i = CHAR_MIN; i <= CHAR_MAX; ++i)
 		{
 			_dfa_move(pair->nfa_states, move_states, i);
 			closure_states = _dfa_epsilon_closure(move_states);
