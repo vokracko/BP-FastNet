@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 #include "types-precompiled.h"
 
 #define GET_BIT_LSB(data, position) ((data >> (position)) & 1)

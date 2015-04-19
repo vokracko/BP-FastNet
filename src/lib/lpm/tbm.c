@@ -8,6 +8,8 @@
  */
 inline uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
 {
+	assert(bitmap != NULL);
+
 	uint16_t sum = 0;
 	uint32_t map;
 	uint8_t num_bits;
@@ -27,6 +29,8 @@ inline uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
 
 inline void _tbm_zeros(uint32_t * bitmap, uint16_t size)
 {
+	assert(bitmap != NULL);
+
 	memset(bitmap, 0, sizeof(*bitmap) * size);
 }
 
@@ -38,6 +42,8 @@ inline void _tbm_zeros(uint32_t * bitmap, uint16_t size)
  */
 inline int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
 {
+	assert(bit_vector != NULL);
+
 	int8_t length = STRIDE;
 	uint16_t bit_position;
 
@@ -68,6 +74,9 @@ inline int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
  */
 inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, uint16_t * index)
 {
+	assert(root != NULL);
+	assert(index != NULL);
+
 	uint16_t bit_value;
 	uint8_t length;
 	uint8_t position = 0;
@@ -101,6 +110,8 @@ inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_
  */
 inline void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child)
 {
+	assert(node != NULL);
+
 	uint16_t bitsum;
 	uint8_t index_start;
 	uint16_t all;
@@ -149,6 +160,8 @@ inline void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child)
  */
 inline void _tbm_reduce(_tbm_node * node, uint16_t bit_value, bool shift_child)
 {
+	assert(node != NULL);
+
 	uint16_t bitsum;
 	uint8_t index_start;
 	uint16_t all;
@@ -186,6 +199,8 @@ inline void _tbm_reduce(_tbm_node * node, uint16_t bit_value, bool shift_child)
  */
 void _tbm_destroy(_tbm_node * node)
 {
+	assert(node != NULL);
+
 	free(node->rule);
 
 	for(int i = 0; i < _tbm_bitsum(node->external, _TBM_ALL_EXTERNAL); ++i)
@@ -213,6 +228,8 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 
 void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
+	assert(root != NULL);
+
 	uint8_t position = 0;
 	uint16_t index;
 	uint16_t bit_value;
@@ -243,17 +260,24 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 
 void lpm_update(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
+	assert(root != NULL);
+
 	uint16_t index;
 	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index);
+
+	assert(node != NULL);
 
 	node->rule[_tbm_bitsum(node->internal, index)] = rule;
 }
 
 void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
 {
+	assert(root != NULL);
+
 	uint16_t index;
 	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index);
 
+	assert(node != NULL);
 
 	_tbm_reduce(node, index, false);
 	CLEAR_BIT_LSB(node->internal[index / 32], index % 32);
@@ -261,12 +285,16 @@ void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
 
 void lpm_destroy(lpm_root * root)
 {
+	assert(root != NULL);
+
 	_tbm_destroy(root);
 	free(root);
 }
 
 uint32_t lpm_lookup(lpm_root * root, uint32_t key)
 {
+	assert(root != NULL);
+
 	_tbm_node * node = root;
 	_tbm_node * parent = NULL;
 	_tbm_node * longest_match_node = root;
