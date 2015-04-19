@@ -89,9 +89,24 @@ int main(int argc, char * argv[])
 	FILE * handle = fopen(argv[1], "r");
 	int result;
 
-	regex_root * root = NULL;
-	regex_pattern * patterns = malloc(sizeof(regex_pattern) * size);
+	regex_dfa * dfa_root = NULL;
+	regex_nfa * nfa_root = NULL;
 
+	#ifdef dfa
+		#define root dfa_root
+		#define DESTROY regex_destroy_dfa
+		#define CONSTRUCT regex_construct_dfa
+		#define MATCH regex_match_dfa
+	#endif
+
+	#ifdef nfa
+		#define root nfa_root
+		#define DESTROY regex_destroy_nfa
+		#define CONSTRUCT regex_construct_nfa
+		#define MATCH regex_match_nfa
+	#endif
+
+	regex_pattern * patterns = malloc(sizeof(regex_pattern) * size);
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
@@ -120,9 +135,10 @@ int main(int argc, char * argv[])
 
 		if(strcmp(cmd, "commit") == 0)
 		{
-			regex_destroy(root);
-			root = regex_construct(patterns, count);
-			fail = root == NULL && id == -1;
+			DESTROY(root);
+			root = CONSTRUCT(patterns, count);
+
+			fail = (root == NULL && id != -1) || (root != NULL && id == -1);
 			free_patterns(patterns, &count);
 
 			sprintf(line, "commit %s\n", fail ? "FAIL" : "PASS");
@@ -130,7 +146,8 @@ int main(int argc, char * argv[])
 
 		if(strcmp(cmd, "match") == 0)
 		{
-			result = regex_match(root, string, length);
+			result = MATCH(root, string, length);
+
 			fail = result != id;
 			sprintf(line, "matching againts %s with result %s\n", string, fail ? "FAIL" : "PASS");
 		}
@@ -142,7 +159,7 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	regex_destroy(root);
+	DESTROY(root);
 	free(patterns);
 	fclose(handle);
 

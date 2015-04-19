@@ -1,8 +1,9 @@
-#include "types-precompiled.h"
+#include "regex.h"
 #include "../general/list.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
 
 
 #define _stack_init list_init
@@ -20,5 +21,6 @@
 #define _queue_size list_size
 #define _queue_destroy list_destroy
 #define _queue_insert list_append_back
+#define _queue_insert_unique list_append_unique
 #define _queue_pop_front list_pop
 #define _queue_front list_first

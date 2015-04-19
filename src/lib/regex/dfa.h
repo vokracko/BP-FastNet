@@ -1,6 +1,7 @@
 #include "common.h"
 #include <strings.h>
 #include <limits.h>
+#include <errno.h>
 
 enum SYMBOLS
 {
@@ -32,6 +33,8 @@ enum
 
 #define EPSILON 400
 #define ID_NONE 0
+#define NOT_MATCH -1
+#define _DFA_CLEAR(free_dfa_states) _dfa_clear(root, nfa_list, move_states, pairs_created, pairs_unprocessed, free_dfa_states)
 
 short validation_table[11][13] =
 {

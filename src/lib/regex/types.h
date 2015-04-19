@@ -1,12 +1,12 @@
-#define PM_RULE uint32_t
-#define PM_RULE_NONE 0
+enum REGEX_ERRORS
+{
+	REGEX_OUT_OF_MEMORY = 512,
+	REGEX_INVALID_ID,
+	REGEX_INVALID,
+	REGEX_EMPTY
+};
 
-#ifndef PM_RULE_NONE
-#error PM_RULE_NONE not defined
-#endif
-
-
-#ifdef dfa
+#ifdef ALG_dfa
 
 typedef struct _dfa_state
 {
@@ -14,7 +14,6 @@ typedef struct _dfa_state
 	struct _dfa_state ** next;
 	unsigned length;
 	unsigned char id;
-	unsigned num;
 } _dfa_state;
 
 typedef struct _nfa_state
@@ -26,7 +25,6 @@ typedef struct _nfa_state
 
 	struct _nfa_state ** next_epsilon;
 	unsigned length_epsilon;
-	unsigned num;
 } _nfa_state;
 
 typedef struct
@@ -42,10 +40,11 @@ typedef struct
 	char * input;
 } regex_pattern;
 
-typedef struct _dfa_state regex_root;
+typedef struct _nfa_state regex_nfa;
+typedef struct _dfa_state regex_dfa;
 
 #endif
 
-#ifdef ddfa
+#ifdef ALG_ddfa
 
 #endif
