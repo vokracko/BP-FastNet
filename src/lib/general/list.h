@@ -1,15 +1,8 @@
-
-enum
-{
-	POINTER,
-	CHARACTER,
-	NUMBER
-};
+#include "common.h"
 
 typedef union
 {
 	void * pointer;
-	char character;
 	short number;
 } list_item_value;
 
@@ -20,7 +13,8 @@ typedef struct list_item
 	list_item_value value;
 } list_item;
 
-typedef list_item stack_item;
+// typedef list_item stack_item;
+typedef list_item queue_item;
 
 typedef struct
 {
@@ -29,11 +23,11 @@ typedef struct
 	unsigned size;
 } list;
 
-typedef list stack;
 typedef list queue;
+// typedef list stack;
 
-typedef list_item_value stack_item_value;
 typedef list_item_value queue_item_value;
+// typedef list_item_value stack_item_value;
 
 unsigned list_size(list * root);
 void list_destroy(void * root);
