@@ -96,6 +96,9 @@ Pro dosažení větší rychlosti je routovací tabulka v paměti směrovače ul
 V této práci jsou pro uložení routovací tabulky využity algoritmy {\tt Binary search on prefix length} a {\tt TreeBitmap}.
 Oba jsou variací obecně n-árního stromu.
 
+Při chybě alokace dojde na rozdíl od odstatních podúloh k zanechání již vytvořené fungující struktury
+a to z důvodu předpokladu, že routovací tabulka se mění v čase běhu programu
+
 \subsection{Hledání podřetězců}
 Pro hledání potřetězců je implementován algoritmus autorů Aho a Corasicové. Tento algoritmus používá pro zjištění shody s podřetězcem konceptu konečného automatu. Při každé iteraci algoritmu se provede přechod o jeden znak.
 
@@ -112,12 +115,58 @@ L2 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o 
 L3 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
 L4 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
 
+Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické přidávání pravidel za běhu programu
+
 \subsubsection{Regulární výrazy}
 
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/regex-block.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:regex-block}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/regex-concat.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:regex-concat}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/regex-or.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:regex-or}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/regex-star.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:regex-star}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/regex-plus.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:regex-plus}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=.25]{fig/regex-questionmark.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:regex-questionmark}
+\end{figure}
 TODO konstrukce NFA
 TODO konstrukce DFA z NFA
 TODO konstrukce MDFA z DFA
 == 3 strany
+
+Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické přidávání pravidel
+regulárních výrazů za běhu programu
 
 
 \subsection{}
@@ -153,5 +202,9 @@ Závěrečná kapitola obsahuje zhodnocení dosažených výsledků se zvlášť
 \section{Další vývoj projektu}
 
 Jako další kroky pro vylepšení knihovny bych zvolil optimalizaci implementovaných algoritmů dle
+
+Stress testing
+- ověřit že se knihovna chová dle specifikace i při nedostaku paměti a v případech, kdy dojde k malloc nullu
+a provolávají se různé funkce
 
 %=========================================================================
