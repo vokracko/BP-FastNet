@@ -34,7 +34,7 @@ enum
 #define EPSILON 400
 #define ID_NONE 0
 #define NOT_MATCH -1
-#define _DFA_CLEAR(free_dfa_states) _dfa_clear(root, nfa_list, move_states, pairs_created, pairs_unprocessed, free_dfa_states)
+#define _DFA_CLEAR(free_dfa_states) _dfa_clear(root, nfa_list, move_states, pairs_created, closure_states, pairs_unprocessed, free_dfa_states)
 
 short validation_table[11][13] =
 {
@@ -70,5 +70,5 @@ char precedence_table[12][12] =
 typedef struct
 {
 	_dfa_state * dfa_state;
-	list * nfa_states;
+	stack * nfa_states;
 } _dfa_pair;

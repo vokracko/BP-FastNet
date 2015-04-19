@@ -6,13 +6,13 @@ GENERAL=../general
 all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
 all: lib
 
-lib: list $(ALG).c precompile-headers
+lib: stack $(ALG).c precompile-headers
 	$(CC) $(FLAGS) -DALG_$(ALG) -c $(ALG).c -o $(ALG).o
 	rm -f regex.a
-	ar rcs regex.a $(ALG).o  $(GENERAL)/list.o
+	ar rcs regex.a $(ALG).o $(GENERAL)/stack.o
 
-list:
-	make -C $(GENERAL) list
+stack:
+	make -C $(GENERAL) stack
 
 precompile-headers: types.h
 	gcc -DALG_$(ALG) -E -dU -nostdinc types.h -o types-precompiled.h

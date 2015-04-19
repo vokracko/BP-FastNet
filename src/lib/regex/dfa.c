@@ -1,4 +1,6 @@
 #include "dfa.h"
+#include "../general/stack.h"
+
 
 void * _out_of_memory()
 {
@@ -133,7 +135,7 @@ _nfa_state * _nfa_create_state()
 
 _dfa_state * _dfa_create_state()
 {
-	_dfa_state * state = malloc(sizeof(_dfa_state)); //FIXME null
+	_dfa_state * state = malloc(sizeof(_dfa_state));
 
 	if(state == NULL) return _out_of_memory();
 
@@ -162,9 +164,9 @@ void _dfa_state_free(_dfa_state * state)
 	free(state);
 }
 
-void _nfa_state_destroy(list * list_freed, _nfa_state * state)
+void _nfa_state_destroy(stack * already_freed, _nfa_state * state)
 {
-	list_item_value value;
+	stack_item_value value;
 	value.pointer = state;
 
 	/*
@@ -179,29 +181,30 @@ void _nfa_state_destroy(list * list_freed, _nfa_state * state)
 	free(state->key);
 	free(state);
 
-	list_append_front(list_freed, value, POINTER);
+	stack_push_unique(already_freed, value, POINTER);
 
 	for(unsigned i = 0; i < length; ++i)
 	{
 		value.pointer = next[i];
-		if(list_contains(list_freed, value, POINTER)) continue;
-		_nfa_state_destroy(list_freed, value.pointer);
+		if(stack_contains(already_freed, value, POINTER)) continue;
+		_nfa_state_destroy(already_freed, value.pointer);
 	}
+
+	free(next);
 
 	for(unsigned i = 0; i < length_epsilon; ++i)
 	{
 		value.pointer = next_epsilon[i];
-		if(list_contains(list_freed, value, POINTER)) continue;
-		_nfa_state_destroy(list_freed, value.pointer);
+		if(stack_contains(already_freed, value, POINTER)) continue;
+		_nfa_state_destroy(already_freed, value.pointer);
 	}
 
-	free(next);
 	free(next_epsilon);
 }
 
-void _dfa_state_destroy(list * list_freed, _dfa_state * state)
+void _dfa_state_destroy(stack * already_freed, _dfa_state * state)
 {
-	list_item_value value;
+	stack_item_value value;
 	value.pointer = state;
 
 	/*
@@ -214,13 +217,13 @@ void _dfa_state_destroy(list * list_freed, _dfa_state * state)
 	free(state->key);
 	free(state);
 
-	list_append_front(list_freed, value, POINTER);
+	stack_push(already_freed, value, POINTER);
 
 	for(unsigned i = 0; i < length; ++i)
 	{
 		value.pointer = next[i];
-		if(list_contains(list_freed, value, POINTER)) continue;
-		_dfa_state_destroy(list_freed, value.pointer);
+		if(stack_contains(already_freed, value, POINTER)) continue;
+		_dfa_state_destroy(already_freed, value.pointer);
 	}
 
 	free(next);
@@ -228,20 +231,26 @@ void _dfa_state_destroy(list * list_freed, _dfa_state * state)
 
 void _dfa_destroy(_dfa_state * state)
 {
-	list list_freed;
+	stack already_freed;
 
-	bzero(&list_freed, sizeof(list));
-	_dfa_state_destroy(&list_freed, state);
-	list_clear(&list_freed);
+	already_freed.data = NULL;
+	already_freed.size = 0;
+	already_freed.top = -1;
+
+	_dfa_state_destroy(&already_freed, state);
+	free(already_freed.data);
 }
 
 void _nfa_destroy(_nfa_state * state)
 {
-	list list_freed;
+	stack already_freed;
 
-	bzero(&list_freed, sizeof(list));
-	_nfa_state_destroy(&list_freed, state);
-	list_clear(&list_freed);
+	already_freed.data = NULL;
+	already_freed.size = 0;
+	already_freed.top = -1;
+
+	_nfa_state_destroy(&already_freed, state);
+	free(already_freed.data);
 }
 
 
@@ -269,7 +278,7 @@ _nfa_block * _nfa_create_block(short symbol)
 		return _out_of_memory();
 	}
 
-	res = _nfa_add_transition(block->start, symbol, block->end); //FIXME NULL possible
+	res = _nfa_add_transition(block->start, symbol, block->end);
 
 	if(res == 0)
 	{
@@ -285,8 +294,9 @@ _nfa_block * _nfa_create_block(short symbol)
 
 _nfa_block * _nfa_create_dot_block()
 {
-	_nfa_block * block = _nfa_create_block(0); //FIXME NULL possible
 	_Bool res;
+	_nfa_block * block = _nfa_create_block(0);
+
 	if(block == NULL) return _out_of_memory();
 
 	for(int i = CHAR_MIN; i < CHAR_MAX; ++i)
@@ -305,35 +315,35 @@ _nfa_block * _nfa_create_dot_block()
 	return block;
 }
 
-_dfa_pair * _dfa_create_pair(list * nfa_states)
+_dfa_pair * _dfa_create_pair(stack ** nfa_states)
 {
-	list_item * item = nfa_states->head;
 	unsigned char id;
-	_dfa_pair * pair = malloc(sizeof(_dfa_pair));
 
-	if(pair == NULL) return _out_of_memory();
+	stack * tmp = stack_init();
+	if(tmp == NULL) return _out_of_memory();
+
+	_dfa_pair * pair = malloc(sizeof(_dfa_pair));
+	if(pair == NULL) return stack_destroy(tmp), _out_of_memory();
 
 	pair->dfa_state = _dfa_create_state();
-
 	if(pair->dfa_state == NULL)
 	{
 		free(pair);
-		return _out_of_memory();
+		return stack_destroy(tmp), _out_of_memory();
 	}
 
-	while(item != NULL)
+	pair->nfa_states = *nfa_states;
+	*nfa_states = tmp;
+
+	for(int i = 0; i <= pair->nfa_states->top; ++i)
 	{
-		id = ((_nfa_state *) item->value.pointer)->id;
+		id = ((_nfa_state *) pair->nfa_states->data[i].value.pointer)->id;
 		if(id != ID_NONE)
 		{
 			pair->dfa_state->id = id;
 			break;
 		}
-
-		item = item->next;
 	}
-
-	pair->nfa_states = nfa_states;
 
 	return pair;
 }
@@ -349,7 +359,7 @@ void _nfa_block_destroy(void * block)
 
 void _dfa_pair_free(void * pair)
 {
-	list_destroy(((_dfa_pair *) pair)->nfa_states);
+	stack_destroy(((_dfa_pair *) pair)->nfa_states);
 	free(pair);
 }
 
@@ -365,24 +375,25 @@ void _dfa_pair_destroy(void * pair)
  */
 void * _nfa_clear(stack * stack_)
 {
-	_stack_free_pointers(stack_, _nfa_block_destroy);
-	_stack_destroy(stack_);
+	stack_free_pointers(stack_, _nfa_block_destroy);
+	stack_destroy(stack_);
 
 	return NULL;
 }
 
-void * _dfa_clear(_nfa_state * root, list * nfa_list, list * move_states, list * pairs_created, list * pairs_unprocessed, _Bool free_dfa_states)
+void * _dfa_clear(_nfa_state * root, stack * nfa_states, stack * move_states, stack * pairs_created, stack * closure_states, stack * pairs_unprocessed, _Bool free_dfa_states)
 {
 	regex_destroy_nfa(root);
 
-	list_destroy(nfa_list);
-	list_destroy(move_states);
+	stack_destroy(nfa_states);
+	stack_destroy(move_states);
+	stack_destroy(closure_states);
 
-	if(free_dfa_states) list_free_pointers(pairs_created, _dfa_pair_destroy);
-	else list_free_pointers(pairs_created, _dfa_pair_free);
-	list_destroy(pairs_created);
-	list_free_pointers(pairs_unprocessed, _dfa_pair_destroy);
-	list_destroy(pairs_unprocessed);
+	if(free_dfa_states) stack_free_pointers(pairs_created, _dfa_pair_destroy);
+	else stack_free_pointers(pairs_created, _dfa_pair_free);
+	stack_destroy(pairs_created);
+	stack_free_pointers(pairs_unprocessed, _dfa_pair_destroy);
+	stack_destroy(pairs_unprocessed);
 
 	return NULL;
 }
@@ -394,16 +405,16 @@ void * _dfa_clear(_nfa_state * root, list * nfa_list, list * move_states, list *
 _Bool _concat(stack * stack_)
 {
 	assert(stack_ != NULL);
-	assert(_stack_size(stack_) >= 3);
+	assert(stack_size(stack_) >= 3);
 
 	stack_item_value value;
 	_nfa_block * first;
 	_nfa_block * second;
 
-	second = _stack_pop(stack_).pointer;
-	value = _stack_pop(stack_);
+	second = stack_pop(stack_).pointer;
+	value = stack_pop(stack_);
 	assert(value.number == CONCAT);
-	first = _stack_pop(stack_).pointer;
+	first = stack_pop(stack_).pointer;
 
 	// _nfa_add_epsilon_transition(first->end, second->start);
 
@@ -414,7 +425,7 @@ _Bool _concat(stack * stack_)
 	free(second);
 
 	value.pointer = first;
-	if(_stack_push(stack_, value, POINTER) == 0)
+	if(stack_push(stack_, value, POINTER) == 0)
 	{
 		_nfa_block_destroy(value.pointer);
 		return 0;
@@ -426,17 +437,17 @@ _Bool _concat(stack * stack_)
 _Bool _or(stack * stack_)
 {
 	assert(stack_ != NULL);
-	assert(_stack_size(stack_) >= 3);
+	assert(stack_size(stack_) >= 3);
 
 	stack_item_value value;
 	_nfa_block * first;
 	_nfa_block * second;
 	_Bool res;
 
-	second = _stack_pop(stack_).pointer;
-	value = _stack_pop(stack_);
+	second = stack_pop(stack_).pointer;
+	value = stack_pop(stack_);
 	assert(value.number == OR);
-	first = _stack_pop(stack_).pointer;
+	first = stack_pop(stack_).pointer;
 
 	res = _nfa_add_epsilon_transition(first->start, second->start);
 
@@ -458,7 +469,7 @@ _Bool _or(stack * stack_)
 
 	value.pointer = first;
 
-	if(_stack_push(stack_, value, POINTER) == 0)
+	if(stack_push(stack_, value, POINTER) == 0)
 	{
 		_nfa_block_destroy(first);
 		return 0;
@@ -470,16 +481,16 @@ _Bool _or(stack * stack_)
 _Bool _quantificator(stack * stack_, short operation)
 {
 	assert(stack_ != NULL);
-	assert(_stack_size(stack_) >= 2);
+	assert(stack_size(stack_) >= 2);
 
 	stack_item_value value;
 	_nfa_block * block;
 	_nfa_state * epsilon;
 	_Bool res;
 
-	value = _stack_pop(stack_);
+	value = stack_pop(stack_);
 	assert(value.number == operation);
-	block = _stack_pop(stack_).pointer;
+	block = stack_pop(stack_).pointer;
 
 	if(operation != QUESTION_MARK)
 	{
@@ -542,7 +553,7 @@ _Bool _quantificator(stack * stack_, short operation)
 	}
 
 	value.pointer = block;
-	if(_stack_push(stack_, value, POINTER) == 0)
+	if(stack_push(stack_, value, POINTER) == 0)
 	{
 		_nfa_block_destroy(block);
 		return 0;
@@ -576,7 +587,7 @@ _nfa_block * _enumeration(char * input, unsigned length, unsigned * position)
 		if(symbol == CLOSE_BRACKET) return block;
 		else if(!_is_char(symbol)) break;
 
-		res = _nfa_add_transition(block->start, symbol, block->end); //FIXME NULL possible
+		res = _nfa_add_transition(block->start, symbol, block->end);
 
 		if(res == 0) break;
 	}
@@ -607,7 +618,7 @@ unsigned _precedence(stack * stack_, short current)
 		current = SYMBOL;
 	}
 
-	stack_item_value top = _stack_top_operation(stack_);
+	stack_item_value top = stack_top_type(stack_, NUMBER);
 
 	return precedence_table[current - 300][top.number - 300];
 }
@@ -616,12 +627,12 @@ _Bool _reduce(stack * stack_)
 {
 	_Bool res;
 	stack_item_value value;
-	short symbol = _stack_top_operation(stack_).number;
+	short symbol = stack_top_type(stack_, NUMBER).number;
 
 	switch(symbol)
 	{
 		case OR:
-			res = _or(stack_); //FIXME NULL possible
+			res = _or(stack_);
 			break;
 
 		case CONCAT:
@@ -631,83 +642,70 @@ _Bool _reduce(stack * stack_)
 		case STAR:
 		case PLUS:
 		case QUESTION_MARK:
-			res = _quantificator(stack_, symbol); //FIXME NULL possible
+			res = _quantificator(stack_, symbol);
 			break;
 	}
 
 	return res;
 }
 
-list * _dfa_epsilon_closure(list * nfa)
+_Bool _dfa_epsilon_closure(stack * nfa, stack * closure)
 {
-	list * closure = list_init();
+	stack swap_stack;
 
-	if(closure == NULL) return _out_of_memory();
+	memcpy(&swap_stack, nfa, sizeof(stack));
+	memcpy(nfa, closure, sizeof(stack));
+	memcpy(closure, &swap_stack, sizeof(stack));
 
-	closure->head = nfa->head;
-	closure->tail = nfa->tail;
-	closure->size = nfa->size;
-
-	bzero(nfa, sizeof(list));
-
-	list_item * item = closure->head;
-	list_item_value value;
+	stack_item_value value;
+	stack_item * item;
 	unsigned length;
 
-	while(item != NULL)
+	for(int i = 0; i <= closure->top; ++i)
 	{
-		length = ((_nfa_state *) item->value.pointer)->length_epsilon;
+		item = closure->data[i].value.pointer;
+		length = ((_nfa_state *) item)->length_epsilon;
 
 		for(unsigned i = 0; i < length; ++i)
 		{
-			value.pointer = ((_nfa_state *) item->value.pointer)->next_epsilon[i];
-			if(list_append_unique(closure, value, POINTER) == 0) return list_destroy(closure), NULL;
+			value.pointer = ((_nfa_state *) item)->next_epsilon[i];
+			if(stack_push_unique(closure, value, POINTER) == 0) return 0;
 		}
-
-		item = item->next;
-	}
-
-	return closure;
-}
-
-_Bool _dfa_move(list * input_states, list * output_states, char character)
-{
-	list_item * item = input_states->head;
-	list_item_value value;
-	_nfa_state * state;
-	void * position;
-
-	while(item != NULL)
-	{
-		state = item->value.pointer;
-
-		if((position = memchr(state->key, character, state->length)) != NULL)
-		{
-			value.pointer = state->next[(char *) position - state->key];
-			if(list_append_unique(output_states, value, POINTER) == 0) return 0;
-		}
-
-		item = item->next;
 	}
 
 	return 1;
 }
 
-int _dfa_match_processed(list_item_value first, list_item_value second)
+_Bool _dfa_move(stack * input_states, stack * output_states, char character)
 {
-	list_item * first_item = ((_dfa_pair *)first.pointer)->nfa_states->head;
-	list * second_list = ((list *)second.pointer);
+	stack_item_value value;
+	_nfa_state * state;
+	void * position;
 
-	unsigned first_size = ((_dfa_pair *)first.pointer)->nfa_states->size;
-	unsigned second_size = second_list->size;
-
-	if(first_size != second_size) return 0;
-
-	while(first_item != NULL)
+	for(int i = 0; i <= input_states->top; ++i)
 	{
-		if(!list_contains(second_list, first_item->value, POINTER)) return 0;
+		state = input_states->data[i].value.pointer;
 
-		first_item = first_item->next;
+		if((position = memchr(state->key, character, state->length)) != NULL)
+		{
+			value.pointer = state->next[(char *) position - state->key];
+			if(stack_push_unique(output_states, value, POINTER) == 0) return 0;
+		}
+	}
+
+	return 1;
+}
+
+int _dfa_match_processed(stack_item_value first, stack_item_value second)
+{
+	stack * first_stack = ((_dfa_pair *)first.pointer)->nfa_states;
+	stack * second_stack = second.pointer;
+
+	if(first_stack->top != second_stack->top) return 0;
+
+	for(int i = 0; i <= first_stack->top; ++i)
+	{
+		if(!stack_contains(second.pointer, first_stack->data[i].value, POINTER)) return 0;
 	}
 
 	return 1;
@@ -735,13 +733,13 @@ int _dfa_match_processed(list_item_value first, list_item_value second)
 	_nfa_block * block;
 
 	stack_item_value value;
-	stack * stack_ = _stack_init();
+	stack * stack_ = stack_init();
 
 	if(stack_ == NULL) return _out_of_memory();
 
 	value.number = STACK_BOTTOM;
 
-	if(_stack_push(stack_, value, NUMBER) == 0) return _nfa_clear(stack_);
+	if(stack_push(stack_, value, NUMBER) == 0) return _nfa_clear(stack_);
 
 	while(current != END)
 	{
@@ -778,9 +776,9 @@ int _dfa_match_processed(list_item_value first, list_item_value second)
 			else if(precedence_res == FIN) break;
 			else if(precedence_res == EQUAL) // only in case current = CLOSE_PAREN && stack_top_operation == OPEN_PAREN
 			{
-				value = _stack_pop(stack_); // pop block
-				_stack_pop(stack_); // pop OPEN_PAREN
-				if(_stack_push(stack_, value, POINTER) == 0) return _nfa_block_destroy(value.pointer), _nfa_clear(stack_); // FIXME free value.pointer
+				value = stack_pop(stack_); // pop block
+				stack_pop(stack_); // pop OPEN_PAREN
+				if(stack_push(stack_, value, POINTER) == 0) return _nfa_block_destroy(value.pointer), _nfa_clear(stack_);
 				prev = CLOSE_PAREN;
 			}
 
@@ -793,13 +791,13 @@ int _dfa_match_processed(list_item_value first, list_item_value second)
 					prev = DOT;
 					value.pointer = _nfa_create_dot_block();
 					if(value.pointer == NULL) return _nfa_clear(stack_);
-					if(_stack_push(stack_, value, POINTER) == 0) return _nfa_clear(stack_); // FIXME free value.pointer
+					if(stack_push(stack_, value, POINTER) == 0) return _nfa_block_destroy(value.pointer), _nfa_clear(stack_);
 					break;
 
 				case OPEN_BRACKET:
 					value.pointer = _enumeration(input, length, &position);
 					if(value.pointer == NULL) return _nfa_clear(stack_);
-					if(_stack_push(stack_, value, POINTER) == 0) return _nfa_block_destroy(value.pointer), _nfa_clear(stack_); // FIXME free value.pointer
+					if(stack_push(stack_, value, POINTER) == 0) return _nfa_block_destroy(value.pointer), _nfa_clear(stack_);
 					prev = CLOSE_BRACKET;
 					break;
 
@@ -811,33 +809,33 @@ int _dfa_match_processed(list_item_value first, list_item_value second)
 				case PLUS:
 					prev = current;
 					value.number = current;
-					if(_stack_push(stack_, value, NUMBER) == 0) return _nfa_clear(stack_); // FIXME free value.pointer
+					if(stack_push(stack_, value, NUMBER) == 0) return _nfa_clear(stack_);
 					break;
 
 				default:
 					value.pointer = _nfa_create_block(current);
 					if(value.pointer == NULL) return _nfa_clear(stack_);
-					if(_stack_push(stack_, value, POINTER) == 0) return _nfa_block_destroy(value.pointer), _nfa_clear(stack_); // FIXME free value.pointer
+					if(stack_push(stack_, value, POINTER) == 0) return _nfa_block_destroy(value.pointer), _nfa_clear(stack_);
 					prev = SYMBOL;
 					break;
 			}
 		} while(loop_again);
 	}
 
-	while(_stack_top_operation(stack_).number != STACK_BOTTOM)
+	while(stack_top_type(stack_, NUMBER).number != STACK_BOTTOM)
 	{
 		if(_reduce(stack_) == 0) return _nfa_clear(stack_);
 	}
 
-	assert(_stack_size(stack_) == 2);
-	assert(_stack_top_operation(stack_).number == STACK_BOTTOM);
+	assert(stack_size(stack_) == 2);
+	assert(stack_top_type(stack_, NUMBER).number == STACK_BOTTOM);
 
-	block = _stack_pop(stack_).pointer;
+	block = stack_pop(stack_).pointer;
 	block->end->id = pattern.id;
 	regex = block->start;
 	free(block);
 
-	_stack_destroy(stack_);
+	stack_destroy(stack_);
 
 	return regex;
 }
@@ -845,71 +843,69 @@ int _dfa_match_processed(list_item_value first, list_item_value second)
 
 regex_dfa * _nfa_convert(regex_nfa * root)
 {
-	list_item_value value;
+	stack_item_value value;
 	_dfa_pair * pair;
 	_dfa_pair * new_pair;
-	list_item_value * existing_pair;
+	stack_item_value * existing_pair;
 	_dfa_state * dfa_root;
-	list * closure_states = NULL;
-	list * nfa_list = NULL;
-	list * move_states = NULL;
-	list * pairs_created = NULL;
+	stack * closure_states = NULL;
+	stack * nfa_list = NULL;
+	stack * move_states = NULL;
+	stack * pairs_created = NULL;
 	stack * pairs_unprocessed = NULL;
 
-	if((nfa_list = _stack_init()) == NULL) return _DFA_CLEAR(1);
-	if((move_states = _stack_init()) == NULL) return _DFA_CLEAR(1);
-	if((pairs_created = _stack_init()) == NULL) return _DFA_CLEAR(1);
-	if((pairs_unprocessed = _stack_init()) == NULL) return _DFA_CLEAR(1);
+	if((nfa_list = stack_init()) == NULL) return _DFA_CLEAR(1);
+	if((move_states = stack_init()) == NULL) return _DFA_CLEAR(1);
+	if((pairs_created = stack_init()) == NULL) return _DFA_CLEAR(1);
+	if((pairs_unprocessed = stack_init()) == NULL) return _DFA_CLEAR(1);
+	if((closure_states = stack_init()) == NULL) return _DFA_CLEAR(1);
 
 	value.pointer = root;
-	if(list_append_front(nfa_list, value, POINTER) == 0) return _DFA_CLEAR(1);
-	if((closure_states = _dfa_epsilon_closure(nfa_list)) == NULL) return _DFA_CLEAR(1);
+	if(stack_push(nfa_list, value, POINTER) == 0) return _DFA_CLEAR(1);
+	if(_dfa_epsilon_closure(nfa_list, closure_states) == 0) return _DFA_CLEAR(1);
 
-	list_destroy(nfa_list);
+	stack_destroy(nfa_list);
 	nfa_list = NULL;
 
-	if((pair = _dfa_create_pair(closure_states)) == NULL) return _DFA_CLEAR(1);
+	if((pair = _dfa_create_pair(&closure_states)) == NULL) return _DFA_CLEAR(1);
 
 	dfa_root = pair->dfa_state;
 
 	value.pointer = pair;
-	if((_stack_push(pairs_unprocessed, value, POINTER)) == 0) return _DFA_CLEAR(1);
-	if((list_append_back(pairs_created, value, POINTER)) == 0) return _DFA_CLEAR(1);
+	if((stack_push(pairs_unprocessed, value, POINTER)) == 0) return _DFA_CLEAR(1);
+	if((stack_push(pairs_created, value, POINTER)) == 0) return _DFA_CLEAR(1);
 
-	while(!_stack_empty(pairs_unprocessed))
+	while(!stack_empty(pairs_unprocessed))
 	{
-		pair = _stack_pop(pairs_unprocessed).pointer;
+		pair = stack_pop(pairs_unprocessed).pointer;
 
 		for(int i = CHAR_MIN; i <= CHAR_MAX; ++i)
 		{
 			if(_dfa_move(pair->nfa_states, move_states, i) == 0) return _DFA_CLEAR(1);
-			if((closure_states = _dfa_epsilon_closure(move_states)) == NULL) return _DFA_CLEAR(1);
+			if(_dfa_epsilon_closure(move_states, closure_states) == 0) return _DFA_CLEAR(1);
 
-			if(closure_states->size == 0)
+			if(stack_empty(closure_states))
 			{
-				list_destroy(closure_states);
-				closure_states = NULL;
 				continue;
 			}
 
 			value.pointer = closure_states;
-			existing_pair = list_find(pairs_created, value, _dfa_match_processed);
+			existing_pair = stack_find(pairs_created, value, _dfa_match_processed);
 
 			if(existing_pair == NULL)
 			{
-				new_pair = _dfa_create_pair(closure_states);
+				new_pair = _dfa_create_pair(&closure_states);
 				if(new_pair == NULL) return _DFA_CLEAR(1);
 				value.pointer = new_pair;
 
-				if(_stack_push(pairs_unprocessed, value, POINTER) == 0) return _dfa_pair_free(new_pair), _DFA_CLEAR(1);
-				if(list_append_back(pairs_created, value, POINTER) == 0) return _DFA_CLEAR(1);
+				if(stack_push(pairs_unprocessed, value, POINTER) == 0) return _dfa_pair_free(new_pair), _DFA_CLEAR(1);
+				if(stack_push(pairs_created, value, POINTER) == 0) return _DFA_CLEAR(1);
 				if(_dfa_add_transition(pair->dfa_state, i, new_pair->dfa_state) == 0) return _DFA_CLEAR(1);
 
 			}
 			else
 			{
-				list_destroy(closure_states);
-				closure_states = NULL;
+				closure_states->top = -1;
 				if(_dfa_add_transition(pair->dfa_state, i, ((_dfa_pair *) existing_pair->pointer)->dfa_state) == 0) return _DFA_CLEAR(1);
 			}
 		}
@@ -987,40 +983,45 @@ void regex_destroy_dfa(regex_dfa * root)
 
 int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 {
-	queue * start = _queue_init(); //FIXME NULL possible
-	queue * end = _queue_init(); //FIXME NULL possible
-	queue * swap_pointer;
-	queue_item_value value;
+	stack * start = NULL;
+	stack * end = NULL;
+	stack * swap_pointer;
+	stack_item_value value;
 	_nfa_state * state;
 	unsigned position = 0;
 	int result = NOT_MATCH;
 	void * char_position;
 
-	value.pointer = regex;
-	_queue_insert(start, value, POINTER); //FIXME NULL possible
+	if((start = stack_init()) == NULL) return errno = REGEX_OUT_OF_MEMORY, NOT_MATCH;
+	if((end = stack_init()) == NULL) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), NOT_MATCH;
 
+	value.pointer = regex;
+	if(stack_push(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 
 	while(position < length)
 	{
-		while(!_queue_empty(start))
+		while(!stack_empty(start))
 		{
-			state = _queue_pop_front(start).pointer;
+			state = stack_pop(start).pointer;
 
 			for(unsigned i = 0; i < state->length_epsilon; ++i)
 			{
 				value.pointer = state->next_epsilon[i];
-				_queue_insert_unique(start, value, POINTER); //FIXME NULL possible
+				if(stack_push_unique(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 			}
 
 			if((char_position = memchr(state->key, input[position], state->length))) // OR final state
 			{
 				value.pointer = state->next[char_position - (void *) state->key];
-				_queue_insert_unique(end, value, POINTER); //FIXME NULL possible
+				if(stack_push_unique(end, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 			}
 		}
 
-		value.pointer = regex;
-		_queue_insert_unique(end, value, POINTER); //FIXME NULL possible
+		if(stack_empty(end))
+		{
+			value.pointer = regex;
+			if(stack_push_unique(end, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
+		}
 
 		swap_pointer = end;
 		end = start;
@@ -1029,9 +1030,9 @@ int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
  		++position;
 	}
 
-	while(!_queue_empty(start))
+	while(!stack_empty(start))
 	{
-		state = _queue_pop_front(start).pointer;
+		state = stack_pop(start).pointer;
 
 		if(state->id != ID_NONE)
 		{
@@ -1042,12 +1043,12 @@ int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 		for(unsigned i = 0; i < state->length_epsilon; ++i)
 		{
 			value.pointer = state->next_epsilon[i];
-			_queue_insert(start, value, POINTER); //FIXME NULL possible
+			if(stack_push_unique(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 		}
 	}
 
-	_queue_destroy(start);
-	_queue_destroy(end);
+	stack_destroy(start);
+	stack_destroy(end);
 
 	return result;
 

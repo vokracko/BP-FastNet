@@ -1,5 +1,5 @@
 #include "regex.h"
-#include "../general/list.h"
+#include "../general/stack.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
