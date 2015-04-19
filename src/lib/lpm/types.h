@@ -1,7 +1,7 @@
 #define uint128_t long long
 #define _LPM_RULE uint8_t
 
-#ifdef bspl // ########################################################
+#ifdef ALG_bspl // ########################################################
 
 typedef struct _bspl_node
 {
@@ -25,7 +25,7 @@ typedef struct
 
 #endif
 
-#ifdef tbm // ########################################################
+#ifdef ALG_tbm // ########################################################
 #ifndef STRIDE
 #define STRIDE 2
 #endif

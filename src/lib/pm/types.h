@@ -6,7 +6,7 @@
 #endif
 
 
-#ifdef ac
+#ifdef ALG_ac
 
 #include "../general/list.h"
 
