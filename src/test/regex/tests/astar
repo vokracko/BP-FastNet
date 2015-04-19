@@ -1,4 +1,4 @@
 add a* 2 1
 commit - 0 0
 match aaaaa 5 1
-match bb 2 -1
+match bb 2 1

@@ -6,6 +6,7 @@ match . 1 1
 match \ 1 1
 match -a 2 1
 match --a 3 1
+match eee 3 1
 add (abc*)*.* 9 2
 commit - 0 0
 match ab 2 2
