@@ -19,3 +19,6 @@ types-precompiled.h
 bspl
 tbm
 ac
+dfa
+nfa
+ddfa
