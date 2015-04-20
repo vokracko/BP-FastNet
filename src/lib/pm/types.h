@@ -37,10 +37,6 @@ typedef struct
 	_ac_state * state; // last state
 } pm_result;
 
-typedef struct
-{
-	_ac_state * state;
-	pm_result * result;
-} pm_root;
+typedef _ac_state pm_root;
 
 #endif

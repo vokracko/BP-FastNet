@@ -87,6 +87,7 @@ int main(int argc, char * argv[])
 	pm_result * result = NULL;
 	FILE * handle = fopen(argv[1], "r");
 	pm_root * root;
+	_Bool res;
 	unsigned count = 0;
 	unsigned size = 10;
 	unsigned length;
@@ -94,7 +95,7 @@ int main(int argc, char * argv[])
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
-	root = pm_init();
+	root = pm_init(&result);
 
 	while(fscanf(handle, "%20s %1024s %u %u", cmd, string, &length, &rule) == 4)
 	{
@@ -129,12 +130,11 @@ int main(int argc, char * argv[])
 		else if(strcmp(cmd, "match") == 0)
 		{
 			fail = 1;
-			result = pm_match(root, string, length);
-
+			res = pm_match(root, result, string, length);
 			// test where rule should not be found
-			if(rule == PM_RULE_NONE && result == NULL) fail = 0;
+			if(rule == PM_RULE_NONE && res == 0) fail = 0;
 
-			while(result != NULL && fail == 1)
+			while(res == 1 && fail == 1)
 			{
 				for(unsigned i = 0; i < result->count; ++i)
 				{
@@ -144,7 +144,8 @@ int main(int argc, char * argv[])
 					}
 				}
 
-				result = pm_match_next(root);
+				res = pm_match_next(result);
+
 			}
 
 			sprintf(line, "matched for %s %d - %s\n", string, rule, fail ? "FAIL" : "PASS");
@@ -165,7 +166,7 @@ int main(int argc, char * argv[])
 
 	free(keywords);
 
-	pm_destroy(root);
+	pm_destroy(root, result);
 	fclose(handle);
 
 	return fail;
