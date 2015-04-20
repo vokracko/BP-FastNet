@@ -6,7 +6,7 @@ stack * stack_init()
 
 	if(root == NULL) return NULL;
 
-	root->data = malloc(sizeof(stack_item_value) * _STACK_DEFAULT_SIZE);
+	root->data = malloc(sizeof(stack_item) * _STACK_DEFAULT_SIZE);
 
 	if(root->data == NULL)
 	{
@@ -63,7 +63,8 @@ _Bool stack_push(stack * root, stack_item_value value, char value_type)
 		root->data = new_data;
 	}
 
-	root->data[++root->top].value = value;
+	++(root->top);
+	root->data[root->top].value = value;
 	root->data[root->top].type = value_type;
 
 	return 1;
