@@ -149,7 +149,7 @@ int main(int argc, char * argv[])
 			result = MATCH(root, string, length);
 
 			fail = result != id;
-			sprintf(line, "matching againts %s with result %s\n", string, fail ? "FAIL" : "PASS");
+			sprintf(line, "matching againts %s with result %d (%d), %s\n", string, result, id, fail ? "FAIL" : "PASS");
 		}
 
 		if(debug) printf("%s", line);
