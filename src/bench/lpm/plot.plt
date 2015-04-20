@@ -12,7 +12,5 @@ set style fill solid border rgb "black"
 set auto x
 set yrange [0:*]
 
-
-
 plot for [stride in strides] filename_tbm(ipv, stride) using 2:xtic(1) title col, \
 	filename_bspl(ipv) using 2:xtic(1) title col

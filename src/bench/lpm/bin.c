@@ -16,18 +16,9 @@ typedef struct _list
 
 uint32_t ipv4num(char * address)
 {
-	uint32_t ip = 0;
-	uint8_t octet = 0;
-
-	for(int i = 0; i < 4; ++i)
-	{
-		octet = atoi(address);
-		ip |= octet << ((3 - i) * 8);
-		address = strchr(address, '.') + 1;
-
-	}
-
-	return ip;
+	struct in_addr addr;
+	inet_pton(AF_INET, address, &addr);
+	return (int) htonl(addr.s_addr);
 }
 
 uint32_t ipv6num(char * address)
@@ -93,7 +84,6 @@ double lookup(lpm_root * root, char * file)
 
 	while(fscanf(f, "%100s", lookup_ip) == 1)
 	{
-
 		lookup_ip4 = ipv4num(lookup_ip);
 		time_start = clock();
 		lpm_lookup(root, lookup_ip4);
