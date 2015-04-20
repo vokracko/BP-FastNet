@@ -135,6 +135,13 @@ Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické
 
 \begin{figure}[!htb]
 \centering
+\includegraphics[scale=.25]{fig/regex-dot.pdf}
+\caption{Znázornění průchodu dat počítačovou sítí}
+\label{fig:regex-dot}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
 \includegraphics[scale=.25]{fig/regex-or.pdf}
 \caption{Znázornění průchodu dat počítačovou sítí}
 \label{fig:regex-or}
@@ -160,16 +167,13 @@ Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické
 \caption{Znázornění průchodu dat počítačovou sítí}
 \label{fig:regex-questionmark}
 \end{figure}
-TODO konstrukce NFA
-TODO konstrukce DFA z NFA
-TODO konstrukce MDFA z DFA
+% TODO konstrukce NFA
+% TODO konstrukce DFA z NFA
+% TODO konstrukce MDFA z DFA
 == 3 strany
 
 Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické přidávání pravidel
 regulárních výrazů za běhu programu
-
-
-\subsection{}
 
 \chapter{Návrh API knihovny}
 Knihovna je navržena s důrazem na snadnou rozšiřitelnost případnými dalšími algoritmy.
@@ -177,17 +181,19 @@ Knihovna je taktéž navržena tak, aby bylo velmi snadné používat pouze jedn
 To je vhodné pro použití v úzce specializovaných zařízení, jimž tak bude stačit menší množství paměti pro uložení knihovny.
 Každá podknihovna lze vytvořit jedním příkazem ve své složce a také poskytuje vlastní rozhraní, které lze vložit do používaných algoritmů.
 
-hlavičkové soubory jsou rozděleny na veřejné a privátní rozhraní, kde privátní rozhraní je používáno pouze uvnitř knihovny. Hierarchickou strukturu je možné vidět na obrázku \ref{fig:header-dependecies}.
-
-Jako výchozí hlavičkový soubor je použit types.h, který obsahuje definice datových struktur pro všechny algoritmy v podknihovně, které musí být viditelné i z veřejného rozhraní. Dalším souborem je types-precompiled.h, který je generován z types.h při překladu když se vybírá používaný algoritmus. common.h je hlavičkový soubor společný pro všechny algoritmy v podknihovně a algortihm.h pak obsahuje deklarace právě pro jeden konkrétní algoritmus.
-sublib.h je pak hlavičkový soubor, který tvoří veřejné rozhraní ke knihovním funkcím.
-
 \begin{figure}[!htb]
 \centering
 \includegraphics[scale=.25]{fig/header-dependencies.pdf}
 \caption{Diagram závislostí hlavičkových souborů}
 \label{fig:header-dependecies}
 \end{figure}
+
+hlavičkové soubory jsou rozděleny na veřejné a privátní rozhraní, kde privátní rozhraní je používáno pouze uvnitř knihovny. Hierarchickou strukturu je možné vidět na obrázku \ref{fig:header-dependecies}.
+
+Jako výchozí hlavičkový soubor je použit types.h, který obsahuje definice datových struktur pro všechny algoritmy v podknihovně, které musí být viditelné i z veřejného rozhraní. Dalším souborem je types-precompiled.h, který je generován z types.h při překladu když se vybírá používaný algoritmus. common.h je hlavičkový soubor společný pro všechny algoritmy v podknihovně a algortihm.h pak obsahuje deklarace právě pro jeden konkrétní algoritmus.
+sublib.h je pak hlavičkový soubor, který tvoří veřejné rozhraní ke knihovním funkcím.
+
+
 
 Důvod pro vlastní implementaci regulární výrazů je možnost zvolit nejvhodnější algoritmus pro danou operaci.
 Dalším důvodem je převod implementace do akcelerovaného hardware.

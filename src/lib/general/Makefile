@@ -11,5 +11,8 @@ list:
 stack:
 	$(CC) $(FLAGS) -c stack.c -o stack.o
 
+queue:
+	$(CC) $(FLAGS) -c queue.c -o queue.o
+
 clean:
 	rm -rf *.o 2>/dev/null

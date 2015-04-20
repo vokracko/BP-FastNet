@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "common.h"
-#include "../general/list.h"
+#include "../general/queue.h"
 
 
 #define FAIL -1

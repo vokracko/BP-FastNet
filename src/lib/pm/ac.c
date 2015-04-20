@@ -53,10 +53,10 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 {
 	assert(root != NULL);
 
+	queue * queue_ = queue_init();
+
 	_ac_state * state = root;
 	_ac_state * s, * r;
-	queue * queue_ = _queue_init();
-	queue_item_value value;
 	int goto_pos;
 
 	// start constructing, go throught every direct follower of root state = depth 1
@@ -66,16 +66,14 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		state->next[i]->failure = root;
 
 		// "every path in root state is defined" => skip those with no real follower
-		if(state->next[i] == root) continue;
-		value.pointer = state->next[i];
-		_queue_insert(queue_, value, POINTER);
+		if(state->next[i] == state) continue; // TODO možná dát na začátek foru
+		queue_insert(queue_, state->next[i]);
 	}
 
 
-	while(!_queue_empty(queue_))
+	while(!queue_empty(queue_))
 	{
-		value = _queue_pop_front(queue_);
-		r = (_ac_state *) value.pointer;
+		r = queue_front(queue_);
 
 		unsigned length = r->path_count;
 
@@ -83,14 +81,15 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		for(unsigned i = 0; i < length; ++i)
 		{
 			s = r->next[i];
-			value.pointer = s;
-			_queue_insert(queue_, value, POINTER);
+
+			queue_insert(queue_, s);
 			state = r->failure;
 
 			// find failure path
 			while((goto_pos = _ac_goto(state, r->key[i])) == FAIL)
 			{
 				state = state->failure;
+				assert(state != NULL);
 			}
 
 			s->failure = state->next[goto_pos];
@@ -105,7 +104,7 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		}
 	}
 
-	_queue_destroy(queue_);
+	queue_destroy(queue_);
 }
 
 

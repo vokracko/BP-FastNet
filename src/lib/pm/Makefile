@@ -7,13 +7,13 @@ GENERAL=../general
 all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
 all: lib
 
-lib: list $(ALG).c precompile-headers
+lib: queue $(ALG).c precompile-headers
 	$(CC) $(FLAGS) -DALG_$(ALG) -c $(ALG).c -o $(ALG).o
 	rm -f pm.a
-	ar rcs pm.a $(ALG).o $(GENERAL)/list.o
+	ar rcs pm.a $(ALG).o $(GENERAL)/queue.o
 
-list:
-	make -C $(GENERAL) list
+queue:
+	make -C $(GENERAL) queue
 
 precompile-headers: types.h
 	gcc -DALG_$(ALG) -E -dU -nostdinc types.h -o types-precompiled.h
