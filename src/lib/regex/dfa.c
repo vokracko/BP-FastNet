@@ -1004,9 +1004,16 @@ int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 		{
 			state = stack_pop(start).pointer;
 
+			if(state->id != ID_NONE)
+			{
+				result = state->id;
+				goto NFA_END;
+			}
+
 			for(unsigned i = 0; i < state->length_epsilon; ++i)
 			{
 				value.pointer = state->next_epsilon[i];
+
 				if(stack_push_unique(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 			}
 
@@ -1046,7 +1053,7 @@ int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 			if(stack_push_unique(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 		}
 	}
-
+NFA_END:
 	stack_destroy(start);
 	stack_destroy(end);
 
@@ -1059,6 +1066,8 @@ int regex_match_dfa(regex_dfa * regex, char * input, unsigned length)
 	void * char_position;
 	_dfa_state * state = regex;
 
+	if(state->id != ID_NONE) return state->id;
+
 	for(unsigned position = 0; position < length; ++position)
 	{
 		if((char_position = memchr(state->key, input[position], state->length)))
@@ -1069,7 +1078,9 @@ int regex_match_dfa(regex_dfa * regex, char * input, unsigned length)
 		{
 			state = regex;
 		}
+
+		if(state->id != ID_NONE) return state->id;
 	}
 
-	return state->id != ID_NONE ? state->id : NOT_MATCH;
+	return NOT_MATCH;
 }
