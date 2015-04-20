@@ -11,7 +11,7 @@ queue * queue_init()
 {
 	queue * root = malloc(sizeof(queue));
 
-	if(root == NULL) return NULL;
+	if(root == NULL) return errno = _OUT_OF_MEMORY, NULL;
 
 	root->data = malloc(sizeof(void *) * _QUEUE_DEFAULT_SIZE);
 
@@ -19,7 +19,7 @@ queue * queue_init()
 	{
 		errno = _OUT_OF_MEMORY;
 		free(root);
-		return NULL;
+		return errno = _OUT_OF_MEMORY, NULL;
 	}
 
 	root->size = _QUEUE_DEFAULT_SIZE;
@@ -56,11 +56,7 @@ _Bool queue_insert(queue * root, void * value)
 	{
 		new_data = realloc(root->data, sizeof(void *) * (root->size + _QUEUE_DEFAULT_SIZE));
 
-		if(new_data == NULL)
-		{
-			errno = _OUT_OF_MEMORY;
-			return 0;
-		}
+		if(new_data == NULL) return errno = _OUT_OF_MEMORY, 0;
 
 		root->data = new_data;
 		root->size += _QUEUE_DEFAULT_SIZE;
