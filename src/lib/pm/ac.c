@@ -1,8 +1,9 @@
 #include "ac.h"
-#include <execinfo.h>
 
-void _ac_remove_rule(_ac_state * state, PM_RULE rule)
+_Bool _ac_remove_rule(_ac_state * state, PM_RULE rule)
 {
+	PM_RULE * new_additional_rule = NULL;
+
 	assert(state != NULL);
 
 	for(unsigned i = 0; i < state->additional_size; ++i)
@@ -14,12 +15,19 @@ void _ac_remove_rule(_ac_state * state, PM_RULE rule)
 				state->additional_rule[j] = state->additional_rule[j + 1];
 			}
 
-			--state->additional_size;
-			state->additional_rule = realloc(state->additional_rule, sizeof(PM_RULE) * state->additional_size);
+			new_additional_rule = realloc(state->additional_rule, sizeof(PM_RULE) * (state->additional_size - 1));
 
-			return;
+			// if new additional_size == 0 then it should return NULL
+			if(new_additional_rule == NULL && state->additional_size != 1) return errno = _OUT_OF_MEMORY, 0;
+
+			state->additional_rule = new_additional_rule;
+			--state->additional_size;
+
+			return 1;
 		}
 	}
+
+	return 1;
 }
 
 int _ac_goto(_ac_state * state, char character)
@@ -33,28 +41,38 @@ int _ac_goto(_ac_state * state, char character)
 	return pos - state->key;
 }
 
-void _ac_append_rule(_ac_state * state, PM_RULE rule)
+_Bool _ac_append_rule(_ac_state * state, PM_RULE rule)
 {
+	PM_RULE * new_additional_rule;
+
 	assert(state != NULL);
 
-	if(rule == PM_RULE_NONE) return;
+	if(rule == PM_RULE_NONE) return 1;
 
 	for(unsigned i = 0; i < state->additional_size; ++i)
 	{
-		if(state->additional_rule[i] == rule) return;
+		if(state->additional_rule[i] == rule) return 1;
 	}
 
+	new_additional_rule = realloc(state->additional_rule, (state->additional_size + 1) * sizeof(PM_RULE));
+
+	if(new_additional_rule == NULL) return errno = _OUT_OF_MEMORY, 0;
+
+	state->additional_rule = new_additional_rule;
+	state->additional_rule[state->additional_size] = rule;
 	++state->additional_size;
-	state->additional_rule = realloc(state->additional_rule, state->additional_size * sizeof(PM_RULE));
-	state->additional_rule[state->additional_size - 1] = rule;
+
+	return 1;
 }
 
 
-void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
+_Bool _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 {
 	assert(root != NULL);
 
 	queue * queue_ = queue_init();
+
+	if(queue_ == NULL) return 0;
 
 	_ac_state * state = root;
 	_ac_state * s, * r;
@@ -71,7 +89,7 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		state->next[i]->failure = root;
 
 		// "every path in root state is defined" => skip those with no real follower
-		queue_insert(queue_, state->next[i]);
+		if(queue_insert(queue_, state->next[i]) == 0) return queue_destroy(queue_), 0;
 	}
 
 
@@ -86,7 +104,7 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		{
 			s = r->next[i];
 
-			queue_insert(queue_, s);
+			if(queue_insert(queue_, s) == 0) return queue_destroy(queue_), 0;
 			state = r->failure;
 			// find failure path
 			while((goto_pos = _ac_goto(state, r->key[i])) == FAIL)
@@ -96,17 +114,19 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 
 			s->failure = state->next[goto_pos];
 
-			_ac_remove_rule(s, removed_rule);
-			_ac_append_rule(s, s->failure->rule);
+			if(_ac_remove_rule(s, removed_rule) == 0) return queue_destroy(queue_), 0;
+			if(_ac_append_rule(s, s->failure->rule) == 0) return queue_destroy(queue_), 0;
 			// copy all rules from failure state to this state
 			for(unsigned j = 0; j < s->failure->additional_size; ++j)
 			{
-				_ac_append_rule(s, s->failure->additional_rule[j]);
+				if(_ac_append_rule(s, s->failure->additional_rule[j]) == 0) return queue_destroy(queue_), 0;
 			}
 		}
 	}
 
 	queue_destroy(queue_);
+
+	return 1;
 }
 
 
@@ -118,6 +138,9 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 _ac_state * _ac_create()
 {
 	_ac_state * state = (_ac_state *) malloc(sizeof(_ac_state));
+
+	if(state == NULL) return errno = _OUT_OF_MEMORY, NULL;
+
 	state->rule = PM_RULE_NONE;
 	state->additional_rule = NULL;
 	state->additional_size = 0;
@@ -130,17 +153,25 @@ _ac_state * _ac_create()
 }
 
 
-void _ac_add_match(pm_result * result, PM_RULE matched_rule)
+_Bool _ac_add_match(pm_result * result, PM_RULE matched_rule)
 {
 	assert(result != NULL);
 
+	PM_RULE * new_rule;
+
 	if(result->size == result->count)
 	{
+		new_rule = realloc(result->rule, (result->size << 1) * sizeof(PM_RULE));
+
+		if(new_rule == NULL) return errno = _OUT_OF_MEMORY, 0;
+
 		result->size <<= 1;
-		result->rule = (PM_RULE *) realloc(result->rule, result->size * sizeof(PM_RULE));
+		result->rule = new_rule;
 	}
 
 	result->rule[result->count++] = matched_rule;
+
+	return 1;
 }
 
 /*
@@ -149,24 +180,37 @@ void _ac_add_match(pm_result * result, PM_RULE matched_rule)
  * @param parent
  * @param character
  */
-void _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char character)
+_Bool _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char character)
 {
 	assert(root != NULL);
 	assert(state != NULL);
 	assert(parent != NULL);
 
+	char * new_key;
+	_ac_state ** new_next;
+
 	if(parent == root)
 	{
 		parent->next[ (unsigned char) character] = state;
-		return;
+		return 1;
 	}
 	// resize arrays
+	new_key = realloc(parent->key, parent->path_count + 1);
+
+	if(new_key == NULL) return errno = _OUT_OF_MEMORY, 0;
+
+	new_next = realloc(parent->next, (parent->path_count + 1) * sizeof(_ac_state *));
+
+	if(new_next == NULL) return errno = _OUT_OF_MEMORY, free(new_key), 0;
+
+	parent->key = new_key;
+	parent->next = new_next;
 	parent->path_count++;
-	parent->key = realloc(parent->key, parent->path_count);
-	parent->next = realloc(parent->next, parent->path_count * sizeof(_ac_state *));
 	// and save new values
 	parent->key[parent->path_count - 1] = character;
 	parent->next[parent->path_count - 1] = state;
+
+	return 1;
 }
 
 /*
@@ -212,7 +256,7 @@ void _ac_free(_ac_state * state)
 /**
  * @brief Remove branch from prev
  */
-void _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * removed_rule)
+_Bool _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * removed_rule)
 {
 	assert(root != NULL);
 	assert(prev != NULL);
@@ -220,6 +264,8 @@ void _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * remo
 	_ac_state * state;
 	char * pos;
 	size_t key_length;
+	_ac_state ** new_next;
+	char * new_key;
 
 	key_length = prev->path_count;
 	--prev->path_count;
@@ -237,6 +283,16 @@ void _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * remo
 			prev->key[i] = prev->key[i + 1];
 			prev->next[i] = prev->next[i + 1];
 		}
+
+		new_key = realloc(prev->key, prev->path_count);
+		// if prev->path_cout == 0 then it should return NULL
+		if(new_key == NULL && prev->path_count != 0) return errno = _OUT_OF_MEMORY, 0;
+		prev->key = new_key;
+
+		new_next = realloc(prev->next, prev->path_count * sizeof(_ac_state *));
+		// if prev->path_cout == 0 then it should return NULL
+		if(new_next == NULL && prev->path_count != 0) return errno = _OUT_OF_MEMORY, 0;
+		prev->next = new_next;
 	}
 
 
@@ -249,6 +305,8 @@ void _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * remo
 
 	*removed_rule = state->rule;
 	_ac_free(state);
+
+	return 1;
 }
 
 void _ac_destroy(_ac_state * state)
@@ -272,9 +330,18 @@ pm_root * pm_init(pm_result ** result)
 	pm_root * root;
 
 	root = _ac_create();
-	root->path_count = 256;
+
+	if(root == NULL) return errno = _OUT_OF_MEMORY, NULL;
+
 	root->key = malloc(256);
+
+	if(root->key == NULL) return errno = _OUT_OF_MEMORY, free(root), NULL;
+
 	root->next = malloc(256 * sizeof(_ac_state *));
+
+	if(root->next == NULL) return errno = _OUT_OF_MEMORY, free(root->key), free(root), NULL;
+
+	root->path_count = 256;
 
 	for(unsigned i = 0; i < 256; ++i)
 	{
@@ -283,7 +350,12 @@ pm_root * pm_init(pm_result ** result)
 	}
 
 	(*result) = malloc(sizeof(pm_result));
+
+	if(*result == NULL) return errno = _OUT_OF_MEMORY, free(root->next), free(root->key), free(root), NULL;
+
 	(*result)->rule = malloc(sizeof(PM_RULE) * 10);
+
+	if((*result)->rule == NULL) return errno = _OUT_OF_MEMORY, free(root->next), free(root->key), free(root), free(*result), NULL;
 	(*result)->count = 0;
 	(*result)->size = 10;
 
@@ -306,11 +378,11 @@ _Bool pm_match(pm_root * root, pm_result * result, char * input, unsigned length
 
 		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
 		{
-			_ac_add_match(result, state->rule);
+			if(_ac_add_match(result, state->rule) == 0) return errno = _OUT_OF_MEMORY, 1;
 
 			for(unsigned i = 0; i < state->additional_size; ++i)
 			{
-				_ac_add_match(result, state->additional_rule[i]);
+				if(_ac_add_match(result, state->additional_rule[i]) == 0) return errno = _OUT_OF_MEMORY, 1;
 			}
 
 			result->state = state;
@@ -335,29 +407,7 @@ _Bool pm_match_next(pm_result * result)
 	char * input = result->input;
 	result->count = 0;
 
-
-	for(size_t pos = result->position; pos < result->length; ++pos)
-	{
-		while((goto_pos = _ac_goto(state, input[pos])) == FAIL) state = state->failure;
-		state = state->next[goto_pos];
-
-		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
-		{
-			_ac_add_match(result, state->rule);
-
-			for(unsigned i = 0; i < state->additional_size; ++i)
-			{
-				_ac_add_match(result, state->additional_rule[i]);
-			}
-
-			result->position = pos + 1;
-			result->state = state;
-
-			return 1;
-		}
-	}
-
-	return 0;
+	return pm_match(state, result, result->input + result->position, result->length - result->position);
 }
 
 /*
@@ -392,17 +442,20 @@ _Bool pm_match_next(pm_result * result)
 		for(unsigned i = 0; i < length - longest_match_length; ++i)
 		{
 			new = _ac_create();
-			_ac_append(root, new, parent, keyword_content[longest_match_length + i]);
+
+			if(new == NULL) return pm_destroy(root), 0;
+			if(_ac_append(root, new, parent, keyword_content[longest_match_length + i]) == 0)
+				return pm_destroy(root), _ac_free(new), 0;
 			parent = new;
 		}
 
 		new->rule = keywords[j].rule;
 	}
 
-	_ac_construct_failure(root, PM_RULE_NONE);
+	return _ac_construct_failure(root, PM_RULE_NONE);
 }
 
-void pm_remove(pm_root * root, char * keyword_content, unsigned length)
+_Bool pm_remove(pm_root * root, char * keyword_content, unsigned length)
 {
 	assert(root != NULL);
 	assert(keyword_content != NULL);
@@ -433,10 +486,10 @@ void pm_remove(pm_root * root, char * keyword_content, unsigned length)
 	else
 	{
 		// remove path from previous state to this branch
-		_ac_remove(root, saved_state, saved_character, &removed_rule);
+		if(_ac_remove(root, saved_state, saved_character, &removed_rule) == 0) return 0;
 	}
 
-	_ac_construct_failure(root, removed_rule);
+	return _ac_construct_failure(root, removed_rule);
 }
 
 /*
