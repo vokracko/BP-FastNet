@@ -14,11 +14,12 @@ typedef struct _list
 	uint8_t rule;
 } list;
 
-uint32_t ipv4num(char * address)
+struct in_addr ipv4num(char * address)
 {
 	struct in_addr addr;
 	inet_pton(AF_INET, address, &addr);
-	return (int) htonl(addr.s_addr);
+	addr.s_addr = htonl(addr.s_addr);
+	return addr;
 }
 
 uint32_t ipv6num(char * address)
@@ -37,6 +38,7 @@ void fillTable(lpm_root * root, char * source)
 	uint8_t rule_max = 1;
 	list * start = NULL;
 	list * item = NULL;
+	struct in_addr addr;
 
 
 	while(fscanf(f, "%100s %d %100s", destination, &prefix_len, next_hop) == 3)
@@ -59,7 +61,8 @@ void fillTable(lpm_root * root, char * source)
 			start = item;
 		}
 
-		lpm_add(root, ipv4num(destination), prefix_len, item->rule);
+		addr = ipv4num(destination);
+		lpm_add(root, &addr, prefix_len, item->rule);
 
 	}
 

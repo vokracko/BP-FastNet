@@ -259,7 +259,7 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 	return root;
 }
 
-_Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
+_Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 
@@ -267,12 +267,13 @@ _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE ru
 	uint16_t index;
 	uint16_t bit_value;
 	uint8_t stride_len;
+	uint32_t prefix_int = (uint32_t) prefix->s_addr;
 
 	_tbm_node * node = root;
 
 	while(++position * STRIDE < prefix_len)
 	{
-		bit_value = GET_STRIDE_BITS(prefix, position - 1, STRIDE);
+		bit_value = GET_STRIDE_BITS(prefix_int, position - 1, STRIDE);
 
 		if(GET_BIT_LSB(node->external[bit_value / 32], bit_value % 32) == 0)
 		{
@@ -284,7 +285,7 @@ _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE ru
 	}
 
 	stride_len = prefix_len - (position - 1) * STRIDE;
-	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix, position - 1, stride_len));
+	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix_int, position - 1, stride_len));
 
 	if(_tbm_extend(node, index, 0) == 0) return 0;
 	SET_BIT_LSB(node->internal[index / 32], index % 32);
@@ -293,24 +294,24 @@ _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE ru
 	return 1;
 }
 
-void lpm_update(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
+void lpm_update(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index);
+	_tbm_node * node = _tbm_lookup(root, (uint32_t) prefix->s_addr, prefix_len, &index);
 
 	assert(node != NULL);
 
 	node->rule[_tbm_bitsum(node->internal, index)] = rule;
 }
 
-void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
+void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
 {
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index);
+	_tbm_node * node = _tbm_lookup(root, (uint32_t) prefix->s_addr, prefix_len, &index);
 
 	assert(node != NULL);
 
@@ -326,7 +327,7 @@ void lpm_destroy(lpm_root * root)
 	free(root);
 }
 
-uint32_t lpm_lookup(lpm_root * root, uint32_t key)
+uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
 {
 	assert(root != NULL);
 
@@ -338,11 +339,12 @@ uint32_t lpm_lookup(lpm_root * root, uint32_t key)
 	uint16_t index;
 	uint16_t longest_match_index = 0;
 	int32_t tmp_index; // internal index can be -1 if not found
+	uint32_t key_int = (uint32_t) key->s_addr;
 
 	// while there is longer match
 	do
 	{
-		bits = GET_STRIDE_BITS(key, position++, STRIDE);
+		bits = GET_STRIDE_BITS(key_int, position++, STRIDE);
 
 		if(node->rule != NULL && (tmp_index = _tbm_internal_index(node->internal, bits)) != -1)
 		{

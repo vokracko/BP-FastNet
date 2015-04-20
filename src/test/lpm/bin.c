@@ -2,22 +2,22 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
 #include "../../lib/lpm/lpm.h"
 
-uint32_t ip2int(char * address)
+struct in_addr ipv4num(char * address)
 {
-	uint32_t ip = 0;
-	uint8_t octet = 0;
+	struct in_addr addr;
+	inet_pton(AF_INET, address, &addr);
+	addr.s_addr = htonl(addr.s_addr);
+	return addr;
+}
 
-	for(int i = 0; i < 4; ++i)
-	{
-		octet = atoi(address);
-		ip |= octet << ((3 - i) * 8);
-		address = strchr(address, '.') + 1;
-
-	}
-
-	return ip;
+void ipv6num(char * address)
+{
+	struct in6_addr addr;
+	inet_pton(AF_INET6, address, &addr);
 }
 
 int main(int argc, char * argv[])
@@ -30,6 +30,7 @@ int main(int argc, char * argv[])
 	char line[1024] = {'\0'};
 	FILE * handle = fopen(argv[1], "r");
 	lpm_root * root = NULL;
+	struct in_addr addr;
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
@@ -43,7 +44,8 @@ int main(int argc, char * argv[])
 		}
 		else if(strcmp(cmd, "lookup") == 0)
 		{
-			res = lpm_lookup(root, ip2int(ip));
+			addr =  ipv4num(ip);
+			res = lpm_lookup(root, &addr);
 			fail = res != second;
 
 			sprintf(line, "lookup for %s %d (%d) %s\n", ip, second, res, fail ? "FAIL" : "PASS");
@@ -51,19 +53,22 @@ int main(int argc, char * argv[])
 		}
 		else if(strcmp(cmd, "add") == 0)
 		{
-			lpm_add(root, ip2int(ip), first, second);
+			addr =  ipv4num(ip);
+			lpm_add(root, &addr, first, second);
 
 			sprintf(line, "add rule %d for %s/%d\n", second, ip, first);
 		}
 		else if(strcmp(cmd, "remove") == 0)
 		{
-			lpm_remove(root, ip2int(ip), first);
+			addr =  ipv4num(ip);
+			lpm_remove(root, &addr, first);
 
 			sprintf(line, "remove rule for %s/%d\n", ip, first);
 		}
 		else if(strcmp(cmd, "update") == 0)
 		{
-			lpm_update(root, ip2int(ip), first, second);
+			addr =  ipv4num(ip);
+			lpm_update(root, &addr, first, second);
 
 			sprintf(line, "update to rule %d for %s/%d\n", second, ip, first);
 		}

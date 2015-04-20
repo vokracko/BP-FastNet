@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <stdint.h>
+#include <netinet/in.h>
 #include "types-precompiled.h"
 #include "../general/common.h"
 

@@ -270,7 +270,7 @@ void lpm_destroy(lpm_root * root)
  * @param rule
  * @todo bude vracet něco? pokud existuje/nepodařilo se vložit
  */
-_Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
+_Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 	assert(root->tree != NULL);
@@ -282,12 +282,13 @@ _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE ru
 	uint8_t len = 0;
 	uint32_t parent_rule;
 	uint32_t prefix_bits;
+	uint32_t prefix_int = (uint32_t) prefix->s_addr;
 
 	do
 	{
 		assert(parent != NULL);
 
-		bit = GET_BIT_MSB(prefix, len);
+		bit = GET_BIT_MSB(prefix_int, len);
 		prefix_bits = GET_BITS_MSB(parent->prefix, len);
 		parent_rule = parent->rule;
 		node =  bit ? parent->right : parent->left;
@@ -336,12 +337,12 @@ _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE ru
  * @param prefix_len
  * @param rule new rule
  */
-void lpm_update(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
+void lpm_update(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 
 	_bspl_node * parent, * other;
-	_bspl_node * node = _bspl_lookup(root, prefix, prefix_len, &parent, &other);
+	_bspl_node * node = _bspl_lookup(root, (uint32_t) prefix->s_addr, prefix_len, &parent, &other);
 
 	assert(node != NULL);
 
@@ -354,12 +355,12 @@ void lpm_update(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE 
  * @param prefix
  * @param prefix_len
  */
-void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
+void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
 {
 	assert(root != NULL);
 
 	_bspl_node * other, * parent;
-	_bspl_node * node = _bspl_lookup(root, prefix, prefix_len, &parent, &other);
+	_bspl_node * node = _bspl_lookup(root, (uint32_t) prefix->s_addr, prefix_len, &parent, &other);
 
 	// node is leaf node, other node is leaf node and does not contain different prefix from parent node (contructed by leaf-pushing)
 
@@ -388,7 +389,7 @@ void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
  * @param key ip address
  * @return rule number
  */
-uint32_t lpm_lookup(lpm_root * root, uint32_t key)
+_LPM_RULE lpm_lookup(lpm_root * root, struct in_addr * key)
 {
 	assert(root != NULL);
 	assert(root->htable != NULL);
@@ -396,12 +397,12 @@ uint32_t lpm_lookup(lpm_root * root, uint32_t key)
 	uint32_t prefix_bits; // extracted part of prefix
 	uint8_t prefix_len = 32; // binary search actual length
 	uint8_t prefix_change = 32; // binary search length change
-
+	uint32_t key_int = (uint32_t) key->s_addr;
 	_bspl_node * node = NULL;
 
 	do
 	{
-		prefix_bits = GET_BITS_MSB(key, prefix_len);
+		prefix_bits = GET_BITS_MSB(key_int, prefix_len);
 		node = root->htable[calculate_hash(prefix_bits)];
 
 		while(node != NULL && (node->prefix != prefix_bits || node->prefix_len != prefix_len))
