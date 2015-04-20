@@ -1,4 +1,5 @@
 #include "ac.h"
+#include <execinfo.h>
 
 void _ac_remove_rule(_ac_state * state, PM_RULE rule)
 {
@@ -59,14 +60,17 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 	_ac_state * s, * r;
 	int goto_pos;
 
+	root->failure = root;
+
 	// start constructing, go throught every direct follower of root state = depth 1
 	for(unsigned i = 0; i < state->path_count; ++i)
 	{
+		if(state->next[i] == root) continue;
+
 		// depth 1, failure for every state at this depth is root state
 		state->next[i]->failure = root;
 
 		// "every path in root state is defined" => skip those with no real follower
-		if(state->next[i] == state) continue; // TODO možná dát na začátek foru
 		queue_insert(queue_, state->next[i]);
 	}
 
@@ -84,12 +88,10 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 
 			queue_insert(queue_, s);
 			state = r->failure;
-
 			// find failure path
 			while((goto_pos = _ac_goto(state, r->key[i])) == FAIL)
 			{
 				state = state->failure;
-				assert(state != NULL);
 			}
 
 			s->failure = state->next[goto_pos];
@@ -311,8 +313,9 @@ _Bool pm_match(pm_root * root, pm_result * result, char * input, unsigned length
 				_ac_add_match(result, state->additional_rule[i]);
 			}
 
-			result->position = pos + 1;
 			result->state = state;
+			result->position = pos + 1;
+
 			result->input = input;
 			result->length = length;
 
@@ -331,6 +334,7 @@ _Bool pm_match_next(pm_result * result)
 	int goto_pos;
 	char * input = result->input;
 	result->count = 0;
+
 
 	for(size_t pos = result->position; pos < result->length; ++pos)
 	{
@@ -416,7 +420,6 @@ void pm_remove(pm_root * root, char * keyword_content, unsigned length)
 			saved_state = state;
 			saved_character = keyword_content[i];
 		}
-
 		state = state->next[_ac_goto(state, keyword_content[i])];
 	}
 
