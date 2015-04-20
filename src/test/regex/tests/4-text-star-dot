@@ -7,3 +7,4 @@ match abcccd 6 1
 match c 1 -1
 match b 1 -1
 match bc 2 -1
+match ab] 3 1
