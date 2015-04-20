@@ -108,7 +108,7 @@ inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_
  * @param shift_child 1 => change size of node->child otherwise node->rule
  * @fixme leak v reallocu
  */
-inline void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child)
+inline _Bool _tbm_extend(_tbm_node * node, uint16_t bit_value, _Bool shift_child)
 {
 	assert(node != NULL);
 
@@ -133,8 +133,14 @@ inline void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child)
 
 	if(shift_child)
 	{
+		_tbm_node * new_child;
+
 		//resize, add space for one more child
-		node->child = realloc(node->child, (bitsum + 1) * sizeof(_tbm_node));
+		new_child = realloc(node->child, (bitsum + 1) * sizeof(_tbm_node));
+
+		if(new_child == NULL) return errno = _OUT_OF_MEMORY, 0;
+
+		node->child = new_child;
 		//shift all values behind newly added to the right
 		memmove(&(node->child[index_start + 1]), &(node->child[index_start]), (bitsum - index_start) * sizeof(_tbm_node));
 
@@ -145,11 +151,18 @@ inline void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child)
 	}
 	else
 	{
+		_LPM_RULE * new_rule;
 		//resize, add space for one more rule
-		node->rule = realloc(node->rule, (bitsum + 1) * sizeof(_LPM_RULE));
+		new_rule = realloc(node->rule, (bitsum + 1) * sizeof(_LPM_RULE));
+
+		if(new_rule == NULL) return errno = _OUT_OF_MEMORY, 0;
+
+		node->rule = new_rule;
 		//shift all values behind newly added to the right
 		memmove(&(node->rule[index_start + 1]), &(node->rule[index_start]), (bitsum - index_start) * sizeof(_LPM_RULE));
 	}
+
+	return 1;
 }
 
 /**
@@ -158,7 +171,7 @@ inline void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child)
  * @param bit_value
  * @param shift_child 1 => change size of node->child otherwise node->rule
  */
-inline void _tbm_reduce(_tbm_node * node, uint16_t bit_value, bool shift_child)
+inline _Bool _tbm_reduce(_tbm_node * node, uint16_t bit_value, _Bool shift_child)
 {
 	assert(node != NULL);
 
@@ -183,14 +196,28 @@ inline void _tbm_reduce(_tbm_node * node, uint16_t bit_value, bool shift_child)
 
 	if(shift_child)
 	{
+		_tbm_node * new_child;
+
 		memmove(&(node->child[index_start + 1]), &(node->child[index_start]), (bitsum - index_start - 1) * sizeof(_tbm_node));
-		node->child = realloc(node->child, (bitsum - 1) * sizeof(_tbm_node));
+		new_child = realloc(node->child, (bitsum - 1) * sizeof(_tbm_node));
+
+		if(new_child == NULL && bitsum != 1) return errno = _OUT_OF_MEMORY, 0;
+
+		node->child = new_child;
 	}
 	else
 	{
+		_LPM_RULE * new_rule;
+
 		memmove(&(node->rule[index_start + 1]), &(node->rule[index_start]), (bitsum - index_start - 1) * sizeof(_LPM_RULE));
-		node->rule = realloc(node->rule, (bitsum - 1) * sizeof(_LPM_RULE));
+		new_rule = realloc(node->rule, (bitsum - 1) * sizeof(_LPM_RULE));
+
+		if(new_rule == NULL && bitsum != 1) return errno = _OUT_OF_MEMORY, 0;
+
+		node->rule = new_rule;
 	}
+
+	return 1;
 }
 
 /**
@@ -216,8 +243,14 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 {
 	lpm_root * root;
 	root = malloc(sizeof(lpm_root));
+
+	if(root == NULL) return errno = _OUT_OF_MEMORY, NULL;
+
 	root->child = NULL;
 	root->rule = malloc(sizeof(_LPM_RULE));
+
+	if(root->rule == NULL) return errno = _OUT_OF_MEMORY, free(root), NULL;
+
 	root->rule[0] = default_rule;
 	_tbm_zeros(root->external, _TBM_SIZE_EXTERNAL);
 	_tbm_zeros(root->internal, _TBM_SIZE_INTERNAL);
@@ -226,7 +259,7 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 	return root;
 }
 
-void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
+_Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 
@@ -243,7 +276,7 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 
 		if(GET_BIT_LSB(node->external[bit_value / 32], bit_value % 32) == 0)
 		{
-			_tbm_extend(node, bit_value, true);
+			if(_tbm_extend(node, bit_value, 1) == 0) return 0;
 			SET_BIT_LSB(node->external[bit_value / 32], bit_value % 32);
 		}
 
@@ -253,9 +286,11 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 	stride_len = prefix_len - (position - 1) * STRIDE;
 	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix, position - 1, stride_len));
 
-	_tbm_extend(node, index, false);
+	if(_tbm_extend(node, index, 0) == 0) return 0;
 	SET_BIT_LSB(node->internal[index / 32], index % 32);
 	node->rule[_tbm_bitsum(node->internal, index)] = rule;
+
+	return 1;
 }
 
 void lpm_update(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
@@ -279,7 +314,7 @@ void lpm_remove(lpm_root * root, uint32_t prefix, uint8_t prefix_len)
 
 	assert(node != NULL);
 
-	_tbm_reduce(node, index, false);
+	_tbm_reduce(node, index, 0);
 	CLEAR_BIT_LSB(node->internal[index / 32], index % 32);
 }
 

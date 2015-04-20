@@ -12,5 +12,5 @@ int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value);
 _tbm_node * _tbm_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, uint16_t * index);
 _tbm_node * _tbm_create();
 void _tbm_destroy(_tbm_node * node);
-void _tbm_extend(_tbm_node * node, uint16_t bit_value, bool shift_child);
-void _tbm_reduce(_tbm_node * node, uint16_t bit_value, bool shift_child);
+_Bool _tbm_extend(_tbm_node * node, uint16_t bit_value, _Bool shift_child);
+_Bool _tbm_reduce(_tbm_node * node, uint16_t bit_value, _Bool shift_child);

@@ -1,11 +1,7 @@
 #include <pthread.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <assert.h>
 #include "types-precompiled.h"
+#include "../general/common.h"
 
 #define GET_BIT_LSB(data, position) ((data >> (position)) & 1)
 #define GET_BIT_MSB(data, position) ((data >> (31 - (position))) & 1)

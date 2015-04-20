@@ -72,7 +72,7 @@ inline void _bspl_add_htable(lpm_root * root, _bspl_node * node)
  * @param parent parent node in tree structure
  * @param bit left or right descendant
  */
-inline void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, bool bit)
+inline void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, _Bool bit)
 {
 	assert(parent != NULL);
 	assert(node != NULL);
@@ -88,7 +88,7 @@ inline void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, bool bit)
  * @param parent parent node
  * @param bit left or right descendant
  */
-inline void _bspl_add(lpm_root * root, _bspl_node * node, _bspl_node * parent, bool bit)
+inline void _bspl_add(lpm_root * root, _bspl_node * node, _bspl_node * parent, _Bool bit)
 {
 	assert(root != NULL);
 	assert(root->htable != NULL);
@@ -107,7 +107,9 @@ inline void _bspl_add(lpm_root * root, _bspl_node * node, _bspl_node * parent, b
 inline _bspl_node * _bspl_create()
 {
 	_bspl_node * node;
-	node = (_bspl_node *) malloc(sizeof(_bspl_node));
+	node = malloc(sizeof(_bspl_node));
+
+	if(node == NULL) return errno = _OUT_OF_MEMORY, NULL;
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
@@ -145,7 +147,7 @@ inline void _bspl_remove_htable(lpm_root * root,_bspl_node * node)
  * @param parent
  * @param bit left or right descendant
  */
-inline void _bspl_remove_tree(_bspl_node * parent, bool bit)
+inline void _bspl_remove_tree(_bspl_node * parent, _Bool bit)
 {
 	assert(parent != NULL);
 
@@ -160,7 +162,7 @@ inline void _bspl_remove_tree(_bspl_node * parent, bool bit)
  * @param parent
  * @param bit left or right
  */
-inline void _bspl_remove(lpm_root * root, _bspl_node * node, _bspl_node * parent, bool bit)
+inline void _bspl_remove(lpm_root * root, _bspl_node * node, _bspl_node * parent, _Bool bit)
 {
 	assert(root != NULL);
 	assert(root->htable != NULL);
@@ -189,7 +191,7 @@ _bspl_node * _bspl_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, 
 
 	uint32_t bit_position = 31;
 	uint32_t len = 0;
-	bool bit;
+	_Bool bit;
 	_bspl_node * node = root->tree;
 	*parent = NULL;
 	*other = NULL;
@@ -216,6 +218,8 @@ _bspl_node * _bspl_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, 
 lpm_root * lpm_init(_LPM_RULE default_rule)
 {
 	lpm_root * root = malloc(sizeof(lpm_root));
+
+	if(root == NULL) return errno = _OUT_OF_MEMORY, NULL;
 	root->tree = _bspl_create();
 	root->tree->type = _BSPL_NODE_PREFIX;
 	root->tree->rule = default_rule;
@@ -266,7 +270,7 @@ void lpm_destroy(lpm_root * root)
  * @param rule
  * @todo bude vracet něco? pokud existuje/nepodařilo se vložit
  */
-void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
+_Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 	assert(root->tree != NULL);
@@ -274,7 +278,7 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 	_bspl_node* node = NULL;
 	_bspl_node* parent = root->tree;
 	_bspl_node* other;
-	bool bit;
+	_Bool bit;
 	uint8_t len = 0;
 	uint32_t parent_rule;
 	uint32_t prefix_bits;
@@ -293,6 +297,9 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 		if(other == NULL)
 		{
 			other = _bspl_create();
+
+			if(other == NULL) return errno = _OUT_OF_MEMORY, 0;
+
 			other->prefix = prefix_bits | (!bit << (31 - len));
 			other->prefix_len = len + 1;
 			other->rule = parent_rule;
@@ -303,6 +310,8 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 		if(node == NULL)
 		{
 			node = _bspl_create();
+
+			if(node == NULL) return errno = _OUT_OF_MEMORY, 0;
 			node->prefix = prefix_bits | (bit << (31 - len));
 			node->prefix_len = len + 1;
 			node->rule = parent_rule;
@@ -315,6 +324,8 @@ void lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rul
 	while(prefix_len != len);
 
 	_bspl_leaf_pushing(node, node->rule, rule);
+
+	return 1;
 }
 
 
