@@ -136,7 +136,6 @@ int main(int argc, char * argv[])
 
 			while(result != NULL && fail == 1)
 			{
-				if(debug) puts("match_next");
 				for(unsigned i = 0; i < result->count; ++i)
 				{
 					if(result->rule[i] == rule)

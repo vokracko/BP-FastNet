@@ -36,6 +36,8 @@ void _ac_append_rule(_ac_state * state, PM_RULE rule)
 {
 	assert(state != NULL);
 
+	if(rule == PM_RULE_NONE) return;
+
 	for(unsigned i = 0; i < state->additional_size; ++i)
 	{
 		if(state->additional_rule[i] == rule) return;
@@ -50,10 +52,10 @@ void _ac_append_rule(_ac_state * state, PM_RULE rule)
 void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 {
 	assert(root != NULL);
-	assert(root->queue != NULL);
 
 	_ac_state * state = root->state;
 	_ac_state * s, * r;
+	queue * queue_ = _queue_init();
 	queue_item_value value;
 	int goto_pos;
 
@@ -66,13 +68,13 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		// "every path in root state is defined" => skip those with no real follower
 		if(state->next[i] == root->state) continue;
 		value.pointer = state->next[i];
-		_queue_insert(root->queue, value, POINTER);
+		_queue_insert(queue_, value, POINTER);
 	}
 
 
-	while(!_queue_empty(root->queue))
+	while(!_queue_empty(queue_))
 	{
-		value = _queue_pop_front(root->queue);
+		value = _queue_pop_front(queue_);
 		r = (_ac_state *) value.pointer;
 
 		unsigned length = r->path_count;
@@ -82,7 +84,7 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		{
 			s = r->next[i];
 			value.pointer = s;
-			_queue_insert(root->queue, value, POINTER);
+			_queue_insert(queue_, value, POINTER);
 			state = r->failure;
 
 			// find failure path
@@ -102,6 +104,8 @@ void _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 			}
 		}
 	}
+
+	_queue_destroy(queue_);
 }
 
 
@@ -285,8 +289,6 @@ pm_root * pm_init()
 	root->result->count = 0;
 	root->result->size = 10;
 
-	root->queue = _queue_init();
-
 	return root;
 }
 
@@ -454,7 +456,6 @@ void pm_destroy(pm_root * root)
 		_ac_destroy(root->state->next[i]);
 	}
 
-	_queue_destroy(root->queue);
 	_ac_free(root->state);
 	free(root->result->rule);
 	free(root->result);

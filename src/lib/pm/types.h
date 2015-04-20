@@ -8,8 +8,6 @@
 
 #ifdef ALG_ac
 
-#include "../general/list.h"
-
 typedef struct _ac_state_
 {
 	char * key;
@@ -42,7 +40,6 @@ typedef struct
 typedef struct
 {
 	_ac_state * state;
-	list * queue;
 	pm_result * result;
 } pm_root;
 
