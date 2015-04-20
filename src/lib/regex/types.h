@@ -1,11 +1,3 @@
-enum REGEX_ERRORS
-{
-	REGEX_OUT_OF_MEMORY = 512,
-	REGEX_INVALID_ID,
-	REGEX_INVALID,
-	REGEX_EMPTY
-};
-
 #ifdef ALG_dfa
 
 typedef struct _dfa_state

@@ -109,7 +109,7 @@ inline _bspl_node * _bspl_create()
 	_bspl_node * node;
 	node = malloc(sizeof(_bspl_node));
 
-	if(node == NULL) return errno = _OUT_OF_MEMORY, NULL;
+	if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 	node->left = NULL;
 	node->right = NULL;
 	node->next = NULL;
@@ -219,7 +219,7 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 {
 	lpm_root * root = malloc(sizeof(lpm_root));
 
-	if(root == NULL) return errno = _OUT_OF_MEMORY, NULL;
+	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 	root->tree = _bspl_create();
 	root->tree->type = _BSPL_NODE_PREFIX;
 	root->tree->rule = default_rule;
@@ -298,7 +298,7 @@ _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE ru
 		{
 			other = _bspl_create();
 
-			if(other == NULL) return errno = _OUT_OF_MEMORY, 0;
+			if(other == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 			other->prefix = prefix_bits | (!bit << (31 - len));
 			other->prefix_len = len + 1;
@@ -311,7 +311,7 @@ _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE ru
 		{
 			node = _bspl_create();
 
-			if(node == NULL) return errno = _OUT_OF_MEMORY, 0;
+			if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 			node->prefix = prefix_bits | (bit << (31 - len));
 			node->prefix_len = len + 1;
 			node->rule = parent_rule;

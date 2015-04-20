@@ -13,7 +13,7 @@ list_item * _list_item_create(list_item_value value, char value_type)
 
 	if(item == NULL)
 	{
-		errno = _OUT_OF_MEMORY;
+		errno = FASTNET_OUT_OF_MEMORY;
 		return NULL;
 	}
 
@@ -32,7 +32,7 @@ _Bool list_append_back(list * root, list_item_value value, char value_type)
 
 	if(item == NULL)
 	{
-		errno = _OUT_OF_MEMORY;
+		errno = FASTNET_OUT_OF_MEMORY;
 		return 0;
 	}
 
@@ -59,7 +59,7 @@ _Bool list_append_front(list * root, list_item_value value, char value_type)
 
 	if(item == NULL)
 	{
-		errno = _OUT_OF_MEMORY;
+		errno = FASTNET_OUT_OF_MEMORY;
 		return 0;
 	}
 
@@ -107,7 +107,7 @@ list * list_init()
 
 	if(root == NULL)
 	{
-		errno = _OUT_OF_MEMORY;
+		errno = FASTNET_OUT_OF_MEMORY;
 		return NULL;
 	}
 

@@ -138,7 +138,7 @@ inline _Bool _tbm_extend(_tbm_node * node, uint16_t bit_value, _Bool shift_child
 		//resize, add space for one more child
 		new_child = realloc(node->child, (bitsum + 1) * sizeof(_tbm_node));
 
-		if(new_child == NULL) return errno = _OUT_OF_MEMORY, 0;
+		if(new_child == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 		node->child = new_child;
 		//shift all values behind newly added to the right
@@ -155,7 +155,7 @@ inline _Bool _tbm_extend(_tbm_node * node, uint16_t bit_value, _Bool shift_child
 		//resize, add space for one more rule
 		new_rule = realloc(node->rule, (bitsum + 1) * sizeof(_LPM_RULE));
 
-		if(new_rule == NULL) return errno = _OUT_OF_MEMORY, 0;
+		if(new_rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 		node->rule = new_rule;
 		//shift all values behind newly added to the right
@@ -201,7 +201,7 @@ inline _Bool _tbm_reduce(_tbm_node * node, uint16_t bit_value, _Bool shift_child
 		memmove(&(node->child[index_start + 1]), &(node->child[index_start]), (bitsum - index_start - 1) * sizeof(_tbm_node));
 		new_child = realloc(node->child, (bitsum - 1) * sizeof(_tbm_node));
 
-		if(new_child == NULL && bitsum != 1) return errno = _OUT_OF_MEMORY, 0;
+		if(new_child == NULL && bitsum != 1) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 		node->child = new_child;
 	}
@@ -212,7 +212,7 @@ inline _Bool _tbm_reduce(_tbm_node * node, uint16_t bit_value, _Bool shift_child
 		memmove(&(node->rule[index_start + 1]), &(node->rule[index_start]), (bitsum - index_start - 1) * sizeof(_LPM_RULE));
 		new_rule = realloc(node->rule, (bitsum - 1) * sizeof(_LPM_RULE));
 
-		if(new_rule == NULL && bitsum != 1) return errno = _OUT_OF_MEMORY, 0;
+		if(new_rule == NULL && bitsum != 1) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 		node->rule = new_rule;
 	}
@@ -244,12 +244,12 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 	lpm_root * root;
 	root = malloc(sizeof(lpm_root));
 
-	if(root == NULL) return errno = _OUT_OF_MEMORY, NULL;
+	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 
 	root->child = NULL;
 	root->rule = malloc(sizeof(_LPM_RULE));
 
-	if(root->rule == NULL) return errno = _OUT_OF_MEMORY, free(root), NULL;
+	if(root->rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root), NULL;
 
 	root->rule[0] = default_rule;
 	_tbm_zeros(root->external, _TBM_SIZE_EXTERNAL);

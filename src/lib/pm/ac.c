@@ -18,7 +18,7 @@ _Bool _ac_remove_rule(_ac_state * state, PM_RULE rule)
 			new_additional_rule = realloc(state->additional_rule, sizeof(PM_RULE) * (state->additional_size - 1));
 
 			// if new additional_size == 0 then it should return NULL
-			if(new_additional_rule == NULL && state->additional_size != 1) return errno = _OUT_OF_MEMORY, 0;
+			if(new_additional_rule == NULL && state->additional_size != 1) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 			state->additional_rule = new_additional_rule;
 			--state->additional_size;
@@ -56,7 +56,7 @@ _Bool _ac_append_rule(_ac_state * state, PM_RULE rule)
 
 	new_additional_rule = realloc(state->additional_rule, (state->additional_size + 1) * sizeof(PM_RULE));
 
-	if(new_additional_rule == NULL) return errno = _OUT_OF_MEMORY, 0;
+	if(new_additional_rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 	state->additional_rule = new_additional_rule;
 	state->additional_rule[state->additional_size] = rule;
@@ -139,7 +139,7 @@ _ac_state * _ac_create()
 {
 	_ac_state * state = (_ac_state *) malloc(sizeof(_ac_state));
 
-	if(state == NULL) return errno = _OUT_OF_MEMORY, NULL;
+	if(state == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 
 	state->rule = PM_RULE_NONE;
 	state->additional_rule = NULL;
@@ -163,7 +163,7 @@ _Bool _ac_add_match(pm_result * result, PM_RULE matched_rule)
 	{
 		new_rule = realloc(result->rule, (result->size << 1) * sizeof(PM_RULE));
 
-		if(new_rule == NULL) return errno = _OUT_OF_MEMORY, 0;
+		if(new_rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 		result->size <<= 1;
 		result->rule = new_rule;
@@ -197,11 +197,11 @@ _Bool _ac_append(pm_root * root, _ac_state * state, _ac_state * parent, char cha
 	// resize arrays
 	new_key = realloc(parent->key, parent->path_count + 1);
 
-	if(new_key == NULL) return errno = _OUT_OF_MEMORY, 0;
+	if(new_key == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
 	new_next = realloc(parent->next, (parent->path_count + 1) * sizeof(_ac_state *));
 
-	if(new_next == NULL) return errno = _OUT_OF_MEMORY, free(new_key), 0;
+	if(new_next == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(new_key), 0;
 
 	parent->key = new_key;
 	parent->next = new_next;
@@ -286,12 +286,12 @@ _Bool _ac_remove(pm_root * root, _ac_state * prev, char character, PM_RULE * rem
 
 		new_key = realloc(prev->key, prev->path_count);
 		// if prev->path_cout == 0 then it should return NULL
-		if(new_key == NULL && prev->path_count != 0) return errno = _OUT_OF_MEMORY, 0;
+		if(new_key == NULL && prev->path_count != 0) return errno = FASTNET_OUT_OF_MEMORY, 0;
 		prev->key = new_key;
 
 		new_next = realloc(prev->next, prev->path_count * sizeof(_ac_state *));
 		// if prev->path_cout == 0 then it should return NULL
-		if(new_next == NULL && prev->path_count != 0) return errno = _OUT_OF_MEMORY, 0;
+		if(new_next == NULL && prev->path_count != 0) return errno = FASTNET_OUT_OF_MEMORY, 0;
 		prev->next = new_next;
 	}
 
@@ -331,15 +331,15 @@ pm_root * pm_init(pm_result ** result)
 
 	root = _ac_create();
 
-	if(root == NULL) return errno = _OUT_OF_MEMORY, NULL;
+	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 
 	root->key = malloc(256);
 
-	if(root->key == NULL) return errno = _OUT_OF_MEMORY, free(root), NULL;
+	if(root->key == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root), NULL;
 
 	root->next = malloc(256 * sizeof(_ac_state *));
 
-	if(root->next == NULL) return errno = _OUT_OF_MEMORY, free(root->key), free(root), NULL;
+	if(root->next == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root->key), free(root), NULL;
 
 	root->path_count = 256;
 
@@ -351,11 +351,11 @@ pm_root * pm_init(pm_result ** result)
 
 	(*result) = malloc(sizeof(pm_result));
 
-	if(*result == NULL) return errno = _OUT_OF_MEMORY, free(root->next), free(root->key), free(root), NULL;
+	if(*result == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root->next), free(root->key), free(root), NULL;
 
 	(*result)->rule = malloc(sizeof(PM_RULE) * 10);
 
-	if((*result)->rule == NULL) return errno = _OUT_OF_MEMORY, free(root->next), free(root->key), free(root), free(*result), NULL;
+	if((*result)->rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root->next), free(root->key), free(root), free(*result), NULL;
 	(*result)->count = 0;
 	(*result)->size = 10;
 
@@ -378,11 +378,11 @@ _Bool pm_match(pm_root * root, pm_result * result, char * input, unsigned length
 
 		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
 		{
-			if(_ac_add_match(result, state->rule) == 0) return errno = _OUT_OF_MEMORY, 1;
+			if(_ac_add_match(result, state->rule) == 0) return errno = FASTNET_OUT_OF_MEMORY, 1;
 
 			for(unsigned i = 0; i < state->additional_size; ++i)
 			{
-				if(_ac_add_match(result, state->additional_rule[i]) == 0) return errno = _OUT_OF_MEMORY, 1;
+				if(_ac_add_match(result, state->additional_rule[i]) == 0) return errno = FASTNET_OUT_OF_MEMORY, 1;
 			}
 
 			result->state = state;

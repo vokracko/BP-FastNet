@@ -1,4 +1,5 @@
 #include "types-precompiled.h"
+#include "../general/common.h"
 
 regex_nfa * regex_construct_nfa(regex_pattern patterns[], unsigned count);
 regex_dfa * regex_construct_dfa(regex_pattern patterns[], unsigned count);

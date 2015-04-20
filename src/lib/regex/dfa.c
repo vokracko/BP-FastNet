@@ -4,7 +4,7 @@
 
 void * _out_of_memory()
 {
-	errno = REGEX_OUT_OF_MEMORY;
+	errno = FASTNET_OUT_OF_MEMORY;
 	return NULL;
 }
 
@@ -572,7 +572,7 @@ _nfa_block * _enumeration(char * input, unsigned length, unsigned * position)
 
 	if(!_is_char(symbol))
 	{
-		errno = REGEX_INVALID;
+		errno = FASTNET_REGEX_INVALID;
 		return NULL;
 	}
 
@@ -719,7 +719,7 @@ int _dfa_match_processed(stack_item_value first, stack_item_value second)
 {
 	if(pattern.length == 0 || pattern.input == NULL)
 	{
-		errno = REGEX_EMPTY;
+		errno = FASTNET_REGEX_EMPTY;
 		return NULL;
 	}
 
@@ -753,7 +753,7 @@ int _dfa_match_processed(stack_item_value first, stack_item_value second)
 			switch(_validate(current, prev))
 			{
 				case FAIL:
-					errno = REGEX_INVALID;
+					errno = FASTNET_REGEX_INVALID;
 					return _nfa_clear(stack_);
 				case OK:
 					break;
@@ -770,7 +770,7 @@ int _dfa_match_processed(stack_item_value first, stack_item_value second)
 
 			if(precedence_res == FAIL)
 			{
-				errno = REGEX_INVALID;
+				errno = FASTNET_REGEX_INVALID;
 				return _nfa_clear(stack_);
 			}
 			else if(precedence_res == FIN) break;
@@ -920,7 +920,7 @@ regex_nfa * regex_construct_nfa(regex_pattern * patterns, unsigned count)
 {
 	if(count <= 0)
 	{
-		errno = REGEX_EMPTY;
+		errno = FASTNET_REGEX_EMPTY;
 		return NULL;
 	}
 
@@ -933,7 +933,7 @@ regex_nfa * regex_construct_nfa(regex_pattern * patterns, unsigned count)
 	{
 		if(patterns[i].id == 0)
 		{
-			errno = REGEX_INVALID_ID;
+			errno = FASTNET_REGEX_INVALID_ID;
 			regex_destroy_nfa(root);
 		}
 
@@ -992,11 +992,11 @@ int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 	int result = NOT_MATCH;
 	void * char_position;
 
-	if((start = stack_init()) == NULL) return errno = REGEX_OUT_OF_MEMORY, NOT_MATCH;
-	if((end = stack_init()) == NULL) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), NOT_MATCH;
+	if((start = stack_init()) == NULL) return errno = FASTNET_OUT_OF_MEMORY, NOT_MATCH;
+	if((end = stack_init()) == NULL) return errno = FASTNET_OUT_OF_MEMORY, stack_destroy(start), NOT_MATCH;
 
 	value.pointer = regex;
-	if(stack_push(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
+	if(stack_push(start, value, POINTER) == 0) return errno = FASTNET_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 
 	while(position < length)
 	{
@@ -1014,20 +1014,20 @@ int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 			{
 				value.pointer = state->next_epsilon[i];
 
-				if(stack_push_unique(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
+				if(stack_push_unique(start, value, POINTER) == 0) return errno = FASTNET_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 			}
 
 			if((char_position = memchr(state->key, input[position], state->length))) // OR final state
 			{
 				value.pointer = state->next[char_position - (void *) state->key];
-				if(stack_push_unique(end, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
+				if(stack_push_unique(end, value, POINTER) == 0) return errno = FASTNET_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 			}
 		}
 
 		if(stack_empty(end))
 		{
 			value.pointer = regex;
-			if(stack_push_unique(end, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
+			if(stack_push_unique(end, value, POINTER) == 0) return errno = FASTNET_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 		}
 
 		swap_pointer = end;
@@ -1050,7 +1050,7 @@ int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 		for(unsigned i = 0; i < state->length_epsilon; ++i)
 		{
 			value.pointer = state->next_epsilon[i];
-			if(stack_push_unique(start, value, POINTER) == 0) return errno = REGEX_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
+			if(stack_push_unique(start, value, POINTER) == 0) return errno = FASTNET_OUT_OF_MEMORY, stack_destroy(start), stack_destroy(end), NOT_MATCH;
 		}
 	}
 NFA_END:

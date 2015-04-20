@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include <stdbool.h>
 #include "types-precompiled.h"
+#include "../general/common.h"
 
 pm_root * pm_init(pm_result ** result);
 _Bool pm_match(pm_root * root, pm_result * result, char * text, unsigned length);

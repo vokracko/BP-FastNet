@@ -10,7 +10,7 @@ stack * stack_init()
 
 	if(root->data == NULL)
 	{
-		errno = _OUT_OF_MEMORY;
+		errno = FASTNET_OUT_OF_MEMORY;
 		free(root);
 		return NULL;
 	}
@@ -55,7 +55,7 @@ _Bool stack_push(stack * root, stack_item_value value, char value_type)
 
 		if(new_data == NULL)
 		{
-			errno = _OUT_OF_MEMORY;
+			errno = FASTNET_OUT_OF_MEMORY;
 			return 0;
 		}
 

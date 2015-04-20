@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include <stdbool.h>
 #include "types-precompiled.h"
+#include "../general/common.h"
 
 lpm_root * lpm_init(_LPM_RULE default_rule);
 _Bool lpm_add(lpm_root * root, uint32_t prefix, uint8_t prefix_len, _LPM_RULE rule);
