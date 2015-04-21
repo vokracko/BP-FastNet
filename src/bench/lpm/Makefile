@@ -9,7 +9,7 @@ all:
 
 bin: .FORCE bin.c
 	make -C $(LIB) ALG=$(ALG) STRIDE=$(STRIDE)
-	gcc -std=c99 bin.c $(LIB)/lpm.a -o $(ALG)
+	gcc -std=c99 bin.c $(LIB)/lpm.a -o $(ALG) -DIPv$(IP)
 
 .FORCE:
 

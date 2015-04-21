@@ -14,11 +14,13 @@ struct in_addr ipv4num(char * address)
 	return addr;
 }
 
-void ipv6num(char * address)
+struct in6_addr ipv6num(char * address)
 {
 	struct in6_addr addr;
 	inet_pton(AF_INET6, address, &addr);
+	return addr;
 }
+
 
 int main(int argc, char * argv[])
 {

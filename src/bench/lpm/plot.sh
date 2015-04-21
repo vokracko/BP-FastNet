@@ -20,7 +20,7 @@ do
 	for stride in $STRIDES
 	do
 
-		make bin ALG=$alg STRIDE=$stride > /dev/null 2>&1
+		make bin ALG=$alg STRIDE=$stride IP=$IPv > /dev/null 2>&1
 		dat_file="./output/IPv$IPv/$alg-$stride.dat"
 		printf "Algorithm\t$alg-$stride\n" > $dat_file
 
