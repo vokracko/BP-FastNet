@@ -221,7 +221,7 @@ _Bool _tbm_reduce(_tbm_node * node, uint16_t bit_value, _Bool shift_child)
  * @brief Destroy node children and deallocate memory
  * @param node
  */
-void _tbm_destroy(_tbm_node * node)
+void _tbm_free(_tbm_node * node)
 {
 	assert(node != NULL);
 
@@ -229,17 +229,16 @@ void _tbm_destroy(_tbm_node * node)
 
 	for(int i = 0; i < _tbm_bitsum(node->external, _TBM_ALL_EXTERNAL); ++i)
 	{
-		_tbm_destroy(&(node->child[i]));
+		_tbm_free(&(node->child[i]));
 	}
 
 	free(node->child);
 }
 
-
-lpm_root * lpm_init(_LPM_RULE default_rule)
+void * _tbm_init(_LPM_RULE default_rule)
 {
 	lpm_root * root;
-	root = malloc(sizeof(lpm_root));
+	root = malloc(sizeof(_tbm_node));
 
 	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 
@@ -256,7 +255,7 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 	return root;
 }
 
-_Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+_Bool _tbm_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule, _Bool ipv6)
 {
 	assert(root != NULL);
 
@@ -264,13 +263,12 @@ _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM
 	uint16_t index;
 	uint16_t bit_value;
 	uint8_t stride_len;
-	uint32_t prefix_int = (uint32_t) prefix->s_addr;
 
 	_tbm_node * node = root;
 
 	while(position + STRIDE < prefix_len)
 	{
-		bit_value = GET_STRIDE_BITS(prefix_int, position, STRIDE);
+		bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, STRIDE) :GET_STRIDE_BITS(*prefix, position, STRIDE);
 		position += STRIDE;
 
 		if(GET_BIT_LSB(node->external[bit_value / 32], bit_value % 32) == 0)
@@ -283,7 +281,8 @@ _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM
 	}
 
 	stride_len = prefix_len - position;
-	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS(prefix_int, position, stride_len));
+	bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, stride_len) : GET_STRIDE_BITS(*prefix, position, stride_len);
+	index = INTERNAL_INDEX(stride_len, bit_value);
 
 	if(_tbm_extend(node, index, 0) == 0) return 0;
 	SET_BIT_LSB(node->internal[index / 32], index % 32);
@@ -292,24 +291,24 @@ _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM
 	return 1;
 }
 
-void lpm_update(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+void _tbm_update(lpm6_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule, _Bool ipv6)
 {
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, (uint32_t *) &(prefix->s_addr), prefix_len, &index, 0);
+	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index, ipv6);
 
 	assert(node != NULL);
 
 	node->rule[_tbm_bitsum(node->internal, index)] = rule;
 }
 
-void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
+void _tbm_remove(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _Bool ipv6)
 {
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, (uint32_t *) &(prefix->s_addr), prefix_len, &index, 0);
+	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index, ipv6);
 
 	assert(node != NULL);
 
@@ -317,12 +316,62 @@ void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
 	CLEAR_BIT_LSB(node->internal[index / 32], index % 32);
 }
 
-void lpm_destroy(lpm_root * root)
+void _tbm_destroy(_tbm_node * root)
 {
 	if(root == NULL) return;
 
-	_tbm_destroy(root);
+	_tbm_free(root);
 	free(root);
+}
+
+lpm_root * lpm_init(_LPM_RULE default_rule)
+{
+	return _tbm_init(default_rule);
+}
+
+lpm6_root * lpm6_init(_LPM_RULE default_rule)
+{
+	return _tbm_init(default_rule);
+}
+
+_Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	return _tbm_add(root, (uint32_t *) prefix, prefix_len, rule, 0);
+}
+
+_Bool lpm6_add(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	return _tbm_add(root, (uint32_t *) prefix, prefix_len, rule, 1);
+}
+
+void lpm_update(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	_tbm_update(root, (uint32_t *) prefix, prefix_len, rule, 0);
+}
+
+void lpm6_update(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	_tbm_update(root, (uint32_t *) prefix, prefix_len, rule, 1);
+}
+
+void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
+{
+	_tbm_remove(root, (uint32_t *) prefix, prefix_len, 0);
+}
+
+void lpm6_remove(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len)
+{
+	_tbm_remove(root, (uint32_t *) prefix, prefix_len, 1);
+}
+
+void lpm_destroy(lpm_root * root)
+{
+	_tbm_destroy(root);
+}
+
+void lpm6_destroy(lpm6_root * root)
+{
+	_tbm_destroy(root);
 }
 
 uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
@@ -350,8 +399,6 @@ uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
 			longest_match_index = tmp_index;
 			longest_match_node = node;
 		}
-
-		if(node->child == NULL) break;
 		// index for child pointer is bitsum from <0, (int) bits)
 		index = _tbm_bitsum(node->external, bits);
 
@@ -366,94 +413,6 @@ uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
 }
 
 
-lpm6_root * lpm6_init(_LPM_RULE default_rule)
-{
-	lpm6_root * root;
-	root = malloc(sizeof(lpm6_root));
-
-	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
-
-	root->child = NULL;
-	root->rule = malloc(sizeof(_LPM_RULE));
-
-	if(root->rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root), NULL;
-
-	root->rule[0] = default_rule;
-	_tbm_zeros(root->external, _TBM_SIZE_EXTERNAL);
-	_tbm_zeros(root->internal, _TBM_SIZE_INTERNAL);
-	SET_BIT_LSB(root->internal[0], 0);
-
-	return root;
-}
-
-_Bool lpm6_add(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
-{
-	assert(root != NULL);
-
-	uint8_t position = 0;
-	uint16_t index;
-	uint16_t bit_value;
-	uint8_t stride_len;
-	uint32_t * prefix_int = (uint32_t *) prefix;
-
-	_tbm_node * node = root;
-
-	while(position + STRIDE < prefix_len)
-	{
-		bit_value = GET_STRIDE_BITS_IPV6(prefix_int, position, STRIDE);
-		position += STRIDE;
-
-		if(GET_BIT_LSB(node->external[bit_value / 32], bit_value % 32) == 0)
-		{
-			if(_tbm_extend(node, bit_value, 1) == 0) return 0;
-			SET_BIT_LSB(node->external[bit_value / 32], bit_value % 32);
-		}
-
-		node = &(((_tbm_node *) node->child)[_tbm_bitsum(node->external, bit_value)]);
-	}
-
-	stride_len = prefix_len - position;
-	index = INTERNAL_INDEX(stride_len, GET_STRIDE_BITS_IPV6(prefix_int, position, stride_len));
-
-	if(_tbm_extend(node, index, 0) == 0) return 0;
-	SET_BIT_LSB(node->internal[index / 32], index % 32);
-	node->rule[_tbm_bitsum(node->internal, index)] = rule;
-
-	return 1;
-}
-
-void lpm6_update(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
-{
-	assert(root != NULL);
-
-	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, (uint32_t *) prefix, prefix_len, &index, 1);
-
-	assert(node != NULL);
-
-	node->rule[_tbm_bitsum(node->internal, index)] = rule;
-}
-
-void lpm6_remove(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len)
-{
-	assert(root != NULL);
-
-	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, (uint32_t *) prefix, prefix_len, &index, 1);
-
-	assert(node != NULL);
-
-	_tbm_reduce(node, index, 0);
-	CLEAR_BIT_LSB(node->internal[index / 32], index % 32);
-}
-
-void lpm6_destroy(lpm6_root * root)
-{
-	if(root == NULL) return;
-
-	_tbm_destroy(root);
-	free(root);
-}
 
 _LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
 {
@@ -480,8 +439,6 @@ _LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
 			longest_match_index = tmp_index;
 			longest_match_node = node;
 		}
-
-		if(node->child == NULL) break;
 		// index for child pointer is bitsum from <0, (int) bits)
 		index = _tbm_bitsum(node->external, bits);
 
