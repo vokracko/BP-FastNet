@@ -9,10 +9,9 @@ typedef struct _bspl_node
 	struct _bspl_node * right;
 	struct _bspl_node * next;
 	uint8_t type;
-	uint32_t prefix;
-	uint8_t prefix_len;
-
 	_LPM_RULE rule;
+	uint8_t prefix_len;
+	uint32_t prefix;
 
 } _bspl_node;
 
@@ -29,10 +28,9 @@ typedef struct _bspl_node6
 	struct _bspl_node6 * right;
 	struct _bspl_node6 * next;
 	uint8_t type;
-	uint32_t prefix[4];
-	uint8_t prefix_len;
-
 	_LPM_RULE rule;
+	uint8_t prefix_len;
+	struct in6_addr prefix;
 
 } _bspl_node6;
 
