@@ -29,7 +29,7 @@ typedef struct _bspl_node6
 	struct _bspl_node6 * right;
 	struct _bspl_node6 * next;
 	uint8_t type;
-	uint32_t prefix[4];
+	struct in6_addr;
 	uint8_t prefix_len;
 
 	_LPM_RULE rule;
