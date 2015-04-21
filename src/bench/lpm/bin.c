@@ -38,8 +38,10 @@ ADDR ip2num(char * address)
 	return addr;
 }
 
-void list_insert(list * item, list * start, ADDR addr, _LPM_RULE * rule_max, _LPM_RULE * rule)
+void list_insert(list ** start, ADDR addr, _LPM_RULE * rule_max, _LPM_RULE * rule)
 {
+	list * item = *start;
+
 	while(item != NULL)
 	{
 		if(item->ip.s_addr == addr.s_addr) break;
@@ -51,8 +53,8 @@ void list_insert(list * item, list * start, ADDR addr, _LPM_RULE * rule_max, _LP
 		item = (list *) malloc(sizeof(list));
 		item->rule = (*rule_max)++;
 		item->ip = addr;
-		item->next = start;
-		start = item;
+		item->next = *start;
+		*start = item;
 	}
 
 	*rule = item->rule;
@@ -76,7 +78,7 @@ void fillTable(lpm_root * root, char * source)
 	{
 		item = start;
 		addr = ip2num(next_hop);
-		list_insert(item, start, addr, &rule_max, &rule);
+		list_insert(&start, addr, &rule_max, &rule);
 
 		addr = ip2num(destination);
 		ADD(root, &addr, prefix_len, rule);
