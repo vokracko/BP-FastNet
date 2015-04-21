@@ -321,7 +321,7 @@ void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
 
 void lpm_destroy(lpm_root * root)
 {
-	assert(root != NULL);
+	if(root == NULL) return;
 
 	_tbm_destroy(root);
 	free(root);
@@ -364,4 +364,35 @@ uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
 	while(GET_BIT_LSB(parent->external[bits / 32], bits % 32));
 
 	return longest_match_node->rule[longest_match_index];
+}
+
+
+lpm6_root * lpm6_init(_LPM_RULE default_rule)
+{
+	return NULL;
+}
+
+_Bool lpm6_add(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	return 1;
+}
+
+void lpm6_update(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+
+}
+
+void lpm6_remove(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len)
+{
+
+}
+
+_Bool lpm6_destroy(lpm6_root * root)
+{
+	return 1;
+}
+
+_LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
+{
+	return 1;
 }

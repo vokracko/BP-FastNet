@@ -6,33 +6,44 @@
 #include <netinet/in.h>
 #include "../../lib/lpm/lpm.h"
 
-struct in_addr ipv4num(char * address)
-{
-	struct in_addr addr;
-	inet_pton(AF_INET, address, &addr);
-	addr.s_addr = htonl(addr.s_addr);
-	return addr;
-}
+#define ADD ipv6 ? lpm6_add(root6, &addr6, first, second) : lpm_add(root, &addr, first, second)
+#define INIT if(ipv6) root6 = lpm6_init(first); else root = lpm_init(first)
+#define LOOKUP ipv6 ? lpm6_lookup(root6, &addr6) : lpm_lookup(root, &addr)
+#define UPDATE ipv6 ? lpm6_update(root6, &addr6, first, second) : lpm_update(root, &addr, first, second)
+#define REMOVE ipv6 ? lpm6_remove(root6, &addr6, first) : lpm_remove(root, &addr, first)
+#define DESTROY ipv6 ? lpm6_destroy(root6) : lpm_destroy(root)
+#define CONVERT if(ipv6) addr6 = ip2num6(ip); else addr = ip2num4(ip)
 
-struct in6_addr ipv6num(char * address)
+struct in6_addr ip2num6(char * address)
 {
 	struct in6_addr addr;
 	inet_pton(AF_INET6, address, &addr);
 	return addr;
 }
 
+struct in_addr ip2num4(char * address)
+{
+	struct in_addr addr;
+	inet_pton(AF_INET, address, &addr);
+	addr.s_addr = htonl(addr.s_addr);
+	return addr;
+
+}
 
 int main(int argc, char * argv[])
 {
 	unsigned res;
 	unsigned fail = 0;
 	unsigned first, second;
-	char ip[20] = {'\0'};
+	char ip[100] = {'\0'};
 	char cmd[20] = {'\0'};
 	char line[1024] = {'\0'};
 	FILE * handle = fopen(argv[1], "r");
 	lpm_root * root = NULL;
+	lpm6_root * root6 = NULL;
 	struct in_addr addr;
+	struct in6_addr addr6;
+	_Bool ipv6 = 0;
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
@@ -40,38 +51,34 @@ int main(int argc, char * argv[])
 	{
 		if(strcmp(cmd, "init") == 0)
 		{
-			if(root != NULL) lpm_destroy(root);
+			if(second == 6) ipv6 = 1;
+			DESTROY;
 			sprintf(line, "init %d %d\n", first, second);
-			root = lpm_init(first);
+			INIT;
 		}
 		else if(strcmp(cmd, "lookup") == 0)
 		{
-			addr =  ipv4num(ip);
-			res = lpm_lookup(root, &addr);
+			CONVERT;
+			res = LOOKUP;
 			fail = res != second;
-
 			sprintf(line, "lookup for %s %d (%d) %s\n", ip, second, res, fail ? "FAIL" : "PASS");
-
 		}
 		else if(strcmp(cmd, "add") == 0)
 		{
-			addr =  ipv4num(ip);
-			lpm_add(root, &addr, first, second);
-
+			CONVERT;
+			ADD;
 			sprintf(line, "add rule %d for %s/%d\n", second, ip, first);
 		}
 		else if(strcmp(cmd, "remove") == 0)
 		{
-			addr =  ipv4num(ip);
-			lpm_remove(root, &addr, first);
-
+			CONVERT;
+			REMOVE;
 			sprintf(line, "remove rule for %s/%d\n", ip, first);
 		}
 		else if(strcmp(cmd, "update") == 0)
 		{
-			addr =  ipv4num(ip);
-			lpm_update(root, &addr, first, second);
-
+			CONVERT;
+			UPDATE;
 			sprintf(line, "update to rule %d for %s/%d\n", second, ip, first);
 		}
 
@@ -82,7 +89,7 @@ int main(int argc, char * argv[])
 		}
 	}
 
-	lpm_destroy(root);
+	DESTROY;
 	fclose(handle);
 
 	return fail;

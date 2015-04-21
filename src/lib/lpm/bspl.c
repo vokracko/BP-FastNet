@@ -3,13 +3,13 @@
 _bspl_node * _bspl_root;
 _bspl_node ** _bspl_htable;
 
-inline uint32_t calculate_hash(uint32_t key)
+inline uint32_t calculate_hash(uint8_t * key, uint8_t length)
 {
 	uint32_t hash, i;
 
-	for(hash = i = 0; i < 4; ++i)
+	for(hash = i = 0; i < length; ++i)
 	{
-		hash += GET_BYTE_LSB(key, i);
+		hash += key[i];
 		hash += (hash << 10);
 		hash ^= (hash >> 6);
 	}
@@ -55,7 +55,7 @@ inline void _bspl_add_htable(lpm_root * root, _bspl_node * node)
 	assert(node != NULL);
 	assert(root->htable != NULL);
 
-	uint32_t index = calculate_hash(node->prefix);
+	uint32_t index = calculate_hash((uint8_t *) &node->prefix, 4);
 	_bspl_node ** ptr = &root->htable[index];
 
 	while(*ptr != NULL)
@@ -104,10 +104,10 @@ inline void _bspl_add(lpm_root * root, _bspl_node * node, _bspl_node * parent, _
  * @brief Construct empty bspl node
  * @return pointer to constructed node
  */
-inline _bspl_node * _bspl_create()
+inline void * _bspl_create(uint8_t size)
 {
 	_bspl_node * node;
-	node = malloc(sizeof(_bspl_node));
+	node = malloc(size);
 
 	if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 	node->left = NULL;
@@ -130,7 +130,7 @@ inline void _bspl_remove_htable(lpm_root * root,_bspl_node * node)
 	assert(node != NULL);
 	assert(root->htable != NULL);
 
-	unsigned int index = calculate_hash(node->prefix);
+	unsigned int index = calculate_hash((uint8_t *) &node->prefix, 4);
 	_bspl_node ** htable_node = &root->htable[index];
 
 	while(*htable_node != node)
@@ -220,7 +220,7 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
 	lpm_root * root = malloc(sizeof(lpm_root));
 
 	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
-	root->tree = _bspl_create();
+	root->tree = _bspl_create(sizeof(_bspl_node));
 	root->tree->type = _BSPL_NODE_PREFIX;
 	root->tree->rule = default_rule;
 	root->tree->prefix = 0;
@@ -239,7 +239,7 @@ lpm_root * lpm_init(_LPM_RULE default_rule)
  */
 void lpm_destroy(lpm_root * root)
 {
-	assert(root != NULL);
+	if(root == NULL) return;
 	assert(root->htable != NULL);
 
 	_bspl_node * node, * prev;
@@ -297,7 +297,7 @@ _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM
 
 		if(other == NULL)
 		{
-			other = _bspl_create();
+			other = _bspl_create(sizeof(_bspl_node));
 
 			if(other == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
@@ -310,7 +310,7 @@ _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM
 
 		if(node == NULL)
 		{
-			node = _bspl_create();
+			node = _bspl_create(sizeof(_bspl_node));
 
 			if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 			node->prefix = prefix_bits | (bit << (31 - len));
@@ -403,7 +403,7 @@ _LPM_RULE lpm_lookup(lpm_root * root, struct in_addr * key)
 	do
 	{
 		prefix_bits = GET_BITS_MSB(key_int, prefix_len);
-		node = root->htable[calculate_hash(prefix_bits)];
+		node = root->htable[calculate_hash((uint8_t *) &prefix_bits, 4)];
 
 		while(node != NULL && (node->prefix != prefix_bits || node->prefix_len != prefix_len))
 		{
@@ -422,4 +422,34 @@ _LPM_RULE lpm_lookup(lpm_root * root, struct in_addr * key)
 
 	return node->rule;
 
+}
+
+lpm6_root * lpm6_init(_LPM_RULE default_rule)
+{
+	return NULL;
+}
+
+_Bool lpm6_add(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	return 1;
+}
+
+void lpm6_update(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+
+}
+
+void lpm6_remove(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len)
+{
+
+}
+
+_Bool lpm6_destroy(lpm6_root * root)
+{
+	return 1;
+}
+
+_LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
+{
+	return 1;
 }

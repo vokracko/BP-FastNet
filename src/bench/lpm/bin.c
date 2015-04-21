@@ -11,6 +11,7 @@
 	#define ADD lpm_add
 	#define INIT lpm_init
 	#define LOOKUP lpm_lookup
+	#define DESTROY lpm_destroy
 #endif
 
 #ifdef IPv6
@@ -19,6 +20,7 @@
 	#define ADD lpm6_add
 	#define INIT lpm6_init
 	#define LOOKUP lpm6_lookup
+	#define DESTROY lpm6_destroy
 #endif
 
 unsigned ipv;
@@ -35,6 +37,11 @@ ADDR ip2num(char * address)
 {
 	ADDR addr;
 	inet_pton(PTON_FLAG, address, &addr);
+
+	#ifdef IPv4
+		addr.s_addr = htonl(addr.s_addr);
+	#endif
+
 	return addr;
 }
 
@@ -140,5 +147,5 @@ int main(int argc, char * argv[])
 	fillTable(root, input_file);
 	printf("%lf\n", lookup(root, lookup_file));
 
-	lpm_destroy(root);
+	DESTROY(root);
 }

@@ -23,6 +23,26 @@ typedef struct
 
 } lpm_root;
 
+typedef struct _bspl_node6
+{
+	struct _bspl_node6 * left;
+	struct _bspl_node6 * right;
+	struct _bspl_node6 * next;
+	uint8_t type;
+	uint32_t prefix[4];
+	uint8_t prefix_len;
+
+	_LPM_RULE rule;
+
+} _bspl_node6;
+
+typedef struct
+{
+	_bspl_node6 * tree;
+	_bspl_node6 ** htable;
+
+} lpm6_root;
+
 #endif
 
 #ifdef ALG_tbm // ########################################################
@@ -46,5 +66,6 @@ typedef struct _tbm_node
 } _tbm_node;
 
 typedef _tbm_node lpm_root;
+typedef _tbm_node lpm6_root;
 
 #endif
