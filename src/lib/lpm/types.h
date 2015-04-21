@@ -24,7 +24,6 @@ typedef struct _bspl_node6
 {
 	_bspl_node_common common;
 	struct in6_addr prefix;
-
 } _bspl_node6;
 
 typedef struct
