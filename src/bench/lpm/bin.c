@@ -37,7 +37,6 @@ ADDR ip2num(char * address)
 {
 	ADDR addr;
 	inet_pton(PTON_FLAG, address, &addr);
-
 	#ifdef IPv4
 		addr.s_addr = htonl(addr.s_addr);
 	#endif
@@ -51,7 +50,7 @@ void list_insert(list ** start, ADDR addr, _LPM_RULE * rule_max, _LPM_RULE * rul
 
 	while(item != NULL)
 	{
-		if(item->ip.s_addr == addr.s_addr) break;
+		if(memcmp(&(item->ip), &(addr), sizeof(addr)) == 0) break;
 		item = item->next;
 	}
 
