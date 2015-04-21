@@ -6,7 +6,7 @@ all:
 	@make ac
 
 ac: .FORCE
-	@../run.sh pm ac
+	@../run.sh pm ac || echo -e "Tests failed"
 
 bin: bin.c
 	make -C $(LIB) lib ALG=ac

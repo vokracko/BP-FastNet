@@ -7,10 +7,10 @@ all:
 	@make dfa
 
 dfa: .FORCE
-	@../run.sh regex dfa
+	@../run.sh regex dfa || echo -e "Tests failed"
 
 nfa: .FORCE
-	@../run.sh regex nfa
+	@../run.sh regex nfa || echo -e "Tests failed"
 
 bin: bin.c
 	make -C $(LIB) lib ALG=dfa
