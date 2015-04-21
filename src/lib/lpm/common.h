@@ -6,6 +6,7 @@
 
 #define GET_BIT_LSB(data, position) ((data >> (position)) & 1)
 #define GET_BIT_MSB(data, position) ((data >> (31 - (position))) & 1)
+#define GET_BIT_MSB_IPV6(data, position) (((data)[(position) / 32] >> (31 - ((position) % 32))) & 1)
 
 #define CLEAR_BIT_LSB(data, position) (data &= ~(1 << (position)))
 #define CLEAR_BIT_MSB(data, position) (data &= ~(1 << (sizeof(data)*8-1 - (position))))

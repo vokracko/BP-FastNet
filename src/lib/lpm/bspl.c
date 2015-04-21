@@ -189,7 +189,7 @@ _bspl_node * _bspl_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, 
 	assert(root != NULL);
 	assert(root->tree != NULL);
 
-	uint32_t bit_position = 31;
+	uint32_t bit_position = 0;
 	uint32_t len = 0;
 	_Bool bit;
 	_bspl_node * node = root->tree;
@@ -200,7 +200,8 @@ _bspl_node * _bspl_lookup(lpm_root * root, uint32_t prefix, uint8_t prefix_len, 
 	{
 		assert(node != NULL);
 
-		bit = GET_BIT_LSB(prefix, bit_position--);
+		bit = GET_BIT_MSB(prefix, bit_position);
+		++bit_position;
 		*parent = node;
 		*other = *(_bspl_node **) ((void *) node + _BSPL_TREE_OFFSET(!bit));; // *other = bit ? node->left : node->right
 		node = *(_bspl_node **) ((void *) node + _BSPL_TREE_OFFSET(bit)); // node = bit ? node->right : node->left
