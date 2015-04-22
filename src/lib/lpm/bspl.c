@@ -262,13 +262,10 @@ void _bspl_destroy(lpm_root * root)
 
 uint32_t _bspl_get_bits(uint32_t * dst, uint32_t * src, uint8_t length)
 {
-	memcpy(dst, src, 16);
-	dst[(length - 1) / 32] = src[(length - 1) / 32] & (~0 << (32 - (length - abs((length - 1) / 32)*32)));
-
-	for(unsigned i = (length - 1) / 32 + 1; i < 4; ++i)
-	{
-		dst[i] = 0;
-	}
+	unsigned index = (length - 1) / 32;
+	memset(dst, 0, 16);
+	memcpy(dst, src, index * 4);
+	dst[index] = src[index] & (~0 << (32 - (length - abs((length - 1) / 32)*32)));
 }
 
 
@@ -364,24 +361,13 @@ void _bspl_update(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_R
  * @param rule
  */
 
-void _bspl_set_prefix(_bspl_node * dst, _bspl_node * src, uint8_t length, _Bool bit, _Bool ipv6)
+void _bspl_set_prefix(_bspl_node * dst, _bspl_node * src, uint8_t length, _Bool bit)
 {
-	if(ipv6)
-	{
-		memcpy(dst->prefix6, src->prefix6, 16);
-
-		if(length < 32) dst->prefix6[0] |= (bit << (31 - length));
-		else if(length < 64) dst->prefix6[1] |= (bit << (63 - length));
-		else if(length < 96) dst->prefix6[2] |= (bit << (95 - length));
-		else dst->prefix6[3] |= (bit << (127 - length));
-	}
-	else
-	{
-		dst->prefix = src->prefix | (bit << (31 - length));
-	}
+	memcpy(dst->prefix6, src->prefix6, 16);
+	dst->prefix6[length/32] |= (bit << (31 - (length - abs((length - 1) / 32)*32)));
 }
 
-_Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule, _Bool ipv6)
+_Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 	assert(root->tree != NULL);
@@ -411,7 +397,7 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 			other = _bspl_create();
 
 			if(other == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
-			_bspl_set_prefix(other, parent, len, !bit, ipv6);
+			_bspl_set_prefix(other, parent, len, !bit);
 			// other->prefix = prefix_bits | (!bit << (31 - len));
 			other->prefix_len = len + 1;
 			other->rule = parent_rule;
@@ -424,7 +410,7 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 			node = _bspl_create();
 
 			if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
-			_bspl_set_prefix(node, parent, len, bit, ipv6);
+			_bspl_set_prefix(node, parent, len, bit);
 			// node->prefix = prefix_bits | (bit << (31 - len));
 			node->prefix_len = len + 1;
 			node->rule = parent_rule;
@@ -523,10 +509,10 @@ _LPM_RULE lpm6_lookup(lpm_root * root, struct in6_addr * key)
 
 _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
-	return _bspl_add(root, (uint32_t *) prefix, prefix_len, rule, 0);
+	return _bspl_add(root, (uint32_t *) prefix, prefix_len, rule);
 }
 
 _Bool lpm6_add(lpm_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
-	return _bspl_add(root, (uint32_t *) prefix, prefix_len, rule, 1);
+	return _bspl_add(root, (uint32_t *) prefix, prefix_len, rule);
 }
