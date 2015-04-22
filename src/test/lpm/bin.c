@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
-	while(fscanf(handle, "%20s %20s %u %u", cmd, ip, &first, &second) == 4)
+	while(fscanf(handle, "%20s %99s %u %u", cmd, ip, &first, &second) == 4)
 	{
 		if(strcmp(cmd, "init") == 0)
 		{
