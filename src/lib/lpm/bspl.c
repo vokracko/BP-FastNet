@@ -1,6 +1,17 @@
 #include "bspl.h"
 
-uint32_t calculate_hash(uint8_t key)
+uint32_t ip(uint32_t i, char * op)
+{
+	char dst[100];
+	char * ptr;
+	i = htonl(i);
+	ptr = inet_ntop(AF_INET, &i, dst, 100);
+	if(ptr == NULL) exit(26);
+	// printf("%s - %u %s\n", op, i, ptr);
+	return i;
+}
+
+uint32_t calculate_hash(uint32_t key)
 {
 	uint32_t hash, i;
 
@@ -51,9 +62,7 @@ void _bspl_add_htable(lpm_root * root, _bspl_node * node)
 	assert(root != NULL);
 	assert(node != NULL);
 	assert(root->htable != NULL);
-
 	uint32_t index = calculate_hash(node->prefix);
-	// printf("%d index, %d length\n", index, node->prefix_len);
 	_bspl_node ** ptr = &root->htable[index];
 
 	while(*ptr != NULL)
@@ -250,12 +259,11 @@ void _bspl_destroy(lpm_root * root)
 	free(root);
 }
 
-// uint32_t _bspl_set_bits(uint32_t src, _Bool bit, uint8_t len)
-// {
-// 	if(bit) SET_BIT_MSB(dest[(len-1) / 32], len % 32);
-// 	else CLEAR_BIT_MSB(dest[(len-1) / 32], len % 32);
-
-// }
+uint32_t _bspl_get_bits(uint32_t * data, uint8_t length)
+{
+	//if(length % 32 == 0) return 0;
+	return data[(length - 1) / 32] & (~0 << (32 - (length - abs((length - 1) / 32)*32)));
+}
 
 
 _LPM_RULE _bspl_lookup(lpm_root * root, uint32_t * key, uint8_t length)
@@ -270,14 +278,18 @@ _LPM_RULE _bspl_lookup(lpm_root * root, uint32_t * key, uint8_t length)
 
 	do
 	{
-		prefix_bits = GET_BITS_MSB(*key, prefix_len);
+		prefix_bits = _bspl_get_bits(key, prefix_len); // TODO ipv6
+		ip(_bspl_get_bits(key, 32), "getbitstest");
 		node = root->htable[calculate_hash(prefix_bits)];
-		//FIXME rozdíl mezi ipv4 a ipv6 v porovnání
-		while(node != NULL && (node->prefix != prefix_bits || node->prefix_len != prefix_len))
+
+		printf("%d node len, %d len\n", node->prefix_len, prefix_len);
+		while(node != NULL && (ip(node->prefix, "lookup node") != ip(prefix_bits, "lookup bits") || node->prefix_len != prefix_len))
 		{
+			// printf("%d node len, %d len\n", node->prefix_len, prefix_len);
 			node = node->next;
 		}
 
+		printf("prefix_len %u\n", prefix_len);
 		prefix_change >>= 1;
 
 		if(node == NULL) prefix_len -= prefix_change;
@@ -345,6 +357,16 @@ void _bspl_update(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_R
  * @param prefix_len [description]
  * @param rule
  */
+
+ _Bool _bspl_get_bit(uint32_t * prefix, uint32_t len)
+{
+	if(len <= 32)
+	{
+		return (prefix[0] >> len) & 1;
+	}
+}
+
+
 _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
@@ -362,8 +384,8 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 	{
 		assert(parent != NULL);
 
-		bit = GET_BIT_MSB(prefix, len);
-		prefix_bits = GET_BITS_MSB(node->prefix, len); //TODO TADY se to musí vyřešit s ipv6
+		bit = GET_BIT_MSB(prefix, len); // TODO ipv6
+		prefix_bits = len % 32 == 0 ? 0 : parent->prefix;
 		parent_rule = parent->rule;
 		node =  bit ? parent->right : parent->left;
 		other  =  bit ? parent->left : parent->right;
@@ -375,7 +397,7 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 
 			if(other == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
-			((_bspl_node *) other)->prefix = prefix_bits | (!bit << (31 - len)); //TODO TADY se to musí vyřešit s ipv6
+			other->prefix = prefix_bits | (!bit << (31 - len));
 			other->prefix_len = len + 1;
 			other->rule = parent_rule;
 			_bspl_add_node(root, other, parent, !bit);
@@ -387,7 +409,7 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 			node = _bspl_create();
 
 			if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
-			((_bspl_node *) node)->prefix = prefix_bits | (bit << (31 - len)); //TODO TADY se to musí vyřešit s ipv6
+			node->prefix = prefix_bits | (bit << (31 - len));
 			node->prefix_len = len + 1;
 			node->rule = parent_rule;
 			_bspl_add_node(root, node, parent, bit);
@@ -397,8 +419,12 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 		++len;
 	}
 	while(prefix_len != len);
-
+	ip(node->prefix, "add node");
 	_bspl_leaf_pushing(node, node->rule, rule);
+	printf("add type %d\n", node->type);
+	printf("add length %d\n", node->prefix_len);
+	printf("prefix_len %d\n", prefix_len);
+	printf("add ptr %p\n", node);
 
 	return 1;
 }
