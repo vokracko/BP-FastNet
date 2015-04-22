@@ -3,33 +3,21 @@
 
 #ifdef ALG_bspl // ########################################################
 
-typedef struct _bspl_node_common_
+typedef struct _bspl_node_
 {
-	struct _bspl_node_common_ * left;
-	struct _bspl_node_common_ * right;
-	struct _bspl_node_common_ * next;
+	struct _bspl_node_ * left;
+	struct _bspl_node_ * right;
+	struct _bspl_node_ * next;
 	uint8_t type;
-	_LPM_RULE rule;
 	uint8_t prefix_len;
-} _bspl_node_common;
-
-typedef struct _bspl_node
-{
-	_bspl_node_common common;
 	uint32_t prefix;
-
+	_LPM_RULE rule;
 } _bspl_node;
-
-typedef struct _bspl_node6
-{
-	_bspl_node_common common;
-	struct in6_addr prefix;
-} _bspl_node6;
 
 typedef struct
 {
-	_bspl_node_common * tree;
-	_bspl_node_common ** htable;
+	_bspl_node * tree;
+	_bspl_node ** htable;
 
 } lpm_root;
 
