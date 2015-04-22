@@ -10,7 +10,12 @@ typedef struct _bspl_node_
 	struct _bspl_node_ * next;
 	uint8_t type;
 	uint8_t prefix_len;
-	uint32_t prefix;
+	union
+	{
+		uint32_t prefix;
+		uint32_t prefix6[4];
+	};
+
 	_LPM_RULE rule;
 } _bspl_node;
 
