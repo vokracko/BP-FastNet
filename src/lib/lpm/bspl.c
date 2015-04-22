@@ -53,6 +53,7 @@ void _bspl_add_htable(lpm_root * root, _bspl_node_common * node, uint8_t bytes_o
 	assert(root->htable != NULL);
 
 	uint32_t index = calculate_hash((uint8_t *) &((_bspl_node *)node)->prefix, bytes_of_prefix);
+	printf("%d index, %d length\n", index, node->prefix_len);
 	_bspl_node_common ** ptr = &root->htable[index];
 
 	while(*ptr != NULL)
@@ -255,20 +256,29 @@ uint32_t * _bspl_get_bits(uint32_t * key, uint8_t length, uint8_t bytes_of_prefi
 	static uint32_t addr[4];
 	memcpy(addr, key, bytes_of_prefix);
 
-	for(unsigned i = length / 32 + 1; i < bytes_of_prefix / 4; ++i)
+	for(unsigned i = (length - 1) / 32 + 1; i < bytes_of_prefix / 4; ++i)
 	{
 		addr[i] = 0;
 	}
 
-	addr[length / 32] &= (~0 << (32 - (length % 32)));
+	if(length%32 != 0)
+	{
+		addr[(length - 1)/ 32] &= (~0 << (32 - ( length % 32)));
+		printf("length %d, shift index %d, shift %d\n", length, (length - 1)/ 32, 32 - ( length % 32));
+	}
+	else
+	{
+		printf("length %d, set index %d, skip shift\n", length, (length - 1)/ 32 + 1);
+	}
+
 	return addr;
 }
 
 void _bspl_set_bits(uint32_t * dest, uint32_t * src, _Bool bit, uint8_t len, uint8_t bytes_of_prefix)
 {
 	memcpy(dest, src, bytes_of_prefix);
-	if(bit) SET_BIT_MSB(dest[(len+1) / 32], len %32);
-	else CLEAR_BIT_MSB(dest[(len+1) / 32], len % 32);
+	if(bit) SET_BIT_MSB(dest[(len-1) / 32], len % 32);
+	else CLEAR_BIT_MSB(dest[(len-1) / 32], len % 32);
 
 }
 
@@ -282,13 +292,22 @@ _LPM_RULE _bspl_lookup(lpm_root * root, uint32_t * key, uint8_t length, uint8_t 
 	uint8_t prefix_len = length; // binary search actual length
 	uint8_t prefix_change = length; // binary search length change
 	_bspl_node_common * node = NULL;
+	_bspl_node_common * dummy = NULL;
+	node = _bspl_lookup_internal(root->tree, key, 33, &dummy, &dummy);
+	_bspl_node6 * node6 = ((_bspl_node6*)node);
+	prefix_bits = _bspl_get_bits(key, 33, bytes_of_prefix);
+	printf("node %u, key %u\n", ((uint32_t *) &(node6->prefix))[0], prefix_bits[0]);
+	printf("node %u, key %u\n", ((uint32_t *) &(node6->prefix))[1], prefix_bits[1]);
+	printf("node %u, key %u\n", ((uint32_t *) &(node6->prefix))[2], prefix_bits[2]);
+	printf("node %u, key %u\n", ((uint32_t *) &(node6->prefix))[3], prefix_bits[3]);
+	printf("memcmp = %d\n", memcmp(&(((_bspl_node *)node)->prefix), prefix_bits, 4));
 
 	do
 	{
 		prefix_bits = _bspl_get_bits(key, prefix_len, bytes_of_prefix);
 		node = root->htable[calculate_hash((uint8_t *) prefix_bits, bytes_of_prefix)];
 
-		while(node != NULL && (memcmp(&(((_bspl_node *)node)->prefix), prefix_bits, bytes_of_prefix)!= 0 || node->prefix_len != prefix_len))
+		while(node != NULL && (node->prefix_len != prefix_len || memcmp(&(((_bspl_node *)node)->prefix), prefix_bits, bytes_of_prefix)!= 0))
 		{
 			node = node->next;
 		}
