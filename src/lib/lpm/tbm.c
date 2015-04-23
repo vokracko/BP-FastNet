@@ -1,5 +1,5 @@
 #include "tbm.h"
-
+#include <stdio.h>
 /**
  * @brief Count all ones up to given position
  * @param key
@@ -72,6 +72,27 @@ inline int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
  * @param index [out] int value of prefix part which is used as index to internal/external
  * @return node
  */
+
+uint8_t _get_bits(uint32_t * prefix, uint8_t position, uint8_t length)
+{
+	uint32_t data;
+
+	if(position / 32 != (position + length - 1) / 32)
+	{
+		uint8_t index = position/32;
+		uint8_t
+		data = prefix[index + 1] >> (31 - (position+length) % 32);
+		data |= prefix[index] << (length - (position + length) % 32);
+		data &= ~(~0 << length);
+		return ;
+	}
+	else
+	{
+		data = prefix[position / 32];
+		return (data >> (32 - length - position)) & ~(~0 << length);
+	}
+}
+
 inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, uint16_t * index, _Bool ipv6)
 {
 	assert(root != NULL);
@@ -84,7 +105,8 @@ inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t * prefix, uint8_t prefi
 
 	while(position + STRIDE < prefix_len)
 	{
-		bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, STRIDE) : GET_STRIDE_BITS(*prefix, position, STRIDE);
+		// bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, STRIDE) : GET_STRIDE_BITS(*prefix, position, STRIDE);
+		bit_value = _get_bits(prefix, position, STRIDE);
 		position += STRIDE;
 
 		if(node->child == NULL) break;
@@ -92,7 +114,7 @@ inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t * prefix, uint8_t prefi
 	}
 
 	length = prefix_len - position;
-	bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, length) : GET_STRIDE_BITS(*prefix, position, length);
+	bit_value = _get_bits(prefix, position, length);
 	*index = INTERNAL_INDEX(length, bit_value);
 
 	return node;
@@ -268,7 +290,7 @@ _Bool _tbm_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE
 
 	while(position + STRIDE < prefix_len)
 	{
-		bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, STRIDE) :GET_STRIDE_BITS(*prefix, position, STRIDE);
+		bit_value = _get_bits(prefix, position, STRIDE);
 		position += STRIDE;
 
 		if(GET_BIT_LSB(node->external[bit_value / 32], bit_value % 32) == 0)
@@ -281,7 +303,7 @@ _Bool _tbm_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE
 	}
 
 	stride_len = prefix_len - position;
-	bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, stride_len) : GET_STRIDE_BITS(*prefix, position, stride_len);
+	bit_value = _get_bits(prefix, position, stride_len);
 	index = INTERNAL_INDEX(stride_len, bit_value);
 
 	if(_tbm_extend(node, index, 0) == 0) return 0;
@@ -386,12 +408,12 @@ uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
 	uint16_t index;
 	uint16_t longest_match_index = 0;
 	int32_t tmp_index; // internal index can be -1 if not found
-	uint32_t key_int = (uint32_t) key->s_addr;
+	uint32_t * key_int = (uint32_t *) key;
 
 	// while there is longer match
 	do
 	{
-		bits = GET_STRIDE_BITS(key_int, position, STRIDE);
+		bits = _get_bits(key_int, position, STRIDE);
 		position += STRIDE;
 
 		if(node->rule != NULL && (tmp_index = _tbm_internal_index(node->internal, bits)) != -1)
@@ -431,7 +453,7 @@ _LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
 	// while there is longer match
 	do
 	{
-		bits = GET_STRIDE_BITS_IPV6(key_int, position, STRIDE);
+		bits =_get_bits(key_int, position, STRIDE);
 		position += STRIDE;
 
 		if(node->rule != NULL && (tmp_index = _tbm_internal_index(node->internal, bits)) != -1)
