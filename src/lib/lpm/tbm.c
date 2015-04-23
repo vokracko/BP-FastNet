@@ -84,7 +84,7 @@ uint8_t _get_bits(uint32_t * prefix, uint8_t position, uint8_t length)
 		data = prefix[index + 1] >> (31 - (position+length) % 32);
 		data |= prefix[index] << (length - (position + length) % 32);
 		data &= ~(~0 << length);
-		return ;
+		return data;
 	}
 	else
 	{
@@ -93,7 +93,7 @@ uint8_t _get_bits(uint32_t * prefix, uint8_t position, uint8_t length)
 	}
 }
 
-inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, uint16_t * index, _Bool ipv6)
+inline _tbm_node * _tbm_lookup_internal(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, uint16_t * index, _Bool ipv6)
 {
 	assert(root != NULL);
 	assert(index != NULL);
@@ -105,7 +105,6 @@ inline _tbm_node * _tbm_lookup(lpm_root * root, uint32_t * prefix, uint8_t prefi
 
 	while(position + STRIDE < prefix_len)
 	{
-		// bit_value = ipv6 ? GET_STRIDE_BITS_IPV6(prefix, position, STRIDE) : GET_STRIDE_BITS(*prefix, position, STRIDE);
 		bit_value = _get_bits(prefix, position, STRIDE);
 		position += STRIDE;
 
@@ -318,7 +317,7 @@ void _tbm_update(lpm6_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_R
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index, ipv6);
+	_tbm_node * node = _tbm_lookup_internal(root, prefix, prefix_len, &index, ipv6);
 
 	assert(node != NULL);
 
@@ -330,7 +329,7 @@ void _tbm_remove(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _Bool i
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup(root, prefix, prefix_len, &index, ipv6);
+	_tbm_node * node = _tbm_lookup_internal(root, prefix, prefix_len, &index, ipv6);
 
 	assert(node != NULL);
 
@@ -396,7 +395,7 @@ void lpm6_destroy(lpm6_root * root)
 	_tbm_destroy(root);
 }
 
-uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
+_LPM_RULE _tbm_lookup(lpm6_root * root, uint32_t * key)
 {
 	assert(root != NULL);
 
@@ -408,12 +407,11 @@ uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
 	uint16_t index;
 	uint16_t longest_match_index = 0;
 	int32_t tmp_index; // internal index can be -1 if not found
-	uint32_t * key_int = (uint32_t *) key;
 
 	// while there is longer match
 	do
 	{
-		bits = _get_bits(key_int, position, STRIDE);
+		bits =_get_bits(key, position, STRIDE);
 		position += STRIDE;
 
 		if(node->rule != NULL && (tmp_index = _tbm_internal_index(node->internal, bits)) != -1)
@@ -434,42 +432,12 @@ uint32_t lpm_lookup(lpm_root * root, struct in_addr * key)
 	return longest_match_node->rule[longest_match_index];
 }
 
-
+_LPM_RULE lpm_lookup(lpm_root * root, struct in_addr * key)
+{
+	return _tbm_lookup(root, (uint32_t * ) key);
+}
 
 _LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
 {
-	assert(root != NULL);
-
-	_tbm_node * node = root;
-	_tbm_node * parent = NULL;
-	_tbm_node * longest_match_node = root;
-	uint8_t position = 0;
-	uint16_t bits;
-	uint16_t index;
-	uint16_t longest_match_index = 0;
-	int32_t tmp_index; // internal index can be -1 if not found
-	uint32_t * key_int = (uint32_t *) key;
-
-	// while there is longer match
-	do
-	{
-		bits =_get_bits(key_int, position, STRIDE);
-		position += STRIDE;
-
-		if(node->rule != NULL && (tmp_index = _tbm_internal_index(node->internal, bits)) != -1)
-		{
-			longest_match_index = tmp_index;
-			longest_match_node = node;
-		}
-		// index for child pointer is bitsum from <0, (int) bits)
-		index = _tbm_bitsum(node->external, bits);
-
-		// move to child
-		parent = node;
-		node = &(node->child[index]);
-	}
-	// longest_match_node is parent from current node (node contains child pointer from node operated in code above)
-	while(GET_BIT_LSB(parent->external[bits / 32], bits % 32));
-
-	return longest_match_node->rule[longest_match_index];
+	return _tbm_lookup(root, (uint32_t * ) key);
 }
