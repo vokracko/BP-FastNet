@@ -17,7 +17,11 @@
 struct in6_addr ip2num6(char * address)
 {
 	struct in6_addr addr;
-	inet_pton(AF_INET6, address, &addr);
+	uint32_t * ptr = (uint32_t *) &addr;
+	_Bool res = inet_pton(AF_INET6, address, &addr);
+
+	for(unsigned i = 0; i < 4; ++i) ptr[i] = htonl(ptr[i]);
+
 	return addr;
 }
 
