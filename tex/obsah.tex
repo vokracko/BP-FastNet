@@ -1,47 +1,64 @@
 %=========================================================================
 % (c) Michal Bidlo, Bohuslav Křena, 2008
-
 \chapter{Úvod}
 
 \chapter{Teoretický rozbor}
 \section{Síťové modely}
 
-Síťový model je poměrně složitý a z toho důvodu se pro jeho popis i implementaci využívají na sobě nezávislé vrstvy, kde každá vrstva pracuje s vlastním datovými strkturami a vůbec netuší co se děje na ostatních vrstva.
-Tyto datové struktury se nazývají XXX
-
+Zpracování dat síťového provozu je rozděleno do několika úrovní. Tyto úrovně jsou popsány síťovými modely.
+Základním modelem je ISO/OSI, který slouží pro abstraktní rozdělení operací zpracování a jeho použití je
+pouze pro akademické účely. V reálných počítačových sítích pak dominuje model TCP/IP, který má oproti
+ISO/OSI modelu menší počet vrstev.
 
 \subsection{ISO/OSI}
-ISO/OSI model je používán pouze jako referenční model, není známo jeho reálné použití v počítačových sítích.
-Tento model je rozdělen na 7 vrstev.
+ISO/OSI model je rozdělen na sedm vrstem.
 
-\begin{itemize}
-\item{Fyzická vrstva / Vrstva síťového rozhraní}
-\item{Linková vrstva}
-\item{Síťová vrstva}
-\item{Transportní vrstva}
-\item{Relační vrstva}
-\item{Prezentační vrstva}
-\item{Aplikační vrstva}
-\end{itemize}
+\begin{enumerate}
+	\item{Fyzická vrstva / Vrstva síťového rozhraní}
+	\item{Linková vrstva}
+	\item{Síťová vrstva}
+	\item{Transportní vrstva}
+	\item{Relační vrstva}
+	\item{Prezentační vrstva}
+	\item{Aplikační vrstva}
+\end{enumerate}
 
 \begin{figure}[!htb]
 \centering
 \includegraphics[scale=.25]{fig/layers.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
+\caption{Znázornění průchodu dat počítačovou sítí v modelu ISO/OSI}
 \label{fig:layers}
 \end{figure}
 
-\subsubsection{Fyzická vrstva / Vrstva síťového rozhraní}
-Nejnižší vrstva v obou zmíněných modelech pracuje s daty na úrovni bytů a stará se o jejich přenos po přenosovém médiu.
+\subsection{TCP/IP}
+TCP/IP model se skládá pouze ze čtyř vrstev.
 
-\subsubsection{Linková vrstva}
-Linková vrstva pracuje s datovou strukturou nazývanou rámec.
-Rámec obsahuje informace o fyzických adresách obou účastníků komunikace.
-Dále se stará o detekci chyb při přenosu na nižší vrstvě, fyzické.
-Technologie se kterou se je možné nejvíce setkat se Ethernet.
-Na této vrstvě pracují zařízení jako je switch, hub.
+\begin{enumerate}
+	\item{Vrstva síťové rozhraní}
+	\item{Síťová vrstva}
+	\item{Transportní vrstva}
+	\item{Aplikační vrstva}
+\end{enumerate}
 
-\subsubsection{Síťová vrstva}
+\subsection{Popis vrstev síťových modelů}
+
+\subsubsection{Fyzická vrstva / Vrstva síťového rozhraní}\label{layers:physical}
+Nejnižší vrstva v obou zmíněných modelech pracuje s daty na úrovni bitů a stará se o
+jejich přenos po přenosovém médiu. Protokoly této vrstvy definují signály, které reprezentují data
+a tudíž jde o protokoly implementované již v hardware síťových zařízení.
+
+\subsubsection{Linková vrstva}\label{layers:link}
+Linková vrstva je druhá nejnižší vrstva síťových modelů. Tato vrstva se stará o datovou komunikaci
+obecně mezi několika uzly, které jsou přimo spojeny. Spojení může být jak fyzickým vodiček tak i
+bezdrátovou technologií. Nejrozšířenější technologií pro fyzické spoje je Ethernet, pro bezdrátové spoje
+je to standard IEEE 802. Datová jednotka na linkové vrstvě se nazývá rámec a nese v sobě kromě
+zapouzdřených dat vyšších vrstev také informace o kontrolním součtu dat a adresování pomocí MAC adres.
+MAC adresa je adresa fyzického zařízení, které pracuje na této vrstvě.
+Adresování MAC adresou slouží pro identifikaci zařízení, které se nacházejí ve stejné počítačové síti
+a za hranici této sítě se již používá IP adresace, které je vysvětleno v necházející kapitole \ref{layers:network}
+Nekoncová síťová zařizení která pracují na této vrstvě se nazývaji huby.
+
+\subsubsection{Síťová vrstva}\label{layers:network}
 Na této vrstvě probíhá komunikace za využití IP adres. Prvky používané na této vrstvě jsou nazývaný routery.
 Účelem těcho zařízení je směrování paketů procházejících sítí. K tomu využívají směrovací tabulku na optimalizace jejího prohledávání
 se věnuje část této práce zabývající se problémem vyhledávání nejdelšího shodného prefixu.
@@ -66,16 +83,7 @@ Slouží až pro koncové stanice aby mohli určit program, kterému budou data 
 Aplikační vrstva je vrstva, kde pracují uživatelské aplikace.
 Na této vrstvě může docházet ke kontrole přenášeného obsahu a k detekci možný útoků na uživatelské aplikace.
 
-\subsection{IP}
-Model IP je narozdíl od ISO/OSI modelu nejpoužívanějším síťovým modelem ve světě.
-Skládá se pouze ze čtyř vrstev a ty jsou:
 
-\begin{itemize}
-\item{Vrstva síťové rozhraní}
-\item{Síťová vrstva}
-\item{Transportní vrstva}
-\item{Aplikační vrstva}
-\end{itemize}
 
 \section{Časově kritické operace}
 S neustálím zvyšováním požadavků na rychlost síťového připojení také rostou nároky na rychlost
@@ -87,6 +95,165 @@ Proto v posledních letech nabírá na obrátkách trend pro využítí ASIC či
 Tyto prvky totiž umožňují rychlejší zpracování s řádově menšími požadavky.
 Tohoto rychlostního rozdílu je dosaženo právě díky specializaci čípů na provádění jedné specializované operace na což jsou uzpůsobeny
 narozdíl od obecných procesorů, které musejí zvládat mnohem větší repertoár operací.
+
+\subsection{Teorie}
+
+Pro operace hledání hledání podřetězců a zpracování regulárních výrazů popsaných v kapitolách N a N
+jsou použity konečné automaty.
+
+Konečný automat je uspořádaná pětice
+
+\begin{huge}
+\begin{equation}\cite{meduna}
+A=(Q,\Sigma, \sigma,q_0 ,F)
+\end{equation}
+\end{huge}
+
+Pro nedetermnistický konečný automat platí, že
+\begin{itemize}
+\item{\tt{Q} je množina stavů}
+\item{\tt{$\Sigma$} je množina vstupních symbolů}
+\item{\tt{$\sigma$} je přechodová fce $Q \times \{\Sigma \cup \epsilon\} \rightarrow Q$}
+\item{\tt{$q_0 \subseteq Q$} je množina počátečních stavů}
+\item{\tt{$F \subseteq Q$} je množina konečných stavů}
+\end{itemize}
+
+Pro nedetermnistický konečný automat platí, že
+
+\begin{itemize}
+\item{\tt{Q} je množina stavů}
+\item{\tt{$\Sigma$} je množina vstupních symbolů}
+\item{\tt{$\sigma$} je přechodová fce $Q \times \Sigma \rightarrow Q$}
+\item{\tt{$q_0 \in Q$} je počáteční stav}
+\item{\tt{$F \subseteq Q$} je množina konečných stavů}
+\end{itemize}
+% todo zdroj https://books.google.cz/books?id=s7gEErax71cC&vq=determinization&hl=cs&source=gbs_navlinks_s
+Determinizace automatu se provádí pomocí dvou funkcí.
+První z nich je epsilon uzávěr a druhá je tzv move funkce.
+
+\subsubsection{epsilon-uzávěr} %todo nezobrazuje se jako nadpis
+asda
+
+\begin{algorithm}[H]
+	\KwData{Počáteční stav nedeterministeckého automatu}
+	\KwResult{Deterministický konečný automat}
+	state $\leftarrow$ EpsilonClosure(nfa-start)\;
+	unprocessed.push(state)\;
+	\While{!unprocessed.empty()}
+	{
+		state $\leftarrow$ unprocessed.pop()\;
+		\ForEach{symbol $s$ in $input\_alphabet$}
+		{
+			x $\leftarrow$  move(processing state, s)\;
+			y $\leftarrow$  EpsilonClosure(x)\;
+			% todo dopsat
+		}
+	}
+	\caption{Determinize konečného automatu}
+\end{algorithm}
+
+\subsubsection{determinizace} %todo nezobrazuje se jako nadpis
+
+\subsection{Regulární výrazy}
+
+Regulární výrazy slouží pro popis operací nad jazykem.
+Jazyk je je definovaný jako blah nad vstupní abecedou.
+Jazek je definovaný jako iterace nad vstupní abecedou.
+Iterace může  být neutrální nebo kladná.
+V neutrální iteraci jazyka je oproti pozitivní iteraci zahrnut i symbol $\epsilon$,
+který reprezentuje prázdný znak/řetězec.
+Iterace jazyka se označuje jako $L^n$ kde \texttt{n} je označení iterace jazyka.
+iterace $L^0$ obsahuje pouze jeden symbol a tím je $\epsilon$
+$\epsilon$ také reprezentuje prázdný řetězec. Prázdný řetězec se může skládat z nekonečné posloupnosti $\epsilon$
+Vstupní abeceda je množina symbolů.
+
+Regulární výrazy jsou poté operace nad regulárními jazyky.
+Regulární výrazy mají stejnou  vyjadřovací schopnost jako konečné automaty a pro digitální zpracování
+regulárních výrazů se vždy používají konečné automaty.
+
+Operace regulárních výrazů jsou následující
+
+\begin{itemize}
+\item{$\emptyset$ je regulární výraz reprezentující prázdnou množinu}
+\item{$\epsilon$ je regulární výraz reprezentující $\{\epsilon\}$}
+\item{$a, a \in \Sigma$ je regulární výraz reprezentující $\{a\}$}
+\item{$(r \cdot s)$ je regulární výraz reprezentující $RS$}
+\item{$(r | s)$ je regulární výraz reprezentující $R \cup S$}
+\item{$(r*)$ je regulární výraz reprezentující R*}
+ % todo zdroj https://books.google.cz/books?id=s7gEErax71cC&vq=determinization&hl=cs&source=gbs_navlinks_s
+\end{itemize}
+
+Znak operace konkatenace % TODO přidat referenci na item nahoře
+se čast vynechává a je uvažován implicitně.
+
+Regulární výrazy implementované v této knihovně rozšiřují množinu operací o syntaktická pozlátka
+
+\begin{itemize}
+	\item{$[abc]$ je výčet znaků, které se na vstupu mohou vyskytnout a automat je v aktuální stavu dokáže zpracovat. Je to zkrácený tvar zápisu $(a|b|c)$}
+	\item{$a+$ je definováno jako pozitiní iterace, tedy $1..N$ opakování}
+	\item{$a?$ je definováno jako $0..1$ iterací}
+\end{itemize}
+
+\begin{algorithm}
+	\KwData{start-state, text}
+	\KwResult{keyword}
+	state = start-state\;
+	\For{position $\leftarrow$ 0 \KwTo text.length}
+	{
+		\lWhile{goto(state, text[position]) == FAIL}{state $\leftarrow$ state.failure}
+		\lIf{state.isMatch}{\Return state.keyword}
+	}
+	\Return NOT-MATCH\;
+	\caption{Algoritmus procházení textu a hledání podřetězců}
+\end{algorithm}
+
+\cite{aho}
+
+\begin{algorithm}
+	\KwData{bspl-root, hash-table, ip, ip-length}
+	\KwResult{routing rule}
+	prefix-length $\leftarrow$ ip-length\;
+	prefix-change $\leftarrow$ ip-length\;
+	\Repeat{prefix-change > 0}
+	{
+		bits $\leftarrow$ get-prefix-bits(ip, prefix-length)\;
+		item $\leftarrow$ hast-table.get(bits)\;
+		prefix-change $\leftarrow$ prefix-change \texttt{>>} 1\;
+
+		\If{item == NULL}{prefix-length $\leftarrow$ prefix-length - prefix-change\;}
+		\ElseIf{item.type == PREFIX}{prefix-length $\leftarrow$ prefix-length + prefix-change\;}
+		\lElse{break}
+	}
+	\lIf{item == NULL}{\Return bspl-root.default-rule}
+	\caption{Hledání nejdelšího shodného prefixu algoritmem Binary search on prefix length}
+\end{algorithm}
+
+\cite{bspl}
+
+\begin{algorithm}
+	\KwData{tbm-root, ip, ip-length}
+	\KwResult{routing rule}
+	node $\leftarrow$ tbm-root\;
+	position $\leftarrow$ 0\;
+	\Repeat{BIT(parent.external, bits)}
+	{
+		bits $\leftarrow$ get-stride-bits(ip, position, prefix-length)\;
+		position $\leftarrow$ position + STRIDE\;
+
+		\If{isRule(node.internal, bits)}
+		{
+			longest-match = node\;
+		}
+
+		index $\leftarrow$ ones(node.external, bits)\;
+		parent $\leftarrow$ node\;
+		node $\leftarrow$ node.external[index]\;
+	}
+	\Return longest-match\;
+	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
+\end{algorithm}
+
+\cite{tbm}
 
 \subsection{Hledání nejdelšího prefixu}
 Hledání nejdelšího shodného prefixu se používá při směrování paketů.
@@ -201,7 +368,7 @@ Nějvýznamějším důvod pro vlastní implementaci je provádění několika r
 
 \chapter{Výsledky}
 \section{Hledání nejdelšího shodného prefixu}
-U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu _HTABLE_SIZE v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
+U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu \tt{\_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
 
 % TODO udělat experiment na 100k záznamech a různých velikostech tabulky
 
