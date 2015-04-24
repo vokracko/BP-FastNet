@@ -1,16 +1,5 @@
 #include "bspl.h"
 
-uint32_t ip(uint32_t i, char * op)
-{
-	char dst[100];
-	char * ptr;
-	i = htonl(i);
-	ptr = inet_ntop(AF_INET, &i, dst, 100);
-	if(ptr == NULL) exit(26);
-	// printf("%s - %u %s\n", op, i, ptr);
-	return i;
-}
-
 uint32_t calculate_hash(uint32_t key)
 {
 	uint32_t hash, i;
@@ -53,9 +42,9 @@ void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE ru
 }
 
 /**
- * @brief Insert node into bspl hash table structure
- * @param root
- * @param node
+ * @brief Insert node into hash table
+ * @param root root of lpm data structure
+ * @param node node to be insterted
  */
 void _bspl_add_htable(lpm_root * root, _bspl_node * node)
 {
@@ -74,10 +63,10 @@ void _bspl_add_htable(lpm_root * root, _bspl_node * node)
 }
 
 /**
- * @brief Insert node into bspl tree structure
- * @param node [description]
- * @param parent parent node in tree structure
- * @param bit left or right descendant
+ * @brief Insert node into tree structure
+ * @param node node to be inserted
+ * @param parent parent node in tree
+ * @param bit bit determining left/right descendant
  */
 void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, _Bool bit)
 {
@@ -89,11 +78,11 @@ void _bspl_add_tree(_bspl_node * node, _bspl_node * parent, _Bool bit)
 }
 
 /**
- * @brief Insert node inside bspl tree and bspl hast table structure
+ * @brief Insert node to tree and hast table
  * @param root
- * @param node
+ * @param node node to be insertedd
  * @param parent parent node
- * @param bit left or right descendant
+ * @param bit bit determining left/right descendant
  */
 void _bspl_add_node(lpm_root * root, _bspl_node * node, _bspl_node * parent, _Bool bit)
 {
@@ -106,31 +95,11 @@ void _bspl_add_node(lpm_root * root, _bspl_node * node, _bspl_node * parent, _Bo
 	_bspl_add_htable(root, node);
 }
 
-
-/**
- * @brief Construct empty bspl node
- * @return pointer to constructed node
- */
-void * _bspl_create()
-{
-	_bspl_node * node;
-	node = malloc(sizeof(_bspl_node));
-
-	if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
-	node->left = NULL;
-	node->right = NULL;
-	node->next = NULL;
-	node->type = _BSPL_NODE_PREFIX;
-	memset(node->prefix6, 0, 16);
-
-	return node;
-}
-
 /**
  * @brief Remove node from hash table
  * @details Does not free memory used by node
  * @param root
- * @param node
+ * @param node node to be removed
  */
 void _bspl_remove_htable(lpm_root * root, _bspl_node * node)
 {
@@ -150,10 +119,10 @@ void _bspl_remove_htable(lpm_root * root, _bspl_node * node)
 }
 
 /**
- * @brief Remove node from bspl tree structure
+ * @brief Remove node from tree
  * @detail Does not free memory used by node
- * @param parent
- * @param bit left or right descendant
+ * @param parent parent node
+ * @param bit bit determining left/right descendant
  */
 void _bspl_remove_tree(_bspl_node * parent, _Bool bit)
 {
@@ -166,9 +135,9 @@ void _bspl_remove_tree(_bspl_node * parent, _Bool bit)
  * @brief Remove node from all used strucures
  * @details Frees memory used by node
  * @param root
- * @param node
- * @param parent
- * @param bit left or right
+ * @param node node to be removed
+ * @param parent parent node
+ * @param bit bit determining left/right descendant
  */
 void _bspl_remove_node(lpm_root * root, _bspl_node * node, _bspl_node * parent, _Bool bit)
 {
@@ -184,7 +153,27 @@ void _bspl_remove_node(lpm_root * root, _bspl_node * node, _bspl_node * parent, 
 }
 
 /**
- * @brief Search in bspl tree structure
+ * @brief Allocate data for node
+ * @return pointer to node
+ */
+void * _bspl_create()
+{
+	_bspl_node * node;
+	node = malloc(sizeof(_bspl_node));
+
+	if(node == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
+	node->left = NULL;
+	node->right = NULL;
+	node->next = NULL;
+	node->type = _BSPL_NODE_PREFIX;
+	memset(node->prefix6, 0, 16);
+
+	return node;
+}
+
+/**
+ * @brief Search in tree structure
+ * @details used for add/remove, not for lookup
  * @param root
  * @param prefix
  * @param prefix_len
@@ -217,6 +206,11 @@ _bspl_node * _bspl_lookup_internal(_bspl_node * node, uint32_t * prefix, uint8_t
 	return node;
 }
 
+/**
+ * @brief Inicialize data structures
+ * @param default_rule rule for default route
+ * @return pointer to data structure
+ */
 lpm_root * _bspl_init(_LPM_RULE default_rule)
 {
 	lpm_root * root = malloc(sizeof(lpm_root));
@@ -236,6 +230,10 @@ lpm_root * _bspl_init(_LPM_RULE default_rule)
 	return root;
 }
 
+/**
+ * @brief Destroy all data
+ * @param root pointer to data structure
+ */
 void _bspl_destroy(lpm_root * root)
 {
 	if(root == NULL) return;
@@ -260,7 +258,13 @@ void _bspl_destroy(lpm_root * root)
 	free(root);
 }
 
-uint32_t _bspl_get_bits(uint32_t * dst, uint32_t * src, uint8_t length)
+/**
+ * @brief Copy length bits from src to dst
+ * @param dst destination
+ * @param src source
+ * @param length number of bits to be copied
+ */
+void _bspl_get_bits(uint32_t * dst, uint32_t * src, uint8_t length)
 {
 	unsigned index = (length - 1) / 32;
 	memset(dst, 0, 16);
@@ -268,7 +272,14 @@ uint32_t _bspl_get_bits(uint32_t * dst, uint32_t * src, uint8_t length)
 	dst[index] = src[index] & (~0 << (32 - (length - abs((length - 1) / 32)*32)));
 }
 
-
+/**
+ * @brief Lookup inside hash table to find longest matching prefix
+ * @param root root data structure
+ * @param key pointer to ip adress
+ * @param length length of ip adress, 32 for ipv4, 128 for ipv6
+ * @param bytes_of_prefix
+ * @return rule for longest match
+ */
 _LPM_RULE _bspl_lookup(lpm_root * root, uint32_t * key, uint8_t length, uint8_t bytes_of_prefix)
 {
 	assert(root != NULL);
@@ -291,10 +302,6 @@ _LPM_RULE _bspl_lookup(lpm_root * root, uint32_t * key, uint8_t length, uint8_t 
 
 		prefix_change >>= 1;
 
-		// if(node != NULL){
-		// printf("node->prefix %u length %u\n", node->prefix, node->prefix_len);
-		// printf("bits->prefix %u length %u\n", prefix_bits, prefix_len);}
-
 		if(node == NULL) prefix_len -= prefix_change;
 		else if(node->type == _BSPL_NODE_INTERNAL) prefix_len += prefix_change;
 		else break;
@@ -306,14 +313,18 @@ _LPM_RULE _bspl_lookup(lpm_root * root, uint32_t * key, uint8_t length, uint8_t 
 	return node->rule;
 }
 
+/**
+ * @brief Remove prefix from hast table and tree
+ * @param root
+ * @param prefix prefix to be removed
+ * @param prefix_len number of prefix bits
+ */
 void _bspl_remove(lpm_root * root, uint32_t * prefix, uint8_t prefix_len)
 {
 	assert(root != NULL);
 
 	_bspl_node * other, * parent;
 	_bspl_node * node = _bspl_lookup_internal(root->tree, prefix, prefix_len, &parent, &other);
-
-	// node is leaf node, other node is leaf node and does not contain different prefix from parent node (contructed by leaf-pushing)
 
 	assert(node != NULL);
 	assert(other != NULL);
@@ -337,8 +348,8 @@ void _bspl_remove(lpm_root * root, uint32_t * prefix, uint8_t prefix_len)
 /**
  * @brief Update rule for specified prefix
  * @param root
- * @param prefix
- * @param prefix_len
+ * @param prefix prefix to be updated
+ * @param prefix_len number of bits of prefix
  * @param rule new rule
  */
 void _bspl_update(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule)
@@ -354,19 +365,25 @@ void _bspl_update(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_R
 }
 
 /**
- * @brief Insert rule into bspl structures
- * @param root
- * @param prefix prefix of rule
- * @param prefix_len [description]
- * @param rule
+ * @brief Set prefix from src to dst and add one bit to it
+ * @param dst destination
+ * @param src source
+ * @param length number of bits to be same in dst as in src
+ * @param bit bit to append
  */
-
 void _bspl_set_prefix(_bspl_node * dst, _bspl_node * src, uint8_t length, _Bool bit)
 {
 	memcpy(dst->prefix6, src->prefix6, 16);
 	dst->prefix6[length/32] |= (bit << (31 - (length - abs((length - 1) / 32)*32)));
 }
 
+/**
+ * @brief Insert prefix
+ * @param root
+ * @param prefix prefix to be inserted
+ * @param prefix_len number of bits of prefix
+ * @param rule
+ */
 _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
@@ -421,33 +438,34 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 		++len;
 	}
 	while(prefix_len != len);
-	// ip(node->prefix, "add node");
+
 	_bspl_leaf_pushing(node, node->rule, rule);
-	// printf("add type %d\n", node->type);
-	// printf("add length %d\n", node->prefix_len);
-	// printf("prefix_len %d\n", prefix_len);
-	// printf("add ptr %p\n", node);
 
 	return 1;
 }
 
 /**
- * @brief Construct bspl structures
+ * @brief Construct data structure
  * @param default_rule default rule for IPv4
- * @return bspl_root
+ * @return pointer
  */
 lpm_root * lpm_init(_LPM_RULE default_rule)
 {
 	return _bspl_init(default_rule);
 }
 
-lpm_root * lpm6_init(_LPM_RULE default_rule)
+/**
+ * @brief Construct data structure
+ * @param default_rule default rule for IPv6
+ * @return pointer
+ */
+lpm6_root * lpm6_init(_LPM_RULE default_rule)
 {
 	return _bspl_init(default_rule);
 }
 
 /**
- * @brief Free all data structures allocated for BSPL
+ * @brief Free all data
  * @param root
  */
 void lpm_destroy(lpm_root * root)
@@ -455,13 +473,17 @@ void lpm_destroy(lpm_root * root)
 	_bspl_destroy(root);
 }
 
-void lpm6_destroy(lpm_root * root)
+/**
+ * @brief Free all data
+ * @param root
+ */
+void lpm6_destroy(lpm6_root * root)
 {
 	_bspl_destroy(root);
 }
 
 /**
- * @brief Remove node from all bspl structures
+ * @brief Remove prefix
  * @param root
  * @param prefix
  * @param prefix_len
@@ -472,47 +494,82 @@ void lpm6_destroy(lpm_root * root)
  }
 
 /**
- * @brief Remove node from all bspl structures
+ * @brief Remove prefix
  * @param root
  * @param prefix
  * @param prefix_len
  */
-void lpm6_remove(lpm_root * root, struct in6_addr * prefix, uint8_t prefix_len)
+void lpm6_remove(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len)
 {
 	_bspl_remove(root, (uint32_t *) prefix, prefix_len);
 }
 
+/**
+ * @brief Update rule for give prefix
+ * @param root
+ * @param prefix prefix to be udated
+ * @param prefix_len length of given prefix
+ * @param rule new rule
+ */
 void lpm_update(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	_bspl_update(root, (uint32_t *) prefix, prefix_len, rule);
 }
 
-void lpm6_update(lpm_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+/**
+ * @brief Update rule for give prefix
+ * @param root
+ * @param prefix prefix to be udated
+ * @param prefix_len length of given prefix
+ * @param rule new rule
+ */
+void lpm6_update(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	_bspl_update(root, (uint32_t *) prefix, prefix_len, rule);
 }
+
 /**
- * @brief Search trought htable for longest match
+ * @brief Search trought hash table for longest match
  * @param root
  * @param key ip address
- * @return rule number
+ * @return rule for longest match
  */
 _LPM_RULE lpm_lookup(lpm_root * root, struct in_addr * key)
 {
 	return _bspl_lookup(root, (uint32_t *) key, 32, 4);
 }
 
-_LPM_RULE lpm6_lookup(lpm_root * root, struct in6_addr * key)
+/**
+ * @brief Search trought hash table for longest match
+ * @param root
+ * @param key ip address
+ * @return rule for longest match
+ */
+_LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
 {
 	return _bspl_lookup(root, (uint32_t *) key, 128, 16);
 }
 
+/**
+ * @brief Insert prefix into search structures
+ * @param root
+ * @param prefix prefix to be inserted
+ * @param prefix_len length of given prefix
+ * @param rule rule coresponding to give prefix and its length
+ */
 _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	return _bspl_add(root, (uint32_t *) prefix, prefix_len, rule);
 }
 
-_Bool lpm6_add(lpm_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+/**
+ * @brief Insert prefix into search structures
+ * @param root
+ * @param prefix prefix to be inserted
+ * @param prefix_len length of given prefix
+ * @param rule rule coresponding to give prefix and its length
+ */
+_Bool lpm6_add(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	return _bspl_add(root, (uint32_t *) prefix, prefix_len, rule);
 }
