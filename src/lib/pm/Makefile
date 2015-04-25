@@ -1,5 +1,4 @@
 CC=gcc
-STRIDE=2
 FLAGS=-std=c99 -Wall -Wextra -g3
 ALG=ac
 GENERAL=../general

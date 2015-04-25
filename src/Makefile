@@ -1,4 +1,14 @@
 
+all:lib
+
+lib: .FORCE
+	make -C lib/ all
+
+test: .FORCE
+	make -C test/
+
+bench: .FORCE
+	make -C bench/
 
 pack: .FORCE clean
 	zip xvokra00.zip -r *
@@ -6,7 +16,7 @@ pack: .FORCE clean
 doc: .FORCE
 	doxygen doc/config
 
-clean:
+clean: .FORCE
 	find ./doc/* | grep -v "config" | xargs rm -rf # remove generated documentation
 	make -C bench clean
 	make -C lib clean

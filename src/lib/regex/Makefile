@@ -6,10 +6,10 @@ GENERAL=../general
 all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
 all: lib
 
-lib: stack $(ALG).c precompile-headers
-	$(CC) $(FLAGS) -DALG_$(ALG) -c $(ALG).c -o $(ALG).o
+lib: stack dfa.c precompile-headers
+	$(CC) $(FLAGS) -DALG_$(ALG) -c dfa.c -o dfa.o
 	rm -f regex.a
-	ar rcs regex.a $(ALG).o $(GENERAL)/stack.o
+	ar rcs regex.a dfa.o $(GENERAL)/stack.o
 
 stack:
 	make -C $(GENERAL) stack

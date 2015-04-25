@@ -1,9 +1,8 @@
 CC=gcc
-STRIDE=2
 FLAGS=-std=c99 -Wall -Wextra -g3
 
 all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
-all: list
+all: list stack queue
 
 list:
 	$(CC) $(FLAGS) -c list.c -o list.o
