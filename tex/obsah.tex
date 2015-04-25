@@ -6,7 +6,7 @@
 \section{Síťové modely}
 
 Zpracování dat síťového provozu je rozděleno do několika úrovní. Tyto úrovně jsou popsány síťovými modely.
-Základním modelem je ISO/OSI, který slouží pro abstraktní rozdělení operací zpracování a jeho použití je
+Základním modelem je ISO/OSI, který slouží pro abstraktní rozdělení operací zpracování síťových dat a jeho použití je
 pouze pro akademické účely. V reálných počítačových sítích pak dominuje model TCP/IP, který má oproti
 ISO/OSI modelu menší počet vrstev.
 
@@ -56,22 +56,32 @@ zapouzdřených dat vyšších vrstev také informace o kontrolním součtu dat 
 MAC adresa je adresa fyzického zařízení, které pracuje na této vrstvě.
 Adresování MAC adresou slouží pro identifikaci zařízení, které se nacházejí ve stejné počítačové síti
 a za hranici této sítě se již používá IP adresace, které je vysvětleno v necházející kapitole \ref{layers:network}
-Nekoncová síťová zařizení která pracují na této vrstvě se nazývaji huby.
+Síťová zařizení pracující na této vrstvě se nazývaji switche. Úkolem switchů je zjistit MAC adresu cílové stanice a přeposlat je portem, který vede k tomuto zařízení.
 
 \subsubsection{Síťová vrstva}\label{layers:network}
 Na této vrstvě probíhá komunikace za využití IP adres. Prvky používané na této vrstvě jsou nazývaný routery.
-Účelem těcho zařízení je směrování paketů procházejících sítí. K tomu využívají směrovací tabulku na optimalizace jejího prohledávání
-se věnuje část této práce zabývající se problémem vyhledávání nejdelšího shodného prefixu.
-Datové struktury jsou pojmenované pakety.
-Pakety obsahují
+Účelem těcho zařízení je směrování paketů procházejících sítí. K tomu využívají směrovací tabulku.
+Právě problém vyhledání nejdelší shodné adresy v routovací tabulce směrovače je v této knihovně implementováno
+dva algoritmy, Binary search on prefix length \ref{} a TreeBitmap \ref{}.
+Datové struktury jsou pojmenované pakety. Pakety obsahují imformace o datovém toku a také zrojové a cílové adresy (IPv4 nebo IPv6) právě tohoto paketu.
 
 \subsubsection{Transportní vrstva}
-Transportní vrstva pracuje s datovou strukturou zvanou segmenty. Obsahují informace jako je kontrolní součet pro zjištění integrity dat,
+Transportní vrstva pracuje s datovou strukturou zvanou segmenty.
+Obsahují informace jako je kontrolní součet pro zjištění integrity dat,
 pořadové číslo rámce pro spojení dat, která byla na cestě k cíli rozdělena na více částí a také obsahuje čísla portů
 pro určení uživatelských aplikací, která data odeslala a která je na druhém konci má přijmout.
+Na transportní vrstvě se používají dva protokoly a to TCP a UDP. UDP má nižší režii ale zase je nespolihvé.
+To znamená že paket do cílového zařízení nemusí vůbec dorazit a nebo můžé dorazit v jiném pořadí než byl ze
+zdrojové stanice odeslán. Situace ve kterých pozitiva jako nižší režie přebyjí zápory je hlavně přenos dat v
+reálném čase. To je například streamování videa, přenost hlasu technologie VoIP a přenos informací do online her.
+Spolehlivý protokol TCPzaručuje, že všechna data budou přenesena a v cílové stanici se seřadí do
+stejné posloupnosti v jaké byla odeslána. Důvodem proč se data mohou rozdělit je nestabilní cesta,
+po které jsou data v síti směrována. Při přenosu jednoho toku dat se může stát že se jedna cesta po které se
+již poslala část dat stane nedostupnout a místo toho se data začnou směrovat přes jiná zařízení.
 
-Transportní vrsta (a všechny vyšší) se tradičně již nevyskytuje na síťových zařízeních, která se starají o provoz.
-Slouží až pro koncové stanice aby mohli určit program, kterému budou data předána.
+Zpracování dat na úrovni transportní vrstvy a všech vyšších vrstev není implementováno na síťových
+zařízeních starajících se přenost dat po síti. Jediná zařízení, které implementují zpracování
+dat těchto vrstev jsou koncová zařízení.
 
 \subsubsection{Relační vrstva}
 
@@ -228,6 +238,17 @@ Regulární výrazy implementované v této knihovně rozšiřují množinu oper
 	\caption{Hledání nejdelšího shodného prefixu algoritmem Binary search on prefix length}
 \end{algorithm}
 
+
+Operace vyhledání nejdelšího prefixu při využití algoritmu binary search on prefix length má časovou
+složitost $\log{2}{N}$, kde \texttt{N} je počet bitů adresy. V případě IPv4 adresy je to 32 bitů a pro IPv6
+adresu je to 128 bitů. Z principu algoritmu vyplívá, že nejhorší výsledky z časového hlediska bude dosahovat
+při shodě prefixu, který byl zadán s lichou délkou. V tomto případě bude nutné projít všemy kroky.
+Počet kroků v případě IPv4 bude 5 a v případě IPv6 adresy to pak bude 7.
+Zde je vidět že i v připadě čtyřikrát delší adresy se počet kroků pro vyhledání prefixu zvedne pouze o dva,
+což neplatí pro algoritmus TreeBitmap, který musí projít v nejhorším případě až čtyřikrát více
+uzlů aby nalezl odpovídající prefix. Ušetřené kroky se ale nijak neprojeví na paměťové náročnosti,
+protože je potřeba uchovávat stromovou strukturu pro binary search on prefix length a to z nutnosti
+mít kratší prefixy v hashovací tabulce, kde dochází k rozhodnutí zda má vyhledávání směřovat k delším nebo kratším prefixům.
 \cite{bspl}
 
 \begin{algorithm}
@@ -253,7 +274,9 @@ Regulární výrazy implementované v této knihovně rozšiřují množinu oper
 	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
 \end{algorithm}
 
-\cite{tbm}
+Z \cite{tbm} vyplívá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
+na které je sousředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjišténo,
+že tato implementace je funkční až do velikost střídy 13bitů.
 
 \subsection{Hledání nejdelšího prefixu}
 Hledání nejdelšího shodného prefixu se používá při směrování paketů.
@@ -335,7 +358,7 @@ Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické
 \label{fig:regex-questionmark}
 \end{figure}
 % TODO konstrukce NFA
-% TODO konstrukce DFA z NFA
+% TODOkonstrukce DFAz NFA
 % TODO konstrukce MDFA z DFA
 == 3 strany
 
