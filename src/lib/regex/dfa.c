@@ -1,13 +1,19 @@
 #include "dfa.h"
 #include "../general/stack.h"
 
-
 void * _out_of_memory()
 {
 	errno = FASTNET_OUT_OF_MEMORY;
 	return NULL;
 }
 
+/**
+ * @brief Handle escaped character
+ * @param input
+ * @param length length if <input>
+ * @param position posiiton in <input>
+ * @return character
+ */
 char _escape(char * input, unsigned length, unsigned * position)
 {
 	char character;
@@ -32,7 +38,11 @@ char _escape(char * input, unsigned length, unsigned * position)
 }
 
 /**
- * @brief Return symbols, handle escapes
+ * @brief Process regex expression and return each symbol
+ * @param input
+ * @param length length of <input>
+ * @param position position in <input>
+ * @return symbol
  */
 short _get_symbol(char * input, unsigned length, unsigned * position)
 {
@@ -64,6 +74,15 @@ _Bool _is_char(short symbol)
 	return symbol < 128 || symbol == DOT;
 }
 
+/**
+ * @brief Add transition into <next> to <next_pointer> and save transition symbol to <key>
+ * @param key symbols
+ * @param next next pointers
+ * @param length length of <key> & <next>
+ * @param symbol transition symbol
+ * @param next_pointer destination of transition
+ * @return success/failure
+ */
 _Bool _add_transition(char ** key, void *** next, unsigned * length, short symbol, void * next_pointer)
 {
 	char * new_key;
@@ -102,6 +121,12 @@ _Bool _dfa_add_transition(_dfa_state * state, short symbol, _dfa_state * next)
 	return _add_transition(&(state->key), (void ***) &(state->next), &(state->length), symbol, next);
 }
 
+/**
+ * @brief Add epsilon transtion from state to next
+ * @param state start of transition
+ * @param next destination of transition
+ * @return success/failure
+ */
 _Bool _nfa_add_epsilon_transition(_nfa_state * state, _nfa_state * next)
 {
 	_nfa_state ** new_next_epsilon;
@@ -117,6 +142,10 @@ _Bool _nfa_add_epsilon_transition(_nfa_state * state, _nfa_state * next)
 	return 1;
 }
 
+/**
+ * @brief Allocate memory for new nfa state
+ * @return pointer to new state
+ */
 _nfa_state * _nfa_create_state()
 {
 	_nfa_state * state = malloc(sizeof(_nfa_state));
@@ -133,6 +162,10 @@ _nfa_state * _nfa_create_state()
 	return state;
 }
 
+/**
+ * @brief Allocate memory for new dfa state
+ * @return pointer to new state
+ */
 _dfa_state * _dfa_create_state()
 {
 	_dfa_state * state = malloc(sizeof(_dfa_state));
@@ -147,6 +180,9 @@ _dfa_state * _dfa_create_state()
 	return state;
 }
 
+/**
+ * @brief Free memory of nfa state
+ */
 void _nfa_state_free(_nfa_state * state)
 {
 	free(state->key);
@@ -155,6 +191,9 @@ void _nfa_state_free(_nfa_state * state)
 	free(state);
 }
 
+/**
+ * @brief Free memory of dfa state
+ */
 void _dfa_state_free(_dfa_state * state)
 {
 	assert(state != NULL);
@@ -164,6 +203,11 @@ void _dfa_state_free(_dfa_state * state)
 	free(state);
 }
 
+/**
+ * @brief Destroy whole nfa
+ * @param already_free already free states to avoid double free
+ * @param state starting state
+ */
 void _nfa_state_destroy(stack * already_freed, _nfa_state * state)
 {
 	stack_item_value value;
@@ -202,6 +246,11 @@ void _nfa_state_destroy(stack * already_freed, _nfa_state * state)
 	free(next_epsilon);
 }
 
+/**
+ * @brief Destroy whole dfa
+ * @param already_free already free states to avoid double free
+ * @param state starting state
+ */
 void _dfa_state_destroy(stack * already_freed, _dfa_state * state)
 {
 	stack_item_value value;
@@ -229,6 +278,10 @@ void _dfa_state_destroy(stack * already_freed, _dfa_state * state)
 	free(next);
 }
 
+/**
+ * @brief Destroy whole dfa
+ * @param state root state
+ */
 void _dfa_destroy(_dfa_state * state)
 {
 	stack already_freed;
@@ -241,6 +294,10 @@ void _dfa_destroy(_dfa_state * state)
 	free(already_freed.data);
 }
 
+/**
+ * @brief Destroy whole nfa
+ * @param state root state
+ */
 void _nfa_destroy(_nfa_state * state)
 {
 	stack already_freed;
@@ -253,7 +310,11 @@ void _nfa_destroy(_nfa_state * state)
 	free(already_freed.data);
 }
 
-
+/**
+ * @brief Create block consisting of 2 states with <symbol> transition between them
+ * @param symbol
+ * @return pointer to block
+ */
 _nfa_block * _nfa_create_block(short symbol)
 {
 	_nfa_block * block = malloc(sizeof(_nfa_block));
@@ -292,6 +353,10 @@ _nfa_block * _nfa_create_block(short symbol)
 	return block;
 }
 
+/**
+ * @brief Create block consisting of 2 states with transition for every symbol possible
+ * @return pointer to block
+ */
 _nfa_block * _nfa_create_dot_block()
 {
 	_Bool res;
@@ -315,6 +380,11 @@ _nfa_block * _nfa_create_dot_block()
 	return block;
 }
 
+/**
+ * @brief Create dfa pair consisting of new dfa state and <nfa_states> from which dfa state can be reached
+ * @param nfa_states list of nfa states
+ * @return pointer to pair
+ */
 _dfa_pair * _dfa_create_pair(stack ** nfa_states)
 {
 	unsigned char id;
@@ -348,6 +418,10 @@ _dfa_pair * _dfa_create_pair(stack ** nfa_states)
 	return pair;
 }
 
+/**
+ * @brief Destroy nfa block
+ * @param block block to destroy
+ */
 void _nfa_block_destroy(void * block)
 {
 	_nfa_state * start_state = ((_nfa_block *) block)->start;
@@ -357,12 +431,20 @@ void _nfa_block_destroy(void * block)
 	_nfa_destroy(start_state);
 }
 
+/**
+ * @brief Free memory allocated for dfa pair
+ * @param pair pair to be freed
+ */
 void _dfa_pair_free(void * pair)
 {
 	stack_destroy(((_dfa_pair *) pair)->nfa_states);
 	free(pair);
 }
 
+/**
+ * @brief Destroy dfa pair
+ * @param pair pair to be destroyed
+ */
 void _dfa_pair_destroy(void * pair)
 {
 	_dfa_state_free(((_dfa_pair *) pair)->dfa_state);
@@ -381,6 +463,17 @@ void * _nfa_clear(stack * stack_)
 	return NULL;
 }
 
+/**
+ * @brief Determinization failed, clear all data and return null to signalize error
+ * @param root
+ * @param nfa_states
+ * @param move_states
+ * @param pairs_created
+ * @param closure_states
+ * @param pairs_unprocessed
+ * @param free_dfa_states
+ * @return NULL
+ */
 void * _dfa_clear(_nfa_state * root, stack * nfa_states, stack * move_states, stack * pairs_created, stack * closure_states, stack * pairs_unprocessed, _Bool free_dfa_states)
 {
 	regex_destroy_nfa(root);
@@ -400,7 +493,7 @@ void * _dfa_clear(_nfa_state * root, stack * nfa_states, stack * move_states, st
 
 /**
  * @brief Concatenate two construction blocks
- * @param stack_ for construction blocks
+ * @param stack_ of construction blocks
  */
 _Bool _concat(stack * stack_)
 {
@@ -434,6 +527,11 @@ _Bool _concat(stack * stack_)
 	return 1;
 }
 
+/**
+ * @brief Create OR block
+ * @param stack_ stack of blocks
+ * @return success/failure
+ */
 _Bool _or(stack * stack_)
 {
 	assert(stack_ != NULL);
@@ -478,6 +576,12 @@ _Bool _or(stack * stack_)
 	return 1;
 }
 
+/**
+ * @brief Construct quantificator
+ * @param stack_ stack of construction blocks
+ * @param operation operation to be constructed
+ * @return success/failure
+ */
 _Bool _quantificator(stack * stack_, short operation)
 {
 	assert(stack_ != NULL);
@@ -563,7 +667,11 @@ _Bool _quantificator(stack * stack_, short operation)
 }
 
 /**
- * @brief create block for enumreation such as [ABCD]
+ * @brief Create block for enumreation such as [ABCD]
+ * @param input input text
+ * @param length length of <input>
+ * @param position position in <input>
+ * @return pointer to constructed block
  */
 _nfa_block * _enumeration(char * input, unsigned length, unsigned * position)
 {
@@ -596,6 +704,12 @@ _nfa_block * _enumeration(char * input, unsigned length, unsigned * position)
 	return _out_of_memory();
 }
 
+/**
+ * @brief Check if two symbols can be placed one after another
+ * @param current current symbol
+ * @param prev previous symbol
+ * @return yes/no
+ */
 short _validate(short current, short prev)
 {
 	if(_is_char(current))
@@ -611,6 +725,12 @@ short _validate(short current, short prev)
 	return validation_table[current - 300][prev - 300];
 }
 
+/**
+ * @brief Decide which operation has higher priority
+ * @param stack_ stack of symbols
+ * @param current current symbol
+ * @return SHIFT/REDUCE/EQUAL/FIN
+ */
 unsigned _precedence(stack * stack_, short current)
 {
 	if(_is_char(current) || current == DOT)
@@ -623,10 +743,14 @@ unsigned _precedence(stack * stack_, short current)
 	return precedence_table[current - 300][top.number - 300];
 }
 
+/**
+ * @brief Reduce operation which is on top of <stack_>
+ * @param stack_ stack of operations
+ * @return success/failure
+ */
 _Bool _reduce(stack * stack_)
 {
 	_Bool res;
-	stack_item_value value;
 	short symbol = stack_top_type(stack_, NUMBER).number;
 
 	switch(symbol)
@@ -649,6 +773,12 @@ _Bool _reduce(stack * stack_)
 	return res;
 }
 
+/**
+ * @brief Perform epsilon closure
+ * @param nfa stack of nfa states
+ * @param closure[out] stack of all epsilon closures for <nfa>
+ * @return success/failure
+ */
 _Bool _dfa_epsilon_closure(stack * nfa, stack * closure)
 {
 	stack swap_stack;
@@ -676,6 +806,13 @@ _Bool _dfa_epsilon_closure(stack * nfa, stack * closure)
 	return 1;
 }
 
+/**
+ * @brief Perform move function on <input_states> with <character>
+ * @param input_states
+ * @param output_states
+ * @param character
+ * @return success/failure
+ */
 _Bool _dfa_move(stack * input_states, stack * output_states, char character)
 {
 	stack_item_value value;
@@ -696,7 +833,13 @@ _Bool _dfa_move(stack * input_states, stack * output_states, char character)
 	return 1;
 }
 
-int _dfa_match_processed(stack_item_value first, stack_item_value second)
+/**
+ * @brief Check if two stack are equal
+ * @param first
+ * @param second
+ * @return success/failure
+ */
+_Bool _dfa_match_processed(stack_item_value first, stack_item_value second)
 {
 	stack * first_stack = ((_dfa_pair *)first.pointer)->nfa_states;
 	stack * second_stack = second.pointer;
@@ -712,8 +855,8 @@ int _dfa_match_processed(stack_item_value first, stack_item_value second)
 }
 
 /**
- * @brief Parse regular expression and generate DFA
- * @return [description]
+ * @brief Parse regular expression and generate NFA
+ * @return pointer to nfa
  */
  regex_nfa * _nfa_construct(regex_pattern pattern)
 {
@@ -840,7 +983,11 @@ int _dfa_match_processed(stack_item_value first, stack_item_value second)
 	return regex;
 }
 
-
+/**
+ * @brief Conver nfa to dfa
+ * @param root start of nfa
+ * @return pointer to dfa
+ */
 regex_dfa * _nfa_convert(regex_nfa * root)
 {
 	stack_item_value value;
@@ -916,6 +1063,12 @@ regex_dfa * _nfa_convert(regex_nfa * root)
 
 }
 
+/**
+ * @brief Construct NFA
+ * @param patterns array of patterns
+ * @param count size of <patterns>
+ * @return pointer to nfa
+ */
 regex_nfa * regex_construct_nfa(regex_pattern * patterns, unsigned count)
 {
 	if(count <= 0)
@@ -958,6 +1111,12 @@ regex_nfa * regex_construct_nfa(regex_pattern * patterns, unsigned count)
 	return root;
 }
 
+/**
+ * @brief Construct DFA
+ * @param patterns array of patterns
+ * @param count size of <patterns>
+ * @return pointer to dfa
+ */
 regex_dfa * regex_construct_dfa(regex_pattern * patterns, unsigned count)
 {
 	regex_nfa * nfa = regex_construct_nfa(patterns, count);
@@ -967,6 +1126,10 @@ regex_dfa * regex_construct_dfa(regex_pattern * patterns, unsigned count)
 	return _nfa_convert(nfa);
 }
 
+/**
+ * @brief Destroy NFA
+ * @param root start state of nfa
+ */
 void regex_destroy_nfa(regex_nfa * root)
 {
 	if(root == NULL) return;
@@ -974,6 +1137,10 @@ void regex_destroy_nfa(regex_nfa * root)
 	_nfa_destroy(root);
 }
 
+/**
+ * @brief Destroy DFA
+ * @param root start state of dfa
+ */
 void regex_destroy_dfa(regex_dfa * root)
 {
 	if(root == NULL) return;
@@ -981,6 +1148,13 @@ void regex_destroy_dfa(regex_dfa * root)
 	_dfa_destroy(root);
 }
 
+/**
+ * @brief Match <regex> against <input>
+ * @param regex
+ * @param input
+ * @param length length of <input>
+ * @return matched pattern
+ */
 int regex_match_nfa(regex_nfa * regex, char * input, unsigned length)
 {
 	stack * start = NULL;
@@ -1061,6 +1235,13 @@ NFA_END:
 
 }
 
+/**
+ * @brief Match <regex> against <input>
+ * @param regex
+ * @param input
+ * @param length length of <input>
+ * @return matched pattern
+ */
 int regex_match_dfa(regex_dfa * regex, char * input, unsigned length)
 {
 	void * char_position;

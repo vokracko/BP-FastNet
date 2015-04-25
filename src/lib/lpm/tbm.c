@@ -4,9 +4,9 @@
  * @brief Count all ones up to given position
  * @param key
  * @param bit_position stop marker
- * @return number of ones in key
+ * @return number of ones in bitmap
  */
-inline uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
+uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
 {
 	assert(bitmap != NULL);
 
@@ -27,7 +27,12 @@ inline uint16_t _tbm_bitsum(uint32_t * bitmap, uint16_t bit_position)
 	return sum;
 }
 
-inline void _tbm_zeros(uint32_t * bitmap, uint16_t size)
+/**
+ * @brief Set zeros to bitmap
+ * @param bitmap
+ * @param size number of bytes
+ */
+void _tbm_zeros(uint32_t * bitmap, uint16_t size)
 {
 	assert(bitmap != NULL);
 
@@ -36,13 +41,13 @@ inline void _tbm_zeros(uint32_t * bitmap, uint16_t size)
 
 /**
  * @brief Calculate index for rule based on length of match, used only for lookup
- * @param bit_vector internal bitmap
+ * @param bitmap internal bitmap
  * @param bit_value part of ip address
  * @return index to node->rule
  */
-inline int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
+int32_t _tbm_internal_index(uint32_t * bitmap, uint16_t bit_value)
 {
-	assert(bit_vector != NULL);
+	assert(bitmap != NULL);
 
 	int8_t length = STRIDE;
 	uint16_t bit_position;
@@ -53,26 +58,24 @@ inline int32_t _tbm_internal_index(uint32_t * bit_vector, uint16_t bit_value)
 		bit_position = (1 << length) - 1 + bit_value;
 		bit_value >>= 1;
 	}
-	while(length-- >= 0 && GET_BIT_LSB(bit_vector[bit_position / 32], bit_position % 32) == 0);
+	while(length-- >= 0 && GET_BIT_LSB(bitmap[bit_position / 32], bit_position % 32) == 0);
 
-	if(length < 0 && GET_BIT_LSB(bit_vector[0], 0) == 0)
+	if(length < 0 && GET_BIT_LSB(bitmap[0], 0) == 0)
 	{
 		// no matching shorter prefix found, do not return 0 from bitsum
 		return -1;
 	}
 
-	return _tbm_bitsum(bit_vector, bit_position);
+	return _tbm_bitsum(bitmap, bit_position);
 }
 
 /**
- * @brief Lookup node where prefix is located, used by update/remove
- * @param root
+ * @brief Get number consiting of <length> bits from <position> in <prefix>
  * @param prefix
- * @param prefix_len
- * @param index [out] int value of prefix part which is used as index to internal/external
- * @return node
+ * @param position starting position
+ * @param length number of bits
+ * @return number of <length> bits
  */
-
 uint8_t _get_bits(uint32_t * prefix, uint8_t position, uint8_t length)
 {
 	uint32_t data;
@@ -93,7 +96,15 @@ uint8_t _get_bits(uint32_t * prefix, uint8_t position, uint8_t length)
 	}
 }
 
-inline _tbm_node * _tbm_lookup_internal(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, uint16_t * index, _Bool ipv6)
+/**
+ * @brief Lookup node where prefix is located, used by update/remove
+ * @param root
+ * @param prefix
+ * @param prefix_len
+ * @param index [out] int value of prefix part which is used as index to internal/external
+ * @return node
+ */
+_tbm_node * _tbm_lookup_internal(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, uint16_t * index)
 {
 	assert(root != NULL);
 	assert(index != NULL);
@@ -239,7 +250,7 @@ _Bool _tbm_reduce(_tbm_node * node, uint16_t bit_value, _Bool shift_child)
 }
 
 /**
- * @brief Destroy node children and deallocate memory
+ * @brief Destroy node children and free memory
  * @param node
  */
 void _tbm_free(_tbm_node * node)
@@ -256,6 +267,11 @@ void _tbm_free(_tbm_node * node)
 	free(node->child);
 }
 
+/**
+ * @brief Inicialize TreeBitmap structure
+ * @param default_rule rule for default route
+ * @return pointer to data
+ */
 void * _tbm_init(_LPM_RULE default_rule)
 {
 	lpm_root * root;
@@ -276,7 +292,15 @@ void * _tbm_init(_LPM_RULE default_rule)
 	return root;
 }
 
-_Bool _tbm_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule, _Bool ipv6)
+/**
+ * @brief Insert <prefix>/<prefix_len> to tbm structure with coresponding <rule>
+ * @param root
+ * @param prefix ip address
+ * @param prefix_len bits of <prefix>
+ * @param rule corresponding rule
+ * @return succes/error
+ */
+_Bool _tbm_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 
@@ -312,24 +336,39 @@ _Bool _tbm_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE
 	return 1;
 }
 
-void _tbm_update(lpm6_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule, _Bool ipv6)
+/**
+ * @brief Update <prefix>/<prefix_len> to <rule>
+ * @param root
+ * @param prefix
+ * @param prefix_len
+ * @param rule
+ * @param ipv6
+ */
+void _tbm_update(lpm6_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RULE rule)
 {
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup_internal(root, prefix, prefix_len, &index, ipv6);
+	_tbm_node * node = _tbm_lookup_internal(root, prefix, prefix_len, &index);
 
 	assert(node != NULL);
 
 	node->rule[_tbm_bitsum(node->internal, index)] = rule;
 }
 
-void _tbm_remove(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _Bool ipv6)
+/**
+ * @brief Remove <prefix>/<prefix_len>
+ * @param root
+ * @param prefix
+ * @param prefix_len
+ * @param ipv6
+ */
+void _tbm_remove(lpm_root * root, uint32_t * prefix, uint8_t prefix_len)
 {
 	assert(root != NULL);
 
 	uint16_t index;
-	_tbm_node * node = _tbm_lookup_internal(root, prefix, prefix_len, &index, ipv6);
+	_tbm_node * node = _tbm_lookup_internal(root, prefix, prefix_len, &index);
 
 	assert(node != NULL);
 
@@ -337,6 +376,10 @@ void _tbm_remove(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _Bool i
 	CLEAR_BIT_LSB(node->internal[index / 32], index % 32);
 }
 
+/**
+ * @brief Free all data
+ * @param root
+ */
 void _tbm_destroy(_tbm_node * root)
 {
 	if(root == NULL) return;
@@ -345,56 +388,12 @@ void _tbm_destroy(_tbm_node * root)
 	free(root);
 }
 
-lpm_root * lpm_init(_LPM_RULE default_rule)
-{
-	return _tbm_init(default_rule);
-}
-
-lpm6_root * lpm6_init(_LPM_RULE default_rule)
-{
-	return _tbm_init(default_rule);
-}
-
-_Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
-{
-	return _tbm_add(root, (uint32_t *) prefix, prefix_len, rule, 0);
-}
-
-_Bool lpm6_add(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
-{
-	return _tbm_add(root, (uint32_t *) prefix, prefix_len, rule, 1);
-}
-
-void lpm_update(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
-{
-	_tbm_update(root, (uint32_t *) prefix, prefix_len, rule, 0);
-}
-
-void lpm6_update(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
-{
-	_tbm_update(root, (uint32_t *) prefix, prefix_len, rule, 1);
-}
-
-void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
-{
-	_tbm_remove(root, (uint32_t *) prefix, prefix_len, 0);
-}
-
-void lpm6_remove(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len)
-{
-	_tbm_remove(root, (uint32_t *) prefix, prefix_len, 1);
-}
-
-void lpm_destroy(lpm_root * root)
-{
-	_tbm_destroy(root);
-}
-
-void lpm6_destroy(lpm6_root * root)
-{
-	_tbm_destroy(root);
-}
-
+/**
+ * @brief Lookup for longest prefix match for <key>
+ * @param root pointer to tbm data
+ * @param key ip address
+ * @return rule of longest match
+ */
 _LPM_RULE _tbm_lookup(lpm6_root * root, uint32_t * key)
 {
 	assert(root != NULL);
@@ -431,12 +430,133 @@ _LPM_RULE _tbm_lookup(lpm6_root * root, uint32_t * key)
 
 	return longest_match_node->rule[longest_match_index];
 }
+/**
+ * @brief Inicialize data for IPv4
+ * @param default_rule rule for default route
+ * @return pointer to data structure
+ */
+lpm_root * lpm_init(_LPM_RULE default_rule)
+{
+	return _tbm_init(default_rule);
+}
 
+/**
+ * @brief Inicialize data for IPv6
+ * @param default_rule rule for default route
+ * @return pointer to data structure
+ */
+lpm6_root * lpm6_init(_LPM_RULE default_rule)
+{
+	return _tbm_init(default_rule);
+}
+
+/**
+ * @brief Insert <prefix>/<prefix_len> to tbm structure with coresponding <rule> for IPv4
+ * @param root
+ * @param prefix ip address
+ * @param prefix_len bits of <prefix>
+ * @param rule corresponding rule
+ * @return succes/error
+ */
+_Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	return _tbm_add(root, (uint32_t *) prefix, prefix_len, rule);
+}
+
+/**
+ * @brief Insert <prefix>/<prefix_len> to tbm structure with coresponding <rule> for IPv6
+ * @param root
+ * @param prefix ip address
+ * @param prefix_len bits of <prefix>
+ * @param rule corresponding rule
+ * @return succes/error
+ */
+_Bool lpm6_add(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	return _tbm_add(root, (uint32_t *) prefix, prefix_len, rule);
+}
+
+/**
+ * @brief Update <prefix>/<prefix_len> to <rule> for IPv4
+ * @param root
+ * @param prefix
+ * @param prefix_len
+ * @param rule
+ */
+void lpm_update(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	_tbm_update(root, (uint32_t *) prefix, prefix_len, rule);
+}
+
+/**
+ * @brief Update <prefix>/<prefix_len> to <rule> for IPv6
+ * @param root
+ * @param prefix
+ * @param prefix_len
+ * @param rule
+ */
+void lpm6_update(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len, _LPM_RULE rule)
+{
+	_tbm_update(root, (uint32_t *) prefix, prefix_len, rule);
+}
+
+/**
+ * @brief Remove <prefix>/<prefix_len> for IPv4
+ * @param root
+ * @param prefix
+ * @param prefix_len
+ */
+void lpm_remove(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len)
+{
+	_tbm_remove(root, (uint32_t *) prefix, prefix_len);
+}
+
+/**
+ * @brief Remove <prefix>/<prefix_len> for IPv6
+ * @param root
+ * @param prefix
+ * @param prefix_len
+ */
+void lpm6_remove(lpm6_root * root, struct in6_addr * prefix, uint8_t prefix_len)
+{
+	_tbm_remove(root, (uint32_t *) prefix, prefix_len);
+}
+
+/**
+ * @brief Free all data for IPv6
+ * @param root
+ */
+void lpm_destroy(lpm_root * root)
+{
+	_tbm_destroy(root);
+}
+
+/**
+ * @brief Free all data for IPv4
+ * @param root
+ */
+void lpm6_destroy(lpm6_root * root)
+{
+	_tbm_destroy(root);
+}
+
+/**
+ * @brief Lookup for longest prefix match for <key> IPv4
+ * @param root pointer to tbm data
+ * @param key ip address
+ * @return rule of longest match
+ */
 _LPM_RULE lpm_lookup(lpm_root * root, struct in_addr * key)
 {
 	return _tbm_lookup(root, (uint32_t * ) key);
 }
 
+/**
+ * @brief Lookup for longest prefix match for <key> IPv6
+ * @param root pointer to tbm data
+ * @param key ip address
+ * @return rule of longest match
+ */
 _LPM_RULE lpm6_lookup(lpm6_root * root, struct in6_addr * key)
 {
 	return _tbm_lookup(root, (uint32_t * ) key);

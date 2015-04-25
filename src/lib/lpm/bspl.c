@@ -395,7 +395,6 @@ _Bool _bspl_add(lpm_root * root, uint32_t * prefix, uint8_t prefix_len, _LPM_RUL
 	_Bool bit;
 	uint8_t len = 0;
 	uint32_t parent_rule;
-	uint32_t prefix_bits;
 
 	do
 	{
