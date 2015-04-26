@@ -325,11 +325,9 @@ void _ac_destroy(_ac_state * state)
  * @brief Init data structures
  * @return root
  */
-pm_root * pm_init(pm_result ** result)
+pm_root * pm_init()
 {
-	pm_root * root;
-
-	root = _ac_create();
+	pm_root * root = _ac_create();
 
 	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 
@@ -349,20 +347,31 @@ pm_root * pm_init(pm_result ** result)
 		root->next[i] = root;
 	}
 
-	(*result) = malloc(sizeof(pm_result));
-
-	if(*result == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root->next), free(root->key), free(root), NULL;
-
-	(*result)->rule = malloc(sizeof(PM_RULE) * 10);
-
-	if((*result)->rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(root->next), free(root->key), free(root), free(*result), NULL;
-	(*result)->count = 0;
-	(*result)->size = 10;
-
 	return root;
 }
 
-_Bool pm_match(pm_root * root, pm_result * result, char * input, unsigned length)
+pm_result * pm_result_init()
+{
+	pm_result * result = malloc(sizeof(pm_result));
+
+	if(result == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
+
+	result->rule = malloc(sizeof(PM_RULE) * 10);
+
+	if(result->rule == NULL) return errno = FASTNET_OUT_OF_MEMORY, free(result), NULL;
+	result->count = 0;
+	result->size = 10;
+
+	return result;
+}
+
+void pm_result_destroy(pm_result * result)
+{
+	free(result->rule);
+	free(result);
+}
+
+_Bool pm_match(pm_root * root, char * input, unsigned length, pm_result * result)
 {
 	assert(root != NULL);
 	assert(input != NULL);
@@ -378,6 +387,8 @@ _Bool pm_match(pm_root * root, pm_result * result, char * input, unsigned length
 
 		if(state->rule != PM_RULE_NONE || state->additional_size > 0)
 		{
+			if(result == NULL) return 1;
+
 			if(_ac_add_match(result, state->rule) == 0) return errno = FASTNET_OUT_OF_MEMORY, 1;
 
 			for(unsigned i = 0; i < state->additional_size; ++i)
@@ -402,12 +413,9 @@ _Bool pm_match_next(pm_result * result)
 {
 	assert(result != NULL);
 
-	_ac_state * state = result->state;
-	int goto_pos;
-	char * input = result->input;
 	result->count = 0;
 
-	return pm_match(state, result, result->input + result->position, result->length - result->position);
+	return pm_match(result->state, result->input + result->position, result->length - result->position, result);
 }
 
 /*
@@ -416,7 +424,7 @@ _Bool pm_match_next(pm_result * result)
  * @param text pattern
  * @param rule number of rule, this will be returned by match in results array
  */
- void pm_add(pm_root * root, pm_keyword keywords[], unsigned count)
+_Bool pm_add(pm_root * root, pm_keyword keywords[], unsigned count)
 {
 	assert(root != NULL);
 	assert(keywords != NULL);
@@ -496,10 +504,9 @@ _Bool pm_remove(pm_root * root, char * keyword_content, unsigned length)
  * @brief remove datastructures from memory
  * @param root
  */
-void pm_destroy(pm_root * root, pm_result * result)
+void pm_destroy(pm_root * root)
 {
 	assert(root != NULL);
-	assert(result != NULL);
 
 	for(unsigned i = 0; i < root->path_count; ++i)
 	{
@@ -508,6 +515,4 @@ void pm_destroy(pm_root * root, pm_result * result)
 	}
 
 	_ac_free(root);
-	free(result->rule);
-	free(result);
 }

@@ -407,3 +407,15 @@ Stress testing
 a provolávají se různé funkce
 
 %=========================================================================
+
+Celou knihovnu je možné sestavit příkazem \texttt{make all} v hlavním adresáři knihovny.
+Při tomto příkazu bude celá knihovna sestavena s definovaným NDEBUG, což má za následek vypuštění všech
+volání funkce assert, která slouží pro ověřovaní správné funkčnosti.
+
+Dalšími cíly pro program \texttt{make} jsou
+
+\begin{itemize}
+	\item{\texttt{test} - spustí automatické testování všech částí knihovny}
+	\item{\texttt{bech} - spustí benchmarky všech částí knihovny}
+	\item{\texttt{clean} - smaže všechny soubory vytvořené překladem}
+\end{itemize}

@@ -84,7 +84,7 @@ int main(int argc, char * argv[])
 	char string[1024] = {'\0'};
 	char cmd[20] = {'\0'};
 	char line[2048] = {'\0'};
-	pm_result * result = NULL;
+	pm_result * result = pm_result_init();
 	FILE * handle = fopen(argv[1], "r");
 	pm_root * root;
 	_Bool res;
@@ -95,7 +95,7 @@ int main(int argc, char * argv[])
 
 	int debug = argc == 3 && strcmp(argv[2], "debug") == 0;
 
-	root = pm_init(&result);
+	root = pm_init();
 
 	while(fscanf(handle, "%20s %1024s %u %u", cmd, string, &length, &rule) == 4)
 	{
@@ -130,7 +130,7 @@ int main(int argc, char * argv[])
 		else if(strcmp(cmd, "match") == 0)
 		{
 			fail = 1;
-			res = pm_match(root, result, string, length);
+			res = pm_match(root, string, length, result);
 			// test where rule should not be found
 			if(rule == PM_RULE_NONE && res == 0) fail = 0;
 
@@ -166,7 +166,8 @@ int main(int argc, char * argv[])
 
 	free(keywords);
 
-	pm_destroy(root, result);
+	pm_destroy(root);
+	pm_result_destroy(result);
 	fclose(handle);
 
 	return fail;
