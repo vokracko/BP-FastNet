@@ -371,6 +371,50 @@ Knihovna je taktéž navržena tak, aby bylo velmi snadné používat pouze jedn
 To je vhodné pro použití v úzce specializovaných zařízení, jimž tak bude stačit menší množství paměti pro uložení knihovny.
 Každá podknihovna lze vytvořit jedním příkazem ve své složce a také poskytuje vlastní rozhraní, které lze vložit do používaných algoritmů.
 
+\subsection{Veřejné rozhraní knihovny}
+
+\subsubsection{Vyhledání nejdelšího shodného prefixu}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm\PYZus{}add}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}update}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}remove}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
+
+\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm6\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm6\PYZus{}add}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}update}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}remove}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm6\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n+nf}{pm\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{,} \PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match\PYZus{}next}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}add}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{n}{pm\PYZus{}keyword} \PY{n}{keywords}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}remove}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{text}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n+nf}{pm\PYZus{}result\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}result\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+\end{Verbatim}
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}types\PYZhy{}precompiled.h\PYZdq{}}
+\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}..}\PY{c+cp}{/}\PY{c+cp}{general}\PY{c+cp}{/}\PY{c+cp}{common.h\PYZdq{}}
+
+\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
+\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\end{Verbatim}
+
+
 \begin{figure}[!htb]
 \centering
 \includegraphics[scale=.25]{fig/header-dependencies.pdf}
@@ -391,9 +435,21 @@ Nějvýznamějším důvod pro vlastní implementaci je provádění několika r
 
 \chapter{Výsledky}
 \section{Hledání nejdelšího shodného prefixu}
-U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu \tt{\_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
+U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu {\tt \_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
 
-% TODO udělat experiment na 100k záznamech a různých velikostech tabulky
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=1]{fig/lpm-ipv4.pdf}
+\caption{Benchmark pro IPv4}
+\label{fig:lpm-ipv4}
+\end{figure}
+
+\begin{figure}[!htb]
+\centering
+\includegraphics[scale=1]{fig/lpm-ipv6.pdf}
+\caption{Benchmark pro IPv6}
+\label{fig:lpm-ipv4}
+\end{figure}
 
 \chapter{Závěr}
 Závěrečná kapitola obsahuje zhodnocení dosažených výsledků se zvlášť vyznačeným vlastním přínosem studenta. Povinně se zde objeví i zhodnocení z pohledu dalšího vývoje projektu, student uvede náměty vycházející ze zkušeností s řešeným projektem a uvede rovněž návaznosti na právě dokončené projekty.
