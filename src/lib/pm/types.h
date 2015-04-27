@@ -28,13 +28,13 @@ typedef struct
 
 typedef struct
 {
-	PM_RULE * rule; // matched rules
-	unsigned size; // size of rule array
-	unsigned count; // number of matches in rule array
-	unsigned position; // passition after matched rule
-	char * input; // match patterns in this text
-	unsigned length; // length of text
-	_ac_state * state; // last state
+	PM_RULE * rule;
+	unsigned size;
+	unsigned count;
+	unsigned position;
+	char * input;
+	unsigned length;
+	_ac_state * state;
 } pm_result;
 
 typedef _ac_state pm_root;

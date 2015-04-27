@@ -1,7 +1,14 @@
 %=========================================================================
-% (c) Michal Bidlo, Bohuslav Křena, 2008
-\chapter{Úvod}
 
+\chapter{Úvod}
+V dnešních počítačových sítích dosahují přenosové rychlosti již desítek gigabitů za sekundu
+a vzniká spousta problémů se zpracování síťového provozu stávajícími technologiemi tak,
+ aby nedošlo ke zdržení dat právě v zařízeních starajících se o toto zpracvování.
+Tato práce se zabývá implementací která je schopna pracovat i v nejvyšších rychlostech.
+Jedná se knihovna, která se skládá ze operací využívaných pro směrování dat v počítačových sítích
+a jejich kontrolu na přítomnost škodlivého obsahu. Cílem knihovny je vytvořit implementaci, která bude
+co možná nejrychlejší i s ohledem na paměťové nároky, jelikož síťová zař9zení na kterých může být použita
+využívají různé úrovně kešování dat a při správné optimalize by nemuselo docházet k ž8dným cache-misům.
 \chapter{Teoretický rozbor}
 \section{Síťové modely}
 
@@ -310,52 +317,52 @@ Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické
 \subsubsection{Regulární výrazy}
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/regex-block.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
-\label{fig:regex-block}
+	\centering
+	\includegraphics[scale=.25]{fig/regex-block.pdf}
+	\caption{Znázornění průchodu dat počítačovou sítí}
+	\label{fig:regex-block}
 \end{figure}
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/regex-concat.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
-\label{fig:regex-concat}
+	\centering
+	\includegraphics[scale=.25]{fig/regex-concat.pdf}
+	\caption{Znázornění průchodu dat počítačovou sítí}
+	\label{fig:regex-concat}
 \end{figure}
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/regex-dot.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
-\label{fig:regex-dot}
+	\centering
+	\includegraphics[scale=.25]{fig/regex-dot.pdf}
+	\caption{Znázornění průchodu dat počítačovou sítí}
+	\label{fig:regex-dot}
 \end{figure}
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/regex-or.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
-\label{fig:regex-or}
+	\centering
+	\includegraphics[scale=.25]{fig/regex-or.pdf}
+	\caption{Znázornění průchodu dat počítačovou sítí}
+	\label{fig:regex-or}
 \end{figure}
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/regex-star.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
-\label{fig:regex-star}
+	\centering
+	\includegraphics[scale=.25]{fig/regex-star.pdf}
+	\caption{Znázornění průchodu dat počítačovou sítí}
+	\label{fig:regex-star}
 \end{figure}
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/regex-plus.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
-\label{fig:regex-plus}
+	\centering
+	\includegraphics[scale=.25]{fig/regex-plus.pdf}
+	\caption{Znázornění průchodu dat počítačovou sítí}
+	\label{fig:regex-plus}
 \end{figure}
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/regex-questionmark.pdf}
-\caption{Znázornění průchodu dat počítačovou sítí}
-\label{fig:regex-questionmark}
+	\centering
+	\includegraphics[scale=.25]{fig/regex-questionmark.pdf}
+	\caption{Znázornění průchodu dat počítačovou sítí}
+	\label{fig:regex-questionmark}
 \end{figure}
 % TODO konstrukce NFA
 % TODOkonstrukce DFAz NFA
@@ -377,49 +384,83 @@ Každá podknihovna lze vytvořit jedním příkazem ve své složce a také pos
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm\PYZus{}add}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}update}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}remove}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm\PYZus{}add}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}update}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}remove}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+	\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
 
-\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm6\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm6\PYZus{}add}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}update}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}remove}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm6\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
+	\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm6\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm6\PYZus{}add}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}update}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}remove}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+	\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm6\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
+\end{Verbatim}
+Hledání podřetězců \texttt{pm\_match} skončí svůj průchod konečný automatem v momentě prvního nálezu.
+Tato skutečnost je rozlišena návratovou hodnotou volané funkce.
+
+Pokud je programátora důležité znát i číslo pravidla/pravidel vyskytujících se v odpovídajícím stavu
+může využít čtvrtého parametru a předat funkci \texttt{pm\_match} odkaz na strukturu \texttt{pm\_result},
+jež je možné vytvořit voláním funkce \texttt{pm\_result\_init}.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PY{k}{typedef} \PY{k}{struct}
+	\PY{p}{\PYZob{}}
+		\PY{k+kt}{char} \PY{o}{*} \PY{n}{content}\PY{p}{;}
+		\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
+		\PY{n}{PM\PYZus{}RULE} \PY{n}{rule}\PY{p}{;}
+	\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}keyword}\PY{p}{;}
+
+	\PY{k}{typedef} \PY{k}{struct}
+	\PY{p}{\PYZob{}}
+		\PY{n}{PM\PYZus{}RULE} \PY{o}{*} \PY{n}{rule}\PY{p}{;}
+		\PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{;}
+		\PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{;}
+		\PY{k+kt}{unsigned} \PY{n}{position}\PY{p}{;}
+		\PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{;}
+		\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
+		\PY{n}{\PYZus{}ac\PYZus{}state} \PY{o}{*} \PY{n}{state}\PY{p}{;}
+	\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}result}\PY{p}{;}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n+nf}{pm\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{,} \PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match\PYZus{}next}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}add}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{n}{pm\PYZus{}keyword} \PY{n}{keywords}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}remove}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{text}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+	\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n+nf}{pm\PYZus{}result\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}result\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
 \end{Verbatim}
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n+nf}{pm\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{,} \PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match\PYZus{}next}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}add}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{n}{pm\PYZus{}keyword} \PY{n}{keywords}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}remove}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{text}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
-\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n+nf}{pm\PYZus{}result\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}result\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+	\PY{k}{typedef} \PY{k}{struct}
+	\PY{p}{\PYZob{}}
+		\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
+		\PY{k+kt}{unsigned} \PY{k+kt}{char} \PY{n}{id}\PY{p}{;}
+		\PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{;}
+	\PY{p}{\PYZcb{}} \PY{n}{regex\PYZus{}pattern}\PY{p}{;}
 \end{Verbatim}
 
-\begin{Verbatim}[commandchars=\\\{\}]
-\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}types\PYZhy{}precompiled.h\PYZdq{}}
-\PY{c+cp}{\PYZsh{}}\PY{c+cp}{include \PYZdq{}..}\PY{c+cp}{/}\PY{c+cp}{general}\PY{c+cp}{/}\PY{c+cp}{common.h\PYZdq{}}
 
-\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
-\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\begin{Verbatim}[commandchars=\\\{\}]
+	\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
+	\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+	\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
 \end{Verbatim}
 
 
 \begin{figure}[!htb]
-\centering
-\includegraphics[scale=.25]{fig/header-dependencies.pdf}
-\caption{Diagram závislostí hlavičkových souborů}
-\label{fig:header-dependecies}
+	\centering
+	\includegraphics[scale=.25]{fig/header-dependencies.pdf}
+	\caption{Diagram závislostí hlavičkových souborů}
+	\label{fig:header-dependecies}
 \end{figure}
 
 hlavičkové soubory jsou rozděleny na veřejné a privátní rozhraní, kde privátní rozhraní je používáno pouze uvnitř knihovny. Hierarchickou strukturu je možné vidět na obrázku \ref{fig:header-dependecies}.
