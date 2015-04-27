@@ -14,6 +14,7 @@ regex: .FORCE
 
 
 clean:
+	rm fastnet.a
 	make -C lpm/ clean
 	make -C pm/ clean
 	make -C regex/ clean
