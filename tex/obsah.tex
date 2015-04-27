@@ -367,94 +367,176 @@ Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické
 % TODO konstrukce NFA
 % TODOkonstrukce DFAz NFA
 % TODO konstrukce MDFA z DFA
-== 3 strany
 
 Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické přidávání pravidel
 regulárních výrazů za běhu programu
 
 \chapter{Návrh API knihovny}
-Knihovna je navržena s důrazem na snadnou rozšiřitelnost případnými dalšími algoritmy.
-Knihovna je taktéž navržena tak, aby bylo velmi snadné používat pouze jednu z operací, které knihovna implementuje.
-To je vhodné pro použití v úzce specializovaných zařízení, jimž tak bude stačit menší množství paměti pro uložení knihovny.
-Každá podknihovna lze vytvořit jedním příkazem ve své složce a také poskytuje vlastní rozhraní, které lze vložit do používaných algoritmů.
+Knhovna \texttt{fastnet} je navržena jako množina menších knihoven, kde každá knihovna implementuje
+jednu operaci používanou při zpracování síťového provozu.
+Tímto návrhem je dosaženo snadné rozšiřitelnosti o další operace, jako například extrakce informací z hlaviček paketů
+\i{packer header extraction} nebo klasifikace paketů \texttt{packet clasification}.
+Mezi implementované operace patří vyhledání nejdelšího shodného prefix \texttt{longest prefix match} \ref{},
+hledání podřetězeců \texttt{pattern matching} a regulární výrazy \texttt{regular expressions}.
+Pro vyhledání nejdelšího shodného prefixu jsou implementovány algoritmy
+\texttt{Binary search on prefix length}\ref{bspl} a \texttt{Tree Bitmap}\ref{tbm}.
+Hledání podřetězců je implementováno algoritmem \texttt{Aho-Corasick}\ref{ac}.
+Regulární výrazy jsou řešeny nedeterministickým i deterministickým konečným automatem.
 
-\subsection{Veřejné rozhraní knihovny}
+Další výhodou tohoto rozdělení je možnost snadno vytvořit a používat jednotlivé podknihovny samostatně.
+To se může hodit pro zařízení, která mají velmi limitované paměťové ůložiště a jejich účel
+je řešit pouze jednu ze zmíněných operací.
 
-\subsubsection{Vyhledání nejdelšího shodného prefixu}
+\section{Veřejné rozhraní knihovny}
+Veřejné rozhraní knihovny se skládá z veřejných rozhraní jednotlivých podknihoven.
+Tyto rozhraní jsou popsány v následujících podkapitolách.
 
+\subsection{Vyhledání nejdelšího shodného prefixu}
+Pro operaci vyhledání nejdelšího shodného prefixu jsou připraveny následující funkce
+
+% LPM IPV4 =================================================================================
 \begin{Verbatim}[commandchars=\\\{\}]
 \PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm\PYZus{}add}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}update}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}remove}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-	\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
-
-	\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm6\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm6\PYZus{}add}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}update}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}remove}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-	\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm6\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm\PYZus{}add}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}update}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}remove}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
 \end{Verbatim}
-Hledání podřetězců \texttt{pm\_match} skončí svůj průchod konečný automatem v momentě prvního nálezu.
-Tato skutečnost je rozlišena návratovou hodnotou volané funkce.
 
-Pokud je programátora důležité znát i číslo pravidla/pravidel vyskytujících se v odpovídajícím stavu
-může využít čtvrtého parametru a předat funkci \texttt{pm\_match} odkaz na strukturu \texttt{pm\_result},
-jež je možné vytvořit voláním funkce \texttt{pm\_result\_init}.
-
+%LPM IPV6 =================================================================================
 \begin{Verbatim}[commandchars=\\\{\}]
-	\PY{k}{typedef} \PY{k}{struct}
-	\PY{p}{\PYZob{}}
-		\PY{k+kt}{char} \PY{o}{*} \PY{n}{content}\PY{p}{;}
-		\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
-		\PY{n}{PM\PYZus{}RULE} \PY{n}{rule}\PY{p}{;}
-	\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}keyword}\PY{p}{;}
-
-	\PY{k}{typedef} \PY{k}{struct}
-	\PY{p}{\PYZob{}}
-		\PY{n}{PM\PYZus{}RULE} \PY{o}{*} \PY{n}{rule}\PY{p}{;}
-		\PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{;}
-		\PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{;}
-		\PY{k+kt}{unsigned} \PY{n}{position}\PY{p}{;}
-		\PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{;}
-		\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
-		\PY{n}{\PYZus{}ac\PYZus{}state} \PY{o}{*} \PY{n}{state}\PY{p}{;}
-	\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}result}\PY{p}{;}
+\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm6\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm6\PYZus{}add}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}update}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}remove}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm6\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
 \end{Verbatim}
 
+Proměnné datových typů \texttt{lpm\_root} a \text{lpm6\_root} reprezentují právě jeden kořen
+všech datových struktur. Tím je možné odlišit několik routovací tabulek.
 
+\subsection{Hledání podřetězců}
+Pro hledání podřetězců jsou implementovány následující funkce.
+
+%PM API =================================================================================
 \begin{Verbatim}[commandchars=\\\{\}]
-	\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n+nf}{pm\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{,} \PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match\PYZus{}next}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}add}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{n}{pm\PYZus{}keyword} \PY{n}{keywords}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}remove}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{text}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
-	\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n+nf}{pm\PYZus{}result\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}result\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n+nf}{pm\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{,} \PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match\PYZus{}next}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}add}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{n}{pm\PYZus{}keyword} \PY{n}{keywords}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}remove}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{text}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
 \end{Verbatim}
 
+Proměnné datového typ \texttt{pm\_root} a reprezentují právě jeden kořen konečného automatu a
+díky tomu je možné uchovávat několik odlišných strktur sloužících každá pro jiné účely.
+
+Hledání podřetězců \texttt{pm\_match} skončí svůj průchod konečný automatem v momentě nálezu první shody
+s libovolným podřetězcem zadaným při volání \texttt{pm\_add}. Vpřípadě, že není nalezena žádná shoda
+se vstupními podřetězci je vrácen výsledek \texttt{false}.
+
+Čtvrtým parametrem funkce \texttt{pm\_match} může být \texttt{NULL} nebo odkaz na datovou strukturu
+\texttt{pm\_result}. V případě \texttt{NULL} argumentu již nelze procházet textem a hledat další shody.
+Pokud je zadán odkaz na existující strukturu \texttt{pm\_result} je možné procházet celým textem a ukládat
+všechny nalezené shody s podřetězci. Jednotlivé položky struktury \texttt{pm\_result} jsou.
+
+% PM_RESULT =================================================================================
 \begin{Verbatim}[commandchars=\\\{\}]
-	\PY{k}{typedef} \PY{k}{struct}
-	\PY{p}{\PYZob{}}
-		\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
-		\PY{k+kt}{unsigned} \PY{k+kt}{char} \PY{n}{id}\PY{p}{;}
-		\PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{;}
-	\PY{p}{\PYZcb{}} \PY{n}{regex\PYZus{}pattern}\PY{p}{;}
+\PY{k}{typedef} \PY{k}{struct}
+\PY{p}{\PYZob{}}
+	\PY{n}{PM\PYZus{}RULE} \PY{o}{*} \PY{n}{rule}\PY{p}{;}
+	\PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{;}
+	\PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{;}
+	\PY{k+kt}{unsigned} \PY{n}{position}\PY{p}{;}
+	\PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{;}
+	\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
+	\PY{n}{\PYZus{}ac\PYZus{}state} \PY{o}{*} \PY{n}{state}\PY{p}{;}
+\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}result}\PY{p}{;}
 \end{Verbatim}
 
+Pro použití programátorem jsou určeny pouze položky
 
+\begin{itemize}
+	\item{count - počet nalezených pravidel}
+	\item{position - pozice v textu, na které došlo k první shodě}
+	\item{rule - pole s uloženými čísly vyhovujících pravidel}
+\end{itemize}
+
+Pro uložení výsledků procházení textu je možné používat různé struktury typu \texttt{pm\_result}
+a je jen na programátory konkrétní aplikace jaký postup zvolí.
+V knihovně \texttt{pm} jsou implementováný funkce pro vytvoření a zničení této struktury.
+
+% PM_RESULTAPI =================================================================================
 \begin{Verbatim}[commandchars=\\\{\}]
-	\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
-	\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-	\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n+nf}{pm\PYZus{}result\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}result\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
 \end{Verbatim}
 
+
+Pro vkládání podřetězců je vytvořena vlastní datová sturktura, a pole těchto struktur je předáváno do funkce
+\texttt{pm\_add}. Důvodem pro tuto implementaci namísto přidávání jednotlivých podřetězců samostatně
+je relativně časově náročné procházení stavového automatu a generování tzv. failure přechodů,
+které je nutné provést po každé změně datové struktury.
+
+% PM_KEYWORD =================================================================================
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{typedef} \PY{k}{struct}
+\PY{p}{\PYZob{}}
+	\PY{k+kt}{char} \PY{o}{*} \PY{n}{content}\PY{p}{;}
+	\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
+	\PY{n}{PM\PYZus{}RULE} \PY{n}{rule}\PY{p}{;}
+\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}keyword}\PY{p}{;}
+\end{Verbatim}
+
+
+\subsection{Regulární výrazy}
+Knihovna \texttt{regex} implementující regulární výrazy nabízí dvě možnosti pro procházení
+vstupních dat a to deterministický \texttt{dfa} a nedeterministický konečný automat \texttt{nfa}.
+Z toho důvodu jsou odlišeny všechny funkce dle typu konečného automatu, který je použit.
+Oproti hledání nejdelšího shodného prefixu \ref{} nejsou tyto implementace od sebe odlišeny
+různými soubory neboť deterministické automaty vycházejí z nedeterministický a pouze používají
+determinizaci.
+
+Pro nedeterministické konečné automaty to jsou následující funkce.
+
+% REGEX NFA =================================================================================
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}nfa}\PY{p}{(}\PY{n}{regex\PYZus{}nfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\end{Verbatim}
+
+Pro deterministické konečné automaty jsou to tyto funkce.
+% REGEX DFA =================================================================================
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n+nf}{regex\PYZus{}construct\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}pattern} \PY{n}{patterns}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{int} \PY{n+nf}{regex\PYZus{}match\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
+\PY{k+kt}{void} \PY{n+nf}{regex\PYZus{}destroy\PYZus{}dfa}\PY{p}{(}\PY{n}{regex\PYZus{}dfa} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
+\end{Verbatim}
+
+Pro vytvoření regulárních výrazů je podobně jako u hledání podřetězců \ref{}
+použita pomocná struktura \texttt{regex\_pattern}, která je předávána do funkcí \texttt{regex\_\[nfa\|dfa\]\_construct}.
+Výsledný konečný automat, ať už deterministický nebo nedeterministický je výsledek spojení jednotlivých
+konečných automatů pro každý regulární výraz. Tím je umožněna detekce shody několika
+regulární výrazů v jednom průchodu vstupními daty i s přesnou identifikací jaký regulární
+výraz se shoduje se vstupními daty. To je také jedním z důvodů proč nejsou použity regulární výrazy ze standardní
+knihovny jazyka C.
+Další důvody pro vlastní implementaci regulární výrazů je možnost zvolit nejvhodnější algoritmus pro danou operaci.
+Mějme na paměti že determinizací může dojít až k exponenciální nárustu stavů konečného automatu, což může problém
+zvláště při použití specializovaných HW implementací, kde je možno narazit na paměťové limity.
+Dalším důvodem je převod implementace do akcelerovaného hardware.
+
+%REGEX PATTERN =================================================================================
+\begin{Verbatim}[commandchars=\\\{\}]
+\PY{k}{typedef} \PY{k}{struct}
+\PY{p}{\PYZob{}}
+	\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
+	\PY{k+kt}{unsigned} \PY{k+kt}{char} \PY{n}{id}\PY{p}{;}
+	\PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{;}
+\PY{p}{\PYZcb{}} \PY{n}{regex\PYZus{}pattern}\PY{p}{;}
+\end{Verbatim}
 
 \begin{figure}[!htb]
 	\centering
@@ -467,12 +549,6 @@ hlavičkové soubory jsou rozděleny na veřejné a privátní rozhraní, kde pr
 
 Jako výchozí hlavičkový soubor je použit types.h, který obsahuje definice datových struktur pro všechny algoritmy v podknihovně, které musí být viditelné i z veřejného rozhraní. Dalším souborem je types-precompiled.h, který je generován z types.h při překladu když se vybírá používaný algoritmus. common.h je hlavičkový soubor společný pro všechny algoritmy v podknihovně a algortihm.h pak obsahuje deklarace právě pro jeden konkrétní algoritmus.
 sublib.h je pak hlavičkový soubor, který tvoří veřejné rozhraní ke knihovním funkcím.
-
-
-
-Důvod pro vlastní implementaci regulární výrazů je možnost zvolit nejvhodnější algoritmus pro danou operaci.
-Dalším důvodem je převod implementace do akcelerovaného hardware.
-Nějvýznamějším důvod pro vlastní implementaci je provádění několika regulárních výrazů najednou na jednom vstupní textu a vracení čísla regulárního výrazu, který vstupnímu textu vyhovuje, což není možné docílit při použití stadardní implementace ze stdlib, {\tt regex}
 
 \chapter{Výsledky}
 \section{Hledání nejdelšího shodného prefixu}
