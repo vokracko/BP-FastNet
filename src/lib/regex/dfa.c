@@ -507,7 +507,7 @@ _Bool _concat(stack * stack_)
 	second = stack_pop(stack_).pointer;
 	value = stack_pop(stack_);
 	assert(value.number == CONCAT);
-	first = stack_pop(stack_).pointer;
+	first = stack_top(stack_).pointer;
 
 	// _nfa_add_epsilon_transition(first->end, second->start);
 
@@ -516,13 +516,6 @@ _Bool _concat(stack * stack_)
 
 	free(second->start);
 	free(second);
-
-	value.pointer = first;
-	if(stack_push(stack_, value, POINTER) == 0)
-	{
-		_nfa_block_destroy(value.pointer);
-		return 0;
-	}
 
 	return 1;
 }
@@ -545,7 +538,7 @@ _Bool _or(stack * stack_)
 	second = stack_pop(stack_).pointer;
 	value = stack_pop(stack_);
 	assert(value.number == OR);
-	first = stack_pop(stack_).pointer;
+	first = stack_top(stack_).pointer;
 
 	res = _nfa_add_epsilon_transition(first->start, second->start);
 
@@ -559,21 +552,7 @@ _Bool _or(stack * stack_)
 	res = _nfa_add_epsilon_transition(second->end, first->end);
 	free(second);
 
-	if(res == 0)
-	{
-		_nfa_block_destroy(first);
-		return 0;
-	}
-
-	value.pointer = first;
-
-	if(stack_push(stack_, value, POINTER) == 0)
-	{
-		_nfa_block_destroy(first);
-		return 0;
-	}
-
-	return 1;
+	return res;
 }
 
 /**
@@ -594,7 +573,7 @@ _Bool _quantificator(stack * stack_, short operation)
 
 	value = stack_pop(stack_);
 	assert(value.number == operation);
-	block = stack_pop(stack_).pointer;
+	block = stack_top(stack_).pointer;
 
 	if(operation != QUESTION_MARK)
 	{
@@ -602,7 +581,6 @@ _Bool _quantificator(stack * stack_, short operation)
 
 		if(res == 0)
 		{
-			_nfa_block_destroy(block);
 			return 0;
 		}
 
@@ -610,7 +588,6 @@ _Bool _quantificator(stack * stack_, short operation)
 
 		if(epsilon == NULL)
 		{
-			_nfa_block_destroy(block);
 			return 0;
 		}
 
@@ -618,7 +595,6 @@ _Bool _quantificator(stack * stack_, short operation)
 
 		if(res == 0)
 		{
-			_nfa_block_destroy(block);
 			_nfa_state_free(epsilon);
 			return 0;
 		}
@@ -629,7 +605,6 @@ _Bool _quantificator(stack * stack_, short operation)
 
 		if(epsilon == NULL)
 		{
-			_nfa_block_destroy(block);
 			return 0;
 		}
 
@@ -637,7 +612,6 @@ _Bool _quantificator(stack * stack_, short operation)
 
 		if(res == 0)
 		{
-			_nfa_block_destroy(block);
 			_nfa_state_free(epsilon);
 			return 0;
 		}
@@ -651,16 +625,8 @@ _Bool _quantificator(stack * stack_, short operation)
 
 		if(res == 0)
 		{
-			_nfa_block_destroy(block);
 			return 0;
 		}
-	}
-
-	value.pointer = block;
-	if(stack_push(stack_, value, POINTER) == 0)
-	{
-		_nfa_block_destroy(block);
-		return 0;
 	}
 
 	return 1;
