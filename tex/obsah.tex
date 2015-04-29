@@ -1,7 +1,10 @@
 %=========================================================================
 
 \chapter{Úvod}
-V dnešních počítačových sítích dosahují přenosové rychlosti již desítek gigabitů za sekundu
+V dnešních počítačových sítích dosahují přenosové rychlosti desítek gigabitů začíná se narážet na
+časové limity algoritmů, jejichž účelem je zpracovávat síťová data na a sekundu
+a aktuálně používané algortimy se stávají úzkým hrdlem síťových zařízení.
+a začíná narážet na časové limity algoritmů, jejichž účelem je zpracovávat síťová data na
 a vzniká spousta problémů se zpracování síťového provozu stávajícími technologiemi tak,
  aby nedošlo ke zdržení dat právě v zařízeních starajících se o toto zpracvování.
 Tato práce se zabývá implementací která je schopna pracovat i v nejvyšších rychlostech.
@@ -9,7 +12,17 @@ Jedná se knihovna, která se skládá ze operací využívaných pro směrován
 a jejich kontrolu na přítomnost škodlivého obsahu. Cílem knihovny je vytvořit implementaci, která bude
 co možná nejrychlejší i s ohledem na paměťové nároky, jelikož síťová zař9zení na kterých může být použita
 využívají různé úrovně kešování dat a při správné optimalize by nemuselo docházet k ž8dným cache-misům.
-\chapter{Teoretický rozbor}
+
+V kapitole \ref{chapter:theoretical} jsou popsány síťové modely, nad nimiž jsou operace této knihovny implementovány,
+formální prostředky pro implementaci zvolených algoritmů a samotné algoritmy. Kapitola \ref{chapter:api} popisuje
+veřejné rozhraní vytvořené knihovny pro operace zmíněné v kapitole \ref{chapter:theoretical},
+způsoby použití a možnosti rozšíření. V kapitole \ref{chapter:results} jsou vizualizovány a popsány
+výsledky implementace. Kapitola \ref{chapter:conclusion} shrnuje dosažené výsledky a nastiňuje možné směry,
+kterými se může vývoj knihovny dále odvíjet.
+
+
+\chapter{Teoretický rozbor}\label{chapter:theoretical}
+
 \section{Síťové modely}
 
 Zpracování dat síťového provozu je rozděleno do několika úrovní. Tyto úrovně jsou popsány síťovými modely.
@@ -48,17 +61,19 @@ TCP/IP model se skládá pouze ze čtyř vrstev.
 \end{enumerate}
 
 \subsection{Popis vrstev síťových modelů}
+V následující kapitole jsou stručně popsány jednotlivé vrstvy IOS/OSI modelu,
+které jsou důležité pro tuto práci.
 
 \subsubsection{Fyzická vrstva / Vrstva síťového rozhraní}\label{layers:physical}
-Nejnižší vrstva v obou zmíněných modelech pracuje s daty na úrovni bitů a stará se o
+Nejnižší vrstva ISO/OSI modelu pracuje s daty na úrovni bitů a stará se o
 jejich přenos po přenosovém médiu. Protokoly této vrstvy definují signály, které reprezentují data
 a tudíž jde o protokoly implementované již v hardware síťových zařízení.
 
 \subsubsection{Linková vrstva}\label{layers:link}
-Linková vrstva je druhá nejnižší vrstva síťových modelů. Tato vrstva se stará o datovou komunikaci
-obecně mezi několika uzly, které jsou přimo spojeny. Spojení může být jak fyzickým vodiček tak i
-bezdrátovou technologií. Nejrozšířenější technologií pro fyzické spoje je Ethernet, pro bezdrátové spoje
-je to standard IEEE 802. Datová jednotka na linkové vrstvě se nazývá rámec a nese v sobě kromě
+Linková vrstva je druhá nejnižší ISO/OSI modelu. Tato vrstva se stará o datovou komunikaci
+obecně mezi několika uzly, které jsou přímo spojeny. Spojení může být jak fyzickým vodičem tak i
+bezdrátovou technologií. Nejrozšířenější technologií pro fyzické spoje je Ethernet IEEE 802.3, pro bezdrátové spoje
+je to standard IEEE 802.11. Datová jednotka na linkové vrstvě se nazývá rámec a nese v sobě kromě
 zapouzdřených dat vyšších vrstev také informace o kontrolním součtu dat a adresování pomocí MAC adres.
 MAC adresa je adresa fyzického zařízení, které pracuje na této vrstvě.
 Adresování MAC adresou slouží pro identifikaci zařízení, které se nacházejí ve stejné počítačové síti
@@ -68,11 +83,11 @@ Síťová zařizení pracující na této vrstvě se nazývaji switche. Úkolem 
 \subsubsection{Síťová vrstva}\label{layers:network}
 Na této vrstvě probíhá komunikace za využití IP adres. Prvky používané na této vrstvě jsou nazývaný routery.
 Účelem těcho zařízení je směrování paketů procházejících sítí. K tomu využívají směrovací tabulku.
-Právě problém vyhledání nejdelší shodné adresy v routovací tabulce směrovače je v této knihovně implementováno
-dva algoritmy, Binary search on prefix length \ref{} a TreeBitmap \ref{}.
+Právě pro problém vyhledání nejdelšího shodného prefixu v routovací tabulce směrovače jsou v této knihovně
+implementovány dva algoritmy, \texttt{Binary search on prefix length} \ref{} a \texttt{TreeBitmap} \ref{}.
 Datové struktury jsou pojmenované pakety. Pakety obsahují imformace o datovém toku a také zrojové a cílové adresy (IPv4 nebo IPv6) právě tohoto paketu.
 
-\subsubsection{Transportní vrstva}
+\subsubsection{Transportní vrstva}\label{layers:transport}
 Transportní vrstva pracuje s datovou strukturou zvanou segmenty.
 Obsahují informace jako je kontrolní součet pro zjištění integrity dat,
 pořadové číslo rámce pro spojení dat, která byla na cestě k cíli rozdělena na více částí a také obsahuje čísla portů
@@ -90,18 +105,6 @@ Zpracování dat na úrovni transportní vrstvy a všech vyšších vrstev není
 zařízeních starajících se přenost dat po síti. Jediná zařízení, které implementují zpracování
 dat těchto vrstev jsou koncová zařízení.
 
-\subsubsection{Relační vrstva}
-
-
-\subsubsection{Prezentační vrstva}
-
-
-\subsubsection{Aplikační vrstva}
-Aplikační vrstva je vrstva, kde pracují uživatelské aplikace.
-Na této vrstvě může docházet ke kontrole přenášeného obsahu a k detekci možný útoků na uživatelské aplikace.
-
-
-
 \section{Časově kritické operace}
 S neustálím zvyšováním požadavků na rychlost síťového připojení také rostou nároky na rychlost
 algoritmů, které na síťových zařízeních pracují. Při rychlostech, které jsou dnes reálné je problém se zpracováním
@@ -116,60 +119,78 @@ narozdíl od obecných procesorů, které musejí zvládat mnohem větší reper
 \subsection{Teorie}
 
 Pro operace hledání hledání podřetězců a zpracování regulárních výrazů popsaných v kapitolách N a N
-jsou použity konečné automaty.
+jsou použity konečné automaty. Informace týkající se konečných automatů jsou převzaty z \cite{meduna}.
 
 Konečný automat je uspořádaná pětice
 
 \begin{huge}
-\begin{equation}\cite{meduna}
+\begin{equation}
 A=(Q,\Sigma, \sigma,q_0 ,F)
 \end{equation}
 \end{huge}
 
 Pro nedetermnistický konečný automat platí, že
 \begin{itemize}
-\item{\tt{Q} je množina stavů}
-\item{\tt{$\Sigma$} je množina vstupních symbolů}
-\item{\tt{$\sigma$} je přechodová fce $Q \times \{\Sigma \cup \epsilon\} \rightarrow Q$}
-\item{\tt{$q_0 \subseteq Q$} je množina počátečních stavů}
-\item{\tt{$F \subseteq Q$} je množina konečných stavů}
+\item{\texttt{$Q$} je množina stavů}
+\item{\texttt{$\Sigma$} je množina vstupních symbolů}
+\item{\texttt{$\sigma$} je přechodová fce $Q \times \{\Sigma \cup \epsilon\} \rightarrow Q$}
+\item{\texttt{$q_0 \subseteq Q$} je množina počátečních stavů}
+\item{\texttt{$F \subseteq Q$} je množina konečných stavů}
 \end{itemize}
 
 Pro nedetermnistický konečný automat platí, že
 
 \begin{itemize}
-\item{\tt{Q} je množina stavů}
-\item{\tt{$\Sigma$} je množina vstupních symbolů}
-\item{\tt{$\sigma$} je přechodová fce $Q \times \Sigma \rightarrow Q$}
-\item{\tt{$q_0 \in Q$} je počáteční stav}
-\item{\tt{$F \subseteq Q$} je množina konečných stavů}
+\item{\texttt{Q} je množina stavů}
+\item{\texttt{$\Sigma$} je množina vstupních symbolů}
+\item{\texttt{$\sigma$} je přechodová fce $Q \times \Sigma \rightarrow Q$}
+\item{\texttt{$q_0 \in Q$} je počáteční stav}
+\item{\texttt{$F \subseteq Q$} je množina konečných stavů}
 \end{itemize}
 % todo zdroj https://books.google.cz/books?id=s7gEErax71cC&vq=determinization&hl=cs&source=gbs_navlinks_s
-Determinizace automatu se provádí pomocí dvou funkcí.
-První z nich je epsilon uzávěr a druhá je tzv move funkce.
 
-\subsubsection{epsilon-uzávěr} %todo nezobrazuje se jako nadpis
-asda
+\subsubsection{Determinizace} %todo nezobrazuje se jako nadpis
+Determinizace automatu je popsána algoritmem \ref{alg:determinization}.
+Při determinizace je využito dvou funkcí, první z nich je $\epsilon$-uzávěr, jehož kód je popsaný v \ref{alg:epsilon} a druhá je tzv move funkce popsaná v \ref{alg:move}
+
+\subsubsection{Epsilon-uzávěr} %todo nezobrazuje se jako nadpis
+Epsilon uzávěr je definován jako množina stavů, ze které je možné dostat se do množiny stavů pomocí přechodu
+$\epsilon$.
+
+\subsubsection{Move funkce}
+Move funkce je definována jako přechod z jednoho stavu při zpracování vstupního znaku $a$.
 
 \begin{algorithm}[H]
+	\label{alg:determinization}
 	\KwData{Počáteční stav nedeterministeckého automatu}
 	\KwResult{Deterministický konečný automat}
 	state $\leftarrow$ EpsilonClosure(nfa-start)\;
 	unprocessed.push(state)\;
+	created.push(state)\;
 	\While{!unprocessed.empty()}
 	{
 		state $\leftarrow$ unprocessed.pop()\;
 		\ForEach{symbol $s$ in $input\_alphabet$}
 		{
-			x $\leftarrow$  move(processing state, s)\;
-			y $\leftarrow$  EpsilonClosure(x)\;
-			% todo dopsat
+			move $\leftarrow$  move(state, s)\;
+			closure $\leftarrow$  EpsilonClosure(move)\;
+
+			existing $\leftarrow$ created.find(closure)\;
+			\If{!existing}
+			{
+				new $\leftarrow$ createState(closure)\;
+				unprocessed.push(new)\;
+				created.push(new)\;
+			}
+			\lElse
+			{
+				addTransition(state, existing, s)\;
+			}
 		}
 	}
+	\Return{created.first()}
 	\caption{Determinize konečného automatu}
 \end{algorithm}
-
-\subsubsection{determinizace} %todo nezobrazuje se jako nadpis
 
 \subsection{Regulární výrazy}
 
@@ -211,20 +232,47 @@ Regulární výrazy implementované v této knihovně rozšiřují množinu oper
 	\item{$a?$ je definováno jako $0..1$ iterací}
 \end{itemize}
 
+\subsection{Hledání nejdelšího prefixu}
+Hledání nejdelšího shodného prefixu se používá při směrování paketů.
+Pro docílení nejlepší efektivity při přeposílání paketů je nutné znát co nejpřesněji další místo, na které je paket třeba doručit.
+Toho je řešeno prohledáváním routovací tabulky.
+Pro dosažení větší rychlosti je routovací tabulka v paměti směrovače uložena v jiných strukturách, které tabulce neodpovídají.
+V této práci jsou pro uložení routovací tabulky využity algoritmy {\tt Binary search on prefix length} a {\tt TreeBitmap}.
+Oba jsou variací obecně n-árního stromu.
+
+Při chybě alokace dojde na rozdíl od odstatních podúloh k zanechání již vytvořené fungující struktury
+a to z důvodu předpokladu, že routovací tabulka se mění v čase běhu programu
+
+\subsubsection{TreeBitmap}
 \begin{algorithm}
-	\KwData{start-state, text}
-	\KwResult{keyword}
-	state = start-state\;
-	\For{position $\leftarrow$ 0 \KwTo text.length}
+	\KwData{tbm-root, ip, ip-length}
+	\KwResult{routing rule}
+	node $\leftarrow$ tbm-root\;
+	position $\leftarrow$ 0\;
+	\Repeat{BIT(parent.external, bits)}
 	{
-		\lWhile{goto(state, text[position]) == FAIL}{state $\leftarrow$ state.failure}
-		\lIf{state.isMatch}{\Return state.keyword}
+		bits $\leftarrow$ get-stride-bits(ip, position, prefix-length)\;
+		position $\leftarrow$ position + STRIDE\;
+
+		\If{isRule(node.internal, bits)}
+		{
+			longest-match = node\;
+		}
+
+		index $\leftarrow$ ones(node.external, bits)\;
+		parent $\leftarrow$ node\;
+		node $\leftarrow$ node.external[index]\;
 	}
-	\Return NOT-MATCH\;
-	\caption{Algoritmus procházení textu a hledání podřetězců}
+	\Return longest-match\;
+	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
 \end{algorithm}
 
-\cite{aho}
+
+Z \cite{tbm} vyplívá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
+na které je sousředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjišténo,
+že tato implementace je funkční až do velikost střídy 13bitů.
+
+\subsubsection{Binary search on prefix length}
 
 \begin{algorithm}
 	\KwData{bspl-root, hash-table, ip, ip-length}
@@ -258,120 +306,84 @@ protože je potřeba uchovávat stromovou strukturu pro binary search on prefix 
 mít kratší prefixy v hashovací tabulce, kde dochází k rozhodnutí zda má vyhledávání směřovat k delším nebo kratším prefixům.
 \cite{bspl}
 
-\begin{algorithm}
-	\KwData{tbm-root, ip, ip-length}
-	\KwResult{routing rule}
-	node $\leftarrow$ tbm-root\;
-	position $\leftarrow$ 0\;
-	\Repeat{BIT(parent.external, bits)}
-	{
-		bits $\leftarrow$ get-stride-bits(ip, position, prefix-length)\;
-		position $\leftarrow$ position + STRIDE\;
-
-		\If{isRule(node.internal, bits)}
-		{
-			longest-match = node\;
-		}
-
-		index $\leftarrow$ ones(node.external, bits)\;
-		parent $\leftarrow$ node\;
-		node $\leftarrow$ node.external[index]\;
-	}
-	\Return longest-match\;
-	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
-\end{algorithm}
-
-Z \cite{tbm} vyplívá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
-na které je sousředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjišténo,
-že tato implementace je funkční až do velikost střídy 13bitů.
-
-\subsection{Hledání nejdelšího prefixu}
-Hledání nejdelšího shodného prefixu se používá při směrování paketů.
-Pro docílení nejlepší efektivity při přeposílání paketů je nutné znát co nejpřesněji další místo, na které je paket třeba doručit.
-Toho je řešeno prohledáváním routovací tabulky.
-Pro dosažení větší rychlosti je routovací tabulka v paměti směrovače uložena v jiných strukturách, které tabulce neodpovídají.
-V této práci jsou pro uložení routovací tabulky využity algoritmy {\tt Binary search on prefix length} a {\tt TreeBitmap}.
-Oba jsou variací obecně n-árního stromu.
-
-Při chybě alokace dojde na rozdíl od odstatních podúloh k zanechání již vytvořené fungující struktury
-a to z důvodu předpokladu, že routovací tabulka se mění v čase běhu programu
 
 \subsection{Hledání podřetězců}
 Pro hledání potřetězců je implementován algoritmus autorů Aho a Corasicové. Tento algoritmus používá pro zjištění shody s podřetězcem konceptu konečného automatu. Při každé iteraci algoritmu se provede přechod o jeden znak.
 
 \subsubsection{Aho-Corasick}
-efektivita aho-coracick algoritmu je velkým dílem závislá na tom, zda se veškerá paměť použitá k uložení vyhledávaných slov veljde do cache paměti stroje, na kterém poběží.
+Algoritmus procházení vstupních dat je rozepsán v \ref{alg:aho} a vychází z \cite{aho}.
 
-Na klasickém desktopovém počítači je několik vrstev cache pamětí.
-Pokud budeme brát v úvahu jednotlivé vrstvy samostatně, tak do
-velikost jednoho stavu automatu se může výrazně lišit v závislosti počtu následovníků a počtu
-pravidel, které nejsou přímo v tomto stavu, ale jsou to podřetězce tohoto stavu.
-Tyto podřetězce byly zjištěny iterativním procházením automatu od hloubky 0 a procházení tzv. failure cest, kdy každý stav navštívený failure průchodem obsahující pravidlo znamená že stav, pro který se hledá failure cesta obsahuje podpravidlo vyhovující právě tomuto stavu.
-L1 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
-L2 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
-L3 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
-L4 se vejde XXXXX stavů automatu, což může reprezentovat právě XXX slov o délce NNNN znaků.
+\begin{algorithm}
+	\KwData{start-state, text}
+	\KwResult{keyword}
+	state = start-state\;
+	\For{position $\leftarrow$ 0 \KwTo text.length}
+	{
+		\lWhile{goto(state, text[position]) == FAIL}{state $\leftarrow$ state.failure}
+		\lIf{state.isMatch}{\Return state.keyword}
+	}
+	\Return NOT-MATCH\;
+	\caption{Algoritmus procházení textu a hledání podřetězců}
+\end{algorithm}\label{alg:aho}
 
-Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické přidávání pravidel za běhu programu
+Při chybě alokace se smaže celá struktura konečeného automatu, neexistuje předpoklad na dynamické přidávání pravidel za běhu programu
 
 \subsubsection{Regulární výrazy}
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[scale=.25]{fig/regex-block.pdf}
-	\caption{Znázornění průchodu dat počítačovou sítí}
+	\caption{Znázornění konečného automatu reprezentujícího operaci A}
 	\label{fig:regex-block}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[scale=.25]{fig/regex-concat.pdf}
-	\caption{Znázornění průchodu dat počítačovou sítí}
+	\caption{Znázornění konečného automatu reprezentujícího operaci A . B}
 	\label{fig:regex-concat}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[scale=.25]{fig/regex-dot.pdf}
-	\caption{Znázornění průchodu dat počítačovou sítí}
+	\caption{Znázornění konečného automatu reprezentujícího operaci tečka .}
 	\label{fig:regex-dot}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[scale=.25]{fig/regex-or.pdf}
-	\caption{Znázornění průchodu dat počítačovou sítí}
+	\caption{Znázornění konečného automatu reprezentujícího operaci A|B}
 	\label{fig:regex-or}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[scale=.25]{fig/regex-star.pdf}
-	\caption{Znázornění průchodu dat počítačovou sítí}
+	\caption{Znázornění konečného automatu reprezentujícího operaci A*}
 	\label{fig:regex-star}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[scale=.25]{fig/regex-plus.pdf}
-	\caption{Znázornění průchodu dat počítačovou sítí}
+	\caption{Znázornění konečného automatu reprezentujícího operaci A+}
 	\label{fig:regex-plus}
 \end{figure}
 
 \begin{figure}[!htb]
 	\centering
 	\includegraphics[scale=.25]{fig/regex-questionmark.pdf}
-	\caption{Znázornění průchodu dat počítačovou sítí}
+	\caption{Znázornění konečného automatu reprezentujícího operaci A?}
 	\label{fig:regex-questionmark}
 \end{figure}
-% TODO konstrukce NFA
-% TODOkonstrukce DFAz NFA
-% TODO konstrukce MDFA z DFA
 
-Při chybě alokace se smaže celý výraz, neexistuje předpoklad na dynamické přidávání pravidel
-regulárních výrazů za běhu programu
 
-\chapter{Návrh API knihovny}
+Při chybě alokace se smaže celá struktura regulárního výrazu, neexistuje předpoklad na
+dynamické přidávání regulárních výrazů za běhu programu.
+
+\chapter{Návrh API knihovny}\label{chapter:api}
 Knhovna \texttt{fastnet} je navržena jako množina menších knihoven, kde každá knihovna implementuje
 jednu operaci používanou při zpracování síťového provozu.
 Tímto návrhem je dosaženo snadné rozšiřitelnosti o další operace, jako například extrakce informací z hlaviček paketů
@@ -517,7 +529,7 @@ Pro deterministické konečné automaty jsou to tyto funkce.
 \end{Verbatim}
 
 Pro vytvoření regulárních výrazů je podobně jako u hledání podřetězců \ref{}
-použita pomocná struktura \texttt{regex\_pattern}, která je předávána do funkcí \texttt{regex\_\[nfa\|dfa\]\_construct}.
+použita pomocná struktura \texttt{regex\_pattern}, která je předávána do funkcí \texttt{regex\_[nfa|dfa]\_construct}.
 Výsledný konečný automat, ať už deterministický nebo nedeterministický je výsledek spojení jednotlivých
 konečných automatů pro každý regulární výraz. Tím je umožněna detekce shody několika
 regulární výrazů v jednom průchodu vstupními daty i s přesnou identifikací jaký regulární
@@ -550,7 +562,31 @@ hlavičkové soubory jsou rozděleny na veřejné a privátní rozhraní, kde pr
 Jako výchozí hlavičkový soubor je použit types.h, který obsahuje definice datových struktur pro všechny algoritmy v podknihovně, které musí být viditelné i z veřejného rozhraní. Dalším souborem je types-precompiled.h, který je generován z types.h při překladu když se vybírá používaný algoritmus. common.h je hlavičkový soubor společný pro všechny algoritmy v podknihovně a algortihm.h pak obsahuje deklarace právě pro jeden konkrétní algoritmus.
 sublib.h je pak hlavičkový soubor, který tvoří veřejné rozhraní ke knihovním funkcím.
 
-\chapter{Výsledky}
+\subsection{Použití knihovny}
+Celou knihovnu je možné sestavit příkazem \texttt{make all} v hlavním adresáři knihovny.
+Při tomto příkazu bude celá knihovna sestavena s definovaným NDEBUG, což má za následek vypuštění všech
+volání funkce assert, která slouží pro ověřovaní správné funkčnosti.
+
+Dalšími cíly pro program \texttt{make} jsou
+
+\begin{itemize}
+	\item{\texttt{test} - spustí automatické testování všech částí knihovny}
+	\item{\texttt{bech} - spustí benchmarky všech částí knihovny}
+	\item{\texttt{clean} - smaže všechny soubory vytvořené překladem}
+\end{itemize}
+
+\subsection{Rošíření knihovny}
+
+Pro rozšíření knihovny je nutné přidat knihovnu implementující danou operaci
+do adresáře \texttt{lib/src} a upravit příslušný soubor \texttt{Makefile} v daném adresáři.
+Dále je vhodné vytvořit testovací program a sadu testů, kterou je možné automatizovaně spouštět a vyhodnocovat.
+Tyto soubory pak umístit do adresáře \texttt{lib/test/<operace>}.
+Další vhodnou součástí knihovny operace je benchmark pro vyhodnocení rychlosti/paměťové náročnosti jednotlivých
+implementací dané operace.
+
+
+\chapter{Výsledky}\label{chapter:results}
+
 \section{Hledání nejdelšího shodného prefixu}
 U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu {\tt \_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
 
@@ -568,27 +604,29 @@ U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešo
 \label{fig:lpm-ipv4}
 \end{figure}
 
-\chapter{Závěr}
+\chapter{Závěr}\label{chapter:conclusion}
 Závěrečná kapitola obsahuje zhodnocení dosažených výsledků se zvlášť vyznačeným vlastním přínosem studenta. Povinně se zde objeví i zhodnocení z pohledu dalšího vývoje projektu, student uvede náměty vycházející ze zkušeností s řešeným projektem a uvede rovněž návaznosti na právě dokončené projekty.
-
-\section{Další vývoj projektu}
-
-Jako další kroky pro vylepšení knihovny bych zvolil optimalizaci implementovaných algoritmů dle
-
-Stress testing
-- ověřit že se knihovna chová dle specifikace i při nedostaku paměti a v případech, kdy dojde k malloc nullu
-a provolávají se různé funkce
 
 %=========================================================================
 
-Celou knihovnu je možné sestavit příkazem \texttt{make all} v hlavním adresáři knihovny.
-Při tomto příkazu bude celá knihovna sestavena s definovaným NDEBUG, což má za následek vypuštění všech
-volání funkce assert, která slouží pro ověřovaní správné funkčnosti.
+\section{Další vývoj knihovny}
 
-Dalšími cíly pro program \texttt{make} jsou
+V následujících krocích tvorby knihovny \texttt{fastnet} bude vhodné implementovat operace
+navržené v kapitole \ref{} s alespoň jedním algoritmem pro každou z uvedených operací.
 
-\begin{itemize}
-	\item{\texttt{test} - spustí automatické testování všech částí knihovny}
-	\item{\texttt{bech} - spustí benchmarky všech částí knihovny}
-	\item{\texttt{clean} - smaže všechny soubory vytvořené překladem}
-\end{itemize}
+Dále je možné provést optimalizace jednotlivých algoritmů z pohledu jak paměťové tak i časové náročnosti.
+
+\subsection{Optimalizace}
+U implementace \texttt{Binary search on prefix length} je možné rozdělit strukturu \texttt{\_bspl\_node}
+na dvě a to jednu pro každou verzi IP protokolu. Tím se dosáhne snížení paměťové náročnosti
+pro každý uzel o 12B.
+
+Další optimalizací je přepsání leaf-pushing do iterativní průchod za použití morrisova algoritmu.
+
+Dále je možné spojit položky \texttt{type} a \texttt{prefix\_length} struktury \texttt{\_bspl\_node}
+do jednoho byte. To je možné z důvodu rozsahu \texttt{prefix\_length} $1-128$ a pouze dvou typů uzlu,
+což je možné reprezentovat jedním bytem.
+
+\subsection{Stress-testing}
+- ověřit že se knihovna chová dle specifikace i při nedostaku paměti a v případech, kdy dojde k malloc nullu
+a provolávají se různé funkce
