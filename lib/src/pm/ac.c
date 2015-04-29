@@ -89,13 +89,13 @@ _Bool _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		state->next[i]->failure = root;
 
 		// "every path in root state is defined" => skip those with no real follower
-		if(queue_insert(queue_, state->next[i]) == 0) return queue_destroy(queue_), 0;
+		if(queue_insert(queue_, state->next[i], POINTER) == 0) return queue_destroy(queue_), 0;
 	}
 
 
 	while(!queue_empty(queue_))
 	{
-		r = queue_front(queue_);
+		r = queue_front(queue_).pointer;
 
 		unsigned length = r->path_count;
 
@@ -104,7 +104,7 @@ _Bool _ac_construct_failure(pm_root * root, PM_RULE removed_rule)
 		{
 			s = r->next[i];
 
-			if(queue_insert(queue_, s) == 0) return queue_destroy(queue_), 0;
+			if(queue_insert(queue_, s, POINTER) == 0) return queue_destroy(queue_), 0;
 			state = r->failure;
 			// find failure path
 			while((goto_pos = _ac_goto(state, r->key[i])) == FAIL)

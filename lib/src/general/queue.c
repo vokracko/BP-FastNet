@@ -13,7 +13,7 @@ queue * queue_init()
 
 	if(root == NULL) return errno = FASTNET_OUT_OF_MEMORY, NULL;
 
-	root->data = malloc(sizeof(void *) * _QUEUE_DEFAULT_SIZE);
+	root->data = malloc(sizeof(queue_item) * _QUEUE_DEFAULT_SIZE);
 
 	if(root->data == NULL)
 	{
@@ -46,15 +46,15 @@ void queue_destroy(queue * root)
 	free(root);
 }
 
-_Bool queue_insert(queue * root, void * value)
+_Bool queue_insert(queue * root, void * pointer, char value_type)
 {
 	assert(root != NULL);
 
-	void ** new_data;
+	queue_item * new_data;
 
 	if(!queue_empty(root) && root->end == root->start)
 	{
-		new_data = realloc(root->data, sizeof(void *) * (root->size + _QUEUE_DEFAULT_SIZE));
+		new_data = realloc(root->data, sizeof(queue_item) * (root->size + _QUEUE_DEFAULT_SIZE));
 
 		if(new_data == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
 
@@ -70,21 +70,108 @@ _Bool queue_insert(queue * root, void * value)
 	}
 
 	root->empty = 0;
-	root->data[root->end] = value;
+	root->data[root->end].value.pointer = pointer;
+	root->data[root->end].type = value_type;
 	_increment(root, 0);
 
 	return 1;
 }
 
-void * queue_front(queue * root)
+queue_value queue_front(queue * root)
 {
 	assert(root != NULL);
 	assert(root->data != NULL);
 	assert(!queue_empty(root));
 
-	void * res = root->data[root->start];
+	queue_value res = root->data[root->start].value;
 
 	if(root->end == _increment(root, 1)) root->empty = 1;
 
 	return res;
+}
+
+stack_value stack_pop(stack * root)
+{
+	assert(root != NULL);
+	assert(!stack_empty(root));
+
+	stack_value value = root->data[--root->end].value;
+
+	if(root->end == root->start) root->empty = 1;
+
+	return value;
+}
+stack_value stack_top(stack * root)
+{
+	assert(root != NULL);
+	assert(!stack_empty(root));
+
+	return root->data[root->end - 1].value;
+}
+
+
+stack_value stack_top_type(stack * root, char value_type)
+{
+	assert(root != NULL);
+	assert(!stack_empty(root));
+
+	for(int i = root->end - 1; i >= 0; --i)
+	{
+		if(root->data[i].type == value_type)
+		{
+			return root->data[i].value;
+		}
+	}
+
+	assert(0);
+}
+
+void stack_free_pointers(stack * root, void (*function) (void *))
+{
+	assert(root != NULL);
+	assert(function != NULL);
+
+	for(unsigned i = 0; i < root->end; ++i)
+	{
+		if(root->data[i].type == POINTER)
+		{
+			function(root->data[i].value.pointer);
+		}
+	}
+}
+
+_Bool stack_contains(stack * root, void * pointer, char value_type)
+{
+	assert(root != NULL);
+
+	for(unsigned i = 0; i < root->end; ++i)
+	{
+		if(root->data[i].type == value_type && root->data[i].value.pointer == pointer) return 1;
+	}
+
+	return 0;
+}
+
+void * stack_find(stack * root, stack_value value, _Bool (*match) (stack_value, stack_value))
+{
+	assert(root != NULL);
+
+	for(unsigned i = 0; i < root->end; ++i)
+	{
+		if(match(root->data[i].value, value) == 1) return root->data[i].value.pointer;
+	}
+
+	return NULL;
+}
+
+_Bool stack_push_unique(stack * root, void * pointer, char value_type)
+{
+	assert(root != NULL);
+
+	return stack_contains(root, pointer, value_type) ? 1 : stack_push(root, pointer, value_type);
+}
+
+unsigned stack_size(stack * root)
+{
+	return root->end;
 }
