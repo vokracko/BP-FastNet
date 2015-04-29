@@ -1,5 +1,5 @@
 OUTPUT=""
-LIB=../../lib/pm
+LIB=../../src/pm
 ALG="ac"
 
 .PHONY: .FORCE

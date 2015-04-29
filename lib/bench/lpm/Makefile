@@ -1,6 +1,6 @@
 STRIDE=2
 OUTPUT=""
-LIB=../../lib/lpm
+LIB=../../src/lpm
 
 .PHONY: .FORCE
 

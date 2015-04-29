@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include "../../lib/pm/pm.h"
+#include "../../src/pm/pm.h"
 
 
 void free_keywords(pm_keyword * keywords, unsigned * count)

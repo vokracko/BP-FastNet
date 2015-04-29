@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-#include "../../lib/regex/regex.h"
+#include "../../src/regex/regex.h"
 
 void handle_escape(char * input)
 {

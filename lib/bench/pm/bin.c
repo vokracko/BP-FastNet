@@ -1,4 +1,4 @@
-#include "../../lib/pm/pm.h"
+#include "../../src/pm/pm.h"
 #include <string.h>
 #include <time.h>
 #include <stdbool.h>

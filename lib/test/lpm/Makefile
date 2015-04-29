@@ -1,6 +1,6 @@
 CC=gcc
 FLAGS=-std=c99 -Wall -Wextra -g3 -O0
-LIB=../../lib/lpm/
+LIB=../../src/lpm/
 
 all:
 	@make bspl

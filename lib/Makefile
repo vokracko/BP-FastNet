@@ -2,7 +2,7 @@
 all:lib
 
 lib: .FORCE
-	make -C lib/ all
+	make -C src/ all
 
 test: .FORCE
 	make -C test/
@@ -18,9 +18,9 @@ doc: .FORCE
 
 clean: .FORCE
 	find ./doc/* | grep -v "config" | xargs rm -rf # remove generated documentation
-	make -C bench clean
-	make -C lib clean
-	make -C test clean
+	make -C bench/ clean
+	make -C src/ clean
+	make -C test/ clean
 	rm -rf *.zip *.tar *tar.gz 2 > /dev/null
 
 .FORCE:

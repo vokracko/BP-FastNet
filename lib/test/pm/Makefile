@@ -1,6 +1,6 @@
 CC=gcc
 FLAGS=-std=c99 -Wall -Wextra -g3 -O0
-LIB=../../lib/pm
+LIB=../../src/pm
 
 all:
 	@make ac

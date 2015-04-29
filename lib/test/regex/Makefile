@@ -1,6 +1,6 @@
 CC=gcc
 FLAGS=-std=c99 -Wall -Wextra -g3 -O0
-LIB=../../lib/regex
+LIB=../../src/regex
 
 all:
 	@make nfa

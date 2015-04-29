@@ -1,5 +1,0 @@
-CREATE fastnet.a
-ADDLIB lpm/lpm.a
-ADDLIB regex/regex.a
-SAVE
-END

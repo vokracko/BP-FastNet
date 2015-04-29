@@ -1,4 +1,4 @@
-#include "../../lib/lpm/lpm.h"
+#include "../../src/lpm/lpm.h"
 #include <string.h>
 #include <time.h>
 #include <stdlib.h>

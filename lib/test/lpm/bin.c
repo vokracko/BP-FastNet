@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include "../../lib/lpm/lpm.h"
+#include "../../src/lpm/lpm.h"
 
 #define ADD ipv6 ? lpm6_add(root6, &addr6, first, second) : lpm_add(root, &addr, first, second)
 #define INIT if(ipv6) root6 = lpm6_init(first); else root = lpm_init(first)
