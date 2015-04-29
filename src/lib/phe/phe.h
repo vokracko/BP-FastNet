@@ -6,7 +6,7 @@ typedef union
 	uint32_t number;
 	uint16_t number16;
 	char character;
-	in_addr addr;
+	struct in_addr addr;
 } phe_item;
 
 typedef union
@@ -14,7 +14,7 @@ typedef union
 	uint32_t number;
 	uint16_t number16;
 	char character;
-	in6_addr addr;
+	struct in6_addr addr;
 } phe6_item;
 
 _Bool phe_get(char * input, phe_item * items, ...);
