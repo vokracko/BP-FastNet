@@ -1,3 +1,4 @@
+#include "../general/queue.h"
 #include "common.h"
 #include <strings.h>
 #include <limits.h>
@@ -105,7 +106,7 @@ unsigned _precedence(stack *stack_, short current);
 _Bool _reduce(stack *stack_);
 _Bool _dfa_epsilon_closure(stack *nfa, stack *closure);
 _Bool _dfa_move(stack *input_states, stack *output_states, char character);
-_Bool _dfa_match_processed(stack_item_value first, stack_item_value second);
+_Bool _dfa_match_processed(stack_value first, stack_value second);
 regex_nfa *_nfa_construct(regex_pattern pattern);
 regex_dfa *_nfa_convert(regex_nfa *root);
 regex_nfa *regex_construct_nfa(regex_pattern *patterns, unsigned count);
