@@ -627,6 +627,8 @@ V knihovně je již navrženo API pro operaci klasifikace paketů.
 
 
 \chapter{Výsledky}\label{chapter:results}
+Tato kapitula shrnuje a vizualizuje dosažené výsledky při implementaci jednotlivých knihoven.
+Benchmarky pro architekturu Intel proběhly na operačním systému Archlinux \footnote{https://www.archlinux.org/} s procesorem Intel(R) Core(TM) i3-2310M CPU @ 2.10GHz.
 
 \section{Hledání nejdelšího shodného prefixu}
 U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu {\tt \_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
