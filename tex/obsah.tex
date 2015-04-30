@@ -1,17 +1,12 @@
 %=========================================================================
 
 \chapter{Úvod}
-V dnešních počítačových sítích dosahují přenosové rychlosti desítek gigabitů začíná se narážet na
-časové limity algoritmů, jejichž účelem je zpracovávat síťová data na a sekundu
-a aktuálně používané algortimy se stávají úzkým hrdlem síťových zařízení.
-a začíná narážet na časové limity algoritmů, jejichž účelem je zpracovávat síťová data na
-a vzniká spousta problémů se zpracování síťového provozu stávajícími technologiemi tak,
- aby nedošlo ke zdržení dat právě v zařízeních starajících se o toto zpracvování.
-Tato práce se zabývá implementací která je schopna pracovat i v nejvyšších rychlostech.
-Jedná se knihovna, která se skládá ze operací využívaných pro směrování dat v počítačových sítích
-a jejich kontrolu na přítomnost škodlivého obsahu. Cílem knihovny je vytvořit implementaci, která bude
-co možná nejrychlejší i s ohledem na paměťové nároky, jelikož síťová zař9zení na kterých může být použita
-využívají různé úrovně kešování dat a při správné optimalize by nemuselo docházet k ž8dným cache-misům.
+V dnešních počítačových sítích dosahují přenosové rychlosti desítek gigabitů a z toho důvodu vzniká
+potřeba implementace algoritmů, které bude schopné na těchto rychlost síťová data zpracovávat.
+Tato práce se zabývá implementací knihovny implementující soubor operací využívaných v počítačových sítích.
+Jedná se knihovnu, která se skládá z operací hledání nejdelšího shodného prefixu,
+využívaných pro směrování dat v počítačových sítích, a prohledávání vstupních dat na přítomnosti
+definovaných slov nebo regulárních výrazů.
 
 V kapitole \ref{chapter:theoretical} jsou popsány síťové modely, nad nimiž jsou operace této knihovny implementovány,
 formální prostředky pro implementaci zvolených algoritmů a samotné algoritmy. Kapitola \ref{chapter:api} popisuje
@@ -105,96 +100,23 @@ zařízeních starajících se přenost dat po síti. Jediná zařízení, kter�
 dat těchto vrstev jsou koncová zařízení.
 
 \section{Časově kritické operace}
-S neustálím zvyšováním požadavků na rychlost síťového připojení také rostou nároky na rychlost
-algoritmů, které na síťových zařízeních pracují. Při rychlostech, které jsou dnes reálné je problém se zpracováním
-síťových operací, které mají k dispozici pouze několik desítek procesorových instrukcí pro zpracování jednoho požadavku
-pokud bereme v úvahu veřejností používané procesory.
+S neustálím zvyšováním požadavků na rychlost síťového připojení také rostou nároky na rychlost algoritmů,
+které zpracovávají data na síťových zařízeních. Při rychlostech, které jsou dnes dosažitelné mají normální
+procesory pouze malý počet procesorových instrukcí na zpracování celé komunikace.
 
 Proto v posledních letech nabírá na obrátkách trend pro využítí ASIC čipů nebo programovatelných hradlových polí.
 Tyto prvky totiž umožňují rychlejší zpracování s řádově menšími požadavky.
-Tohoto rychlostního rozdílu je dosaženo právě díky specializaci čípů na provádění jedné specializované operace na což jsou uzpůsobeny
-narozdíl od obecných procesorů, které musejí zvládat mnohem větší repertoár operací.
+Tohoto rychlostního rozdílu je dosaženo právě díky specializaci čípů na provádění jedné specializované
+operace na což jsou uzpůsobeny narozdíl od obecných procesorů, které musejí zvládat mnohem větší repertoár operací.
 
 \subsection{Teorie}
 
-Pro operace hledání hledání podřetězců a zpracování regulárních výrazů popsaných v kapitolách N a N
-jsou použity konečné automaty. Informace týkající se konečných automatů jsou převzaty z \cite{meduna}.
-
-Konečný automat je uspořádaná pětice
-
-\begin{huge}
-\begin{equation}
-A=(Q,\Sigma, \sigma,q_0 ,F)
-\end{equation}
-\end{huge}
-
-Pro nedetermnistický konečný automat platí, že
-\begin{itemize}
-	\item{\texttt{$Q$} je množina stavů}
-	\item{\texttt{$\Sigma$} je množina vstupních symbolů}
-	\item{\texttt{$\sigma$} je přechodová fce $Q \times \{\Sigma \cup \epsilon\} \rightarrow Q$}
-	\item{\texttt{$q_0 \subseteq Q$} je množina počátečních stavů}
-	\item{\texttt{$F \subseteq Q$} je množina konečných stavů}
-\end{itemize}
-
-Pro nedetermnistický konečný automat platí, že
-
-\begin{itemize}
-	\item{\texttt{Q} je množina stavů}
-	\item{\texttt{$\Sigma$} je množina vstupních symbolů}
-	\item{\texttt{$\sigma$} je přechodová fce $Q \times \Sigma \rightarrow Q$}
-	\item{\texttt{$q_0 \in Q$} je počáteční stav}
-	\item{\texttt{$F \subseteq Q$} je množina konečných stavů}
-\end{itemize}
-% todo zdroj https://books.google.cz/books?id=s7gEErax71cC&vq=determinization&hl=cs&source=gbs_navlinks_s
-
-\subsubsection{Determinizace} %todo nezobrazuje se jako nadpis
-Determinizace automatu je popsána algoritmem \ref{alg:determinization}.
-Při determinizace je využito dvou funkcí, první z nich je $\epsilon$-uzávěr, jehož kód je popsaný v \ref{alg:epsilon} a druhá je tzv move funkce popsaná v \ref{alg:move}
-
-\subsubsection{Epsilon-uzávěr} %todo nezobrazuje se jako nadpis
-Epsilon uzávěr je definován jako množina stavů, ze které je možné dostat se do množiny stavů pomocí přechodu
-$\epsilon$.
-
-\subsubsection{Move funkce}
-Move funkce je definována jako přechod z jednoho stavu při zpracování vstupního znaku $a$.
-
-\begin{algorithm}[H]
-	\label{alg:determinization}
-	\KwData{Počáteční stav nedeterministeckého automatu}
-	\KwResult{Deterministický konečný automat}
-	state $\leftarrow$ EpsilonClosure(nfa-start)\;
-	unprocessed.push(state)\;
-	created.push(state)\;
-	\While{!unprocessed.empty()}
-	{
-		state $\leftarrow$ unprocessed.pop()\;
-		\ForEach{symbol $s$ in $input\_alphabet$}
-		{
-			move $\leftarrow$  move(state, s)\;
-			closure $\leftarrow$  EpsilonClosure(move)\;
-
-			existing $\leftarrow$ created.find(closure)\;
-			\If{!existing}
-			{
-				new $\leftarrow$ createState(closure)\;
-				unprocessed.push(new)\;
-				created.push(new)\;
-			}
-			\lElse
-			{
-				addTransition(state, existing, s)\;
-			}
-		}
-	}
-	\Return{created.first()}
-	\caption{Determinize konečného automatu}
-\end{algorithm}
+Pro operace hledání hledání podřetězců a zpracování regulárních výrazů popsaných v kapitolách \ref{} a \ref{}
+jsou použity konečné automaty.
 
 \subsection{Regulární výrazy}
 
 Regulární výrazy slouží pro popis operací nad jazykem.
-Jazyk je je definovaný jako blah nad vstupní abecedou.
 Jazek je definovaný jako iterace nad vstupní abecedou.
 Iterace může  být neutrální nebo kladná.
 V neutrální iteraci jazyka je oproti pozitivní iteraci zahrnut i symbol $\epsilon$,
@@ -223,7 +145,8 @@ Operace regulárních výrazů jsou následující
 Znak operace konkatenace % TODO přidat referenci na item nahoře
 se čast vynechává a je uvažován implicitně.
 
-Regulární výrazy implementované v této knihovně rozšiřují množinu operací o syntaktická pozlátka
+Regulární výrazy implementované v této knihovně rozšiřují množinu operací tři nové druhy zápisu,
+které jsou pouze pohodlněji zapsatelná a nijak nerozšiřují výrazové možnosti regulárníčh výrazů.
 
 \begin{itemize}
 	\item{$[abc]$ je výčet znaků, které se na vstupu mohou vyskytnout a automat je v aktuální stavu dokáže zpracovat. Je to zkrácený tvar zápisu $(a|b|c)$}
@@ -300,9 +223,7 @@ při shodě prefixu, který byl zadán s lichou délkou. V tomto případě bude
 Počet kroků v případě IPv4 bude 5 a v případě IPv6 adresy to pak bude 7.
 Zde je vidět že i v připadě čtyřikrát delší adresy se počet kroků pro vyhledání prefixu zvedne pouze o dva,
 což neplatí pro algoritmus TreeBitmap, který musí projít v nejhorším případě až čtyřikrát více
-uzlů aby nalezl odpovídající prefix. Ušetřené kroky se ale nijak neprojeví na paměťové náročnosti,
-protože je potřeba uchovávat stromovou strukturu pro binary search on prefix length a to z nutnosti
-mít kratší prefixy v hashovací tabulce, kde dochází k rozhodnutí zda má vyhledávání směřovat k delším nebo kratším prefixům.
+uzlů aby nalezl odpovídající prefix.
 \cite{bspl}
 
 
@@ -329,48 +250,6 @@ Při chybě alokace se smaže celá struktura konečeného automatu, neexistuje 
 
 \subsubsection{Regulární výrazy}
 
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=.25]{fig/regex-block.pdf}
-	\caption{Znázornění konečného automatu reprezentujícího operaci A}
-\end{figure}\label{fig:regex-block}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=.25]{fig/regex-concat.pdf}
-	\caption{Znázornění konečného automatu reprezentujícího operaci A . B}
-\end{figure}\label{fig:regex-concat}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=.25]{fig/regex-dot.pdf}
-	\caption{Znázornění konečného automatu reprezentujícího operaci tečka .}
-\end{figure}\label{fig:regex-dot}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=.25]{fig/regex-or.pdf}
-	\caption{Znázornění konečného automatu reprezentujícího operaci A|B}
-\end{figure}\label{fig:regex-or}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=.25]{fig/regex-star.pdf}
-	\caption{Znázornění konečného automatu reprezentujícího operaci A*}
-\end{figure}\label{fig:regex-star}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=.25]{fig/regex-plus.pdf}
-	\caption{Znázornění konečného automatu reprezentujícího operaci A+}
-\end{figure}\label{fig:regex-plus}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=.25]{fig/regex-questionmark.pdf}
-	\caption{Znázornění konečného automatu reprezentujícího operaci A?}
-\end{figure}\label{fig:regex-questionmark}
-
 
 Při chybě alokace se smaže celá struktura regulárního výrazu, neexistuje předpoklad na
 dynamické přidávání regulárních výrazů za běhu programu.
@@ -388,7 +267,7 @@ Hledání podřetězců je implementováno algoritmem \texttt{Aho-Corasick}\ref{
 Regulární výrazy jsou řešeny nedeterministickým i deterministickým konečným automatem.
 
 Další výhodou tohoto rozdělení je možnost snadno vytvořit a používat jednotlivé podknihovny samostatně.
-To se může hodit pro zařízení, která mají velmi limitované paměťové ůložiště a jejich účel
+To se může hodit pro zařízení, která mají velmi limitované paměťové ůložiště a jejich účelem
 je řešit pouze jednu ze zmíněných operací.
 
 Veřejné rozhraní knihovny se skládá z veřejných rozhraní jednotlivých podknihoven.
@@ -468,9 +347,9 @@ Pro použití programátorem jsou určeny pouze položky
 	\item{rule - pole s uloženými čísly vyhovujících pravidel}
 \end{itemize}
 
-Pro uložení výsledků procházení textu je možné používat různé struktury typu \texttt{pm\_result}
+Pro uložení výsledků procházení textu je možné používat různé proměnné typu \texttt{pm\_result}
 a je jen na programátory konkrétní aplikace jaký postup zvolí.
-V knihovně \texttt{pm} jsou implementováný funkce pro vytvoření a zničení této struktury.
+V knihovně \texttt{pm} jsou implementovány funkce pro vytvoření a zničení této struktury.
 
 % PM_RESULTAPI =================================================================================
 \begin{Verbatim}[commandchars=\\\{\}]
@@ -479,7 +358,7 @@ V knihovně \texttt{pm} jsou implementováný funkce pro vytvoření a zničení
 \end{Verbatim}
 
 
-Pro vkládání podřetězců je vytvořena vlastní datová sturktura, a pole těchto struktur je předáváno do funkce
+Pro vkládání podřetězců je vytvořena vlastní datová struktura, a pole těchto struktur je předáváno do funkce
 \texttt{pm\_add}. Důvodem pro tuto implementaci namísto přidávání jednotlivých podřetězců samostatně
 je relativně časově náročné procházení stavového automatu a generování tzv. failure přechodů,
 které je nutné provést po každé změně datové struktury.
