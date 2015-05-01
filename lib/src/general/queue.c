@@ -90,6 +90,30 @@ queue_value queue_front(queue * root)
 	return res;
 }
 
+_Bool stack_push(stack * root, void * pointer, char value_type)
+{
+	assert(root != NULL);
+
+	stack_item * new_data;
+
+	if(root->end == root->size)
+	{
+		new_data = realloc(root->data, sizeof(stack_item) * (root->size + _QUEUE_DEFAULT_SIZE));
+
+		if(new_data == NULL) return errno = FASTNET_OUT_OF_MEMORY, 0;
+
+		root->data = new_data;
+		root->size += _QUEUE_DEFAULT_SIZE;
+	}
+
+	root->empty = 0;
+	root->data[root->end].value.pointer = pointer;
+	root->data[root->end].type = value_type;
+	root->end++;
+
+	return 1;
+}
+
 stack_value stack_pop(stack * root)
 {
 	assert(root != NULL);
@@ -167,7 +191,6 @@ void * stack_find(stack * root, stack_value value, _Bool (*match) (stack_value, 
 _Bool stack_push_unique(stack * root, void * pointer, char value_type)
 {
 	assert(root != NULL);
-
 	return stack_contains(root, pointer, value_type) ? 1 : stack_push(root, pointer, value_type);
 }
 
