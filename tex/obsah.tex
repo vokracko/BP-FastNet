@@ -2,11 +2,15 @@
 
 \chapter{Úvod}
 V dnešních počítačových sítích dosahují přenosové rychlosti desítek gigabitů a z toho důvodu vzniká
-potřeba implementace algoritmů, které bude schopné na těchto rychlost síťová data zpracovávat.
+potřeba implementace algoritmů, které budou schopné na těchto rychlost síťová data zpracovávat.
+
 Tato práce se zabývá implementací knihovny implementující soubor operací využívaných v počítačových sítích.
 Jedná se knihovnu, která se skládá z operací hledání nejdelšího shodného prefixu,
 využívaných pro směrování dat v počítačových sítích, a prohledávání vstupních dat na přítomnosti
 definovaných slov nebo regulárních výrazů.
+
+Přínosem této knihovny je vlastní implementace zmíněných operací, která může sloužit jako vzor
+pro hardwarovou implementaci nekritičtějším částí zmíněných operací.
 
 V kapitole \ref{chapter:theoretical} jsou popsány síťové modely, nad nimiž jsou operace této knihovny implementovány,
 formální prostředky pro implementaci zvolených algoritmů a samotné algoritmy. Kapitola \ref{chapter:api} popisuje
@@ -23,20 +27,12 @@ kterými se může vývoj knihovny dále odvíjet.
 Zpracování dat síťového provozu je rozděleno do několika úrovní. Tyto úrovně jsou popsány síťovými modely.
 Základním modelem je ISO/OSI, který slouží pro abstraktní rozdělení operací zpracování síťových dat a jeho použití je
 pouze pro akademické účely. V reálných počítačových sítích pak dominuje model TCP/IP, který má oproti
-ISO/OSI modelu menší počet vrstev.
-
-\subsection{ISO/OSI}
-ISO/OSI model je rozdělen na sedm vrstem.
-
-\begin{enumerate}
-	\item{Fyzická vrstva / Vrstva síťového rozhraní}
-	\item{Linková vrstva}
-	\item{Síťová vrstva}
-	\item{Transportní vrstva}
-	\item{Relační vrstva}
-	\item{Prezentační vrstva}
-	\item{Aplikační vrstva}
-\end{enumerate}
+ISO/OSI modelu menší počet vrstev. Modelu ISO/OSI je rozdělen na sedm vrstev. V pořadí od nejnižší úrovně to
+jsou vrstvy fyzická, linková, síťová, transportní, relační, prezentační a aplikační. Pro tuto práci jsou
+podstatné pouze první čtyři vrsty. Ty jsou detailněji popsány v kapitolách \ref{layers:physical},
+\ref{layers:link}, \ref{layers:network} a \ref{layers:transport}. Na obrázku \ref{fig:layers} je
+znázorněn průchod dat jednotlivými vrstvamy modelu ISO/OSI. Jak je z obrázku patrné tak ne všechny síťové
+zařízení pracují na stejných vrstvách.
 
 \begin{figure}[!htb]
 	\centering
@@ -44,26 +40,12 @@ ISO/OSI model je rozdělen na sedm vrstem.
 	\caption{Znázornění průchodu dat počítačovou sítí v modelu ISO/OSI}
 \end{figure}\label{fig:layers}
 
-\subsection{TCP/IP}
-TCP/IP model se skládá pouze ze čtyř vrstev.
-
-\begin{enumerate}
-	\item{Vrstva síťové rozhraní}
-	\item{Síťová vrstva}
-	\item{Transportní vrstva}
-	\item{Aplikační vrstva}
-\end{enumerate}
-
-\subsection{Popis vrstev síťových modelů}
-V následující kapitole jsou stručně popsány jednotlivé vrstvy IOS/OSI modelu,
-které jsou důležité pro tuto práci.
-
-\subsubsection{Fyzická vrstva / Vrstva síťového rozhraní}\label{layers:physical}
+\subsection{Fyzická vrstva / Vrstva síťového rozhraní}\label{layers:physical}
 Nejnižší vrstva ISO/OSI modelu pracuje s daty na úrovni bitů a stará se o
 jejich přenos po přenosovém médiu. Protokoly této vrstvy definují signály, které reprezentují data
 a tudíž jde o protokoly implementované již v hardware síťových zařízení.
 
-\subsubsection{Linková vrstva}\label{layers:link}
+\subsection{Linková vrstva}\label{layers:link}
 Linková vrstva je druhá nejnižší ISO/OSI modelu. Tato vrstva se stará o datovou komunikaci
 obecně mezi několika uzly, které jsou přímo spojeny. Spojení může být jak fyzickým vodičem tak i
 bezdrátovou technologií. Nejrozšířenější technologií pro fyzické spoje je Ethernet IEEE 802.3, pro bezdrátové spoje
@@ -74,14 +56,14 @@ Adresování MAC adresou slouží pro identifikaci zařízení, které se nachá
 a za hranici této sítě se již používá IP adresace, které je vysvětleno v necházející kapitole \ref{layers:network}
 Síťová zařizení pracující na této vrstvě se nazývaji switche. Úkolem switchů je zjistit MAC adresu cílové stanice a přeposlat je portem, který vede k tomuto zařízení.
 
-\subsubsection{Síťová vrstva}\label{layers:network}
+\subsection{Síťová vrstva}\label{layers:network}
 Na této vrstvě probíhá komunikace za využití IP adres. Prvky používané na této vrstvě jsou nazývaný routery.
 Účelem těcho zařízení je směrování paketů procházejících sítí. K tomu využívají směrovací tabulku.
 Právě pro problém vyhledání nejdelšího shodného prefixu v routovací tabulce směrovače jsou v této knihovně
 implementovány dva algoritmy, \texttt{Binary search on prefix length} \ref{} a \texttt{TreeBitmap} \ref{}.
 Datové struktury jsou pojmenované pakety. Pakety obsahují imformace o datovém toku a také zrojové a cílové adresy (IPv4 nebo IPv6) právě tohoto paketu.
 
-\subsubsection{Transportní vrstva}\label{layers:transport}
+\subsection{Transportní vrstva}\label{layers:transport}
 Transportní vrstva pracuje s datovou strukturou zvanou segmenty.
 Obsahují informace jako je kontrolní součet pro zjištění integrity dat,
 pořadové číslo rámce pro spojení dat, která byla na cestě k cíli rozdělena na více částí a také obsahuje čísla portů
@@ -100,21 +82,156 @@ zařízeních starajících se přenost dat po síti. Jediná zařízení, kter�
 dat těchto vrstev jsou koncová zařízení.
 
 \section{Časově kritické operace}
-S neustálím zvyšováním požadavků na rychlost síťového připojení také rostou nároky na rychlost algoritmů,
-které zpracovávají data na síťových zařízeních. Při rychlostech, které jsou dnes dosažitelné mají normální
-procesory pouze malý počet procesorových instrukcí na zpracování celé komunikace.
+Mezi časově kritické operace rozebrané v této práci patří klasifikace paketů a velký důraz je kladen specielně na
+jednodimenziální klasifikaci dle cílové IP adresy, vyhledávání nejdelšího shodného prefixu.
+Dalšími z operací je hledání podřetězců a hledání regulárních výrazů. Poslední dvě zmíněné operace
+slouží především pro detekci útoků v systémech IDS (intrusion detection system) a pro prevenci útoků v systémech
+IPS (intrusion prevention system).
 
-Proto v posledních letech nabírá na obrátkách trend pro využítí ASIC čipů nebo programovatelných hradlových polí.
-Tyto prvky totiž umožňují rychlejší zpracování s řádově menšími požadavky.
-Tohoto rychlostního rozdílu je dosaženo právě díky specializaci čípů na provádění jedné specializované
-operace na což jsou uzpůsobeny narozdíl od obecných procesorů, které musejí zvládat mnohem větší repertoár operací.
+\subsection{Hledání nejdelšího společného prefixu - Longest prefix matching}
+Problém hledání nejdelšího shodného prefixu se rozumí klasifikace paketů dle jejich cílové IP adresy,
+která může být jak verze 4, tak verze 6.
 
-\subsection{Teorie}
+Tato operace je základním stavebním kamenem v počítačových sítích a bez ní by bylo téměř nemožné dosahovat
+efektivity jaké se dosahuje teď. Hledání nejdelšího shodného prefixu je operace, která se provádí
+na síťových prvcích zvaných směrovače. Tyto prvky jsou umístěny na každém rozhraní dvou a více
+počítačových sítích. Jejich cílem je nalézt nejvhodnější cestu, kterou směrovat příchozí paket.
+Struktura reprezentující uložené směrovací informace se nazývá routovací tabulka. Tato tabulka ukládá
+informace o dostupných sítích (jejich prefixech), délce tohoto prefixu a rozhraní, kterým se lze
+do odpovídající počítačové sítě dostat. S velkým rozmachem počíačových sítí v poslední dekádě
+dochází k velkému nárustu routovací informací a proto se tímto směrem začal ubírat akademický výzkum.
+Pro zmenšení routovacích tabulek byl navržen takzvaný supernetting, který sdružuje sítě se stejným
+prefixem o jiných délkách a stejnou cestou do jedné sítě. Tím je dosaženo zmenšení routovacích tabulek,
+nicméně i tak je potřeba v routovacích tabulkách vyhledávat efektivně.
 
-Pro operace hledání hledání podřetězců a zpracování regulárních výrazů popsaných v kapitolách \ref{} a \ref{}
-jsou použity konečné automaty.
+Nejdelší shodný prefix se zapisuje jako $1001*$ a tento zápis reprezentuje všechny IP adresy,
+které v binární podobě začínají právě na hodnotou $1001$. Nicméně v routovací tabulce
+může být uložen i prefix $10010*$, který sdílí první čtyři bity své adresy s výše uvedeným příkladem,
+a přípaďě, že přijde paket začínající hodnotou $10010$ je z pohledu směrování vyhodnotit prefix B jako
+nejdelší a poté paket správně směrovat. V případě $10011$ je však nejdelším shodným prefixem pravidlo A
+a tudíž nesmí dojít k vyhodnocení prefixu B jako nejdelšího. Z toho důvodu je nutné ve směrovací tabulce
+uchovávat i informace o délce prefixu. Tato informace poté slouží pro rozhodnutí, jaký pravidlo
+routovací tabulky má nejdelší shodný prefix. Délká prefixu může nabývat hodnot $1-32$ pro adresy typu
+IPv4 a $1-128$ pro adresy typu IPv6. Z výše uvedených tvrzení je zřejmé, že pro každý typ
+IP adres musí existovat samostatná, oddělená routovací tabulka, jinak by mohlo docházet k nevalidním
+vyhodnocení nejdelšího shodného prefixu mezi IPv4 a IPv6 adresami. Jako příklad může sloužit následující
+situace
 
-\subsection{Regulární výrazy}
+100* 3 R1 IPv4\
+100* 3 R7 IPv6\
+
+Teoreticky by bylo možné ukládat různé typy prefixů do stejných datových struktur pro algoritmus
+Binary search on prefix length, nicméně by bylo nutné explicitně rozlišovat o jaký typ IP adresy se
+jedná a to by mělo negativní vliv na rychlost vyhledávání. To je právě kritický paramter, který
+se snažíme minimalizovat.
+
+Jeden z přístupů zahrnuje zefektivnění datových struktur routovacích tabulek tak,
+aby bylo vyhledávání co nejrychlejší. Algoritmy rozehrané v této kapitole vycházejí z obecně n-árního stromu,
+což je rozšíření binárního stromu na více než dva potomky. Těmito algoritmy jsou
+\texttt{Binary search on prefix length}, jehož data jsou uložena v binárním stromu, ale pro vyhledávání
+je využito výhod hašovací tabulky, a \texttt{TreeBitmap}, který je n-árním stromem, kde n je volitelné.
+Dosažené výsledky pro různé n jsou vizualizovány v kapitole \ref{}.
+
+\subsubsection{TreeBitmap}
+
+Algoritmus TreeBitmap cy
+
+Interní bitmapa zahrnuje všechny všechny prefixy, které je možné vyjádřit na N bitech střídy.
+Jako příklad může posloužit velikost střidy 2 bity.
+Proto je nutné uložit všechny tyto kombinace: $0*$, $1*$, $00*$, $01*$, $10*$ a $11*$.
+Z toho lze odvodit vzorec pro počet bitů nutných pro reprezentaci všeh možný stříd.
+$$2^{N + 1}$$
+kde N je velikost střídy.
+
+a velikost externí bitmapy jako
+$$2^N$$
+kde N je velikost střídy.
+
+
+
+
+\begin{algorithm}
+	\KwData{tbm-root, ip, ip-length}
+	\KwResult{routing rule}
+	node $\leftarrow$ tbm-root\;
+	position $\leftarrow$ 0\;
+	\Repeat{BIT(parent.external, bits)}
+	{
+		bits $\leftarrow$ get-stride-bits(ip, position, prefix-length)\;
+		position $\leftarrow$ position + STRIDE\;
+
+		\If{isRule(node.internal, bits)}
+		{
+			longest-match = node\;
+		}
+
+		index $\leftarrow$ ones(node.external, bits)\;
+		parent $\leftarrow$ node\;
+		node $\leftarrow$ node.external[index]\;
+	}
+	\Return longest-match\;
+	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
+\end{algorithm}
+
+
+Z \cite{tbm} vyplívá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
+na které je sousředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjišténo,
+že tato implementace je funkční až do velikost střídy 13bitů.
+
+\subsubsection{Binary search on prefix length}
+
+Operace vyhledání nejdelšího prefixu při využití algoritmu binary search on prefix length má časovou
+složitost $\log{2}{N}$, kde \texttt{N} je počet bitů adresy. V případě IPv4 adresy je to 32 bitů a pro IPv6
+adresu je to 128 bitů. Z principu algoritmu vyplívá, že nejhorší výsledky z časového hlediska bude dosahovat
+při shodě prefixu, který byl zadán s lichou délkou. V tomto případě bude nutné projít všemy kroky.
+Počet kroků v případě IPv4 bude 5 a v případě IPv6 adresy to pak bude 7.
+Zde je vidět že i v připadě čtyřikrát delší adresy se počet kroků pro vyhledání prefixu zvedne pouze o dva,
+což neplatí pro algoritmus TreeBitmap, který musí projít v nejhorším případě až čtyřikrát více
+uzlů aby nalezl odpovídající prefix.
+\cite{bspl}
+
+\begin{algorithm}
+	\KwData{bspl-root, hash-table, ip, ip-length}
+	\KwResult{routing rule}
+	prefix-length $\leftarrow$ ip-length\;
+	prefix-change $\leftarrow$ ip-length\;
+	\Repeat{prefix-change > 0}
+	{
+		bits $\leftarrow$ get-prefix-bits(ip, prefix-length)\;
+		item $\leftarrow$ hast-table.get(bits)\;
+		prefix-change $\leftarrow$ prefix-change \texttt{>>} 1\;
+
+		\If{item == NULL}{prefix-length $\leftarrow$ prefix-length - prefix-change\;}
+		\ElseIf{item.type == PREFIX}{prefix-length $\leftarrow$ prefix-length + prefix-change\;}
+		\lElse{break}
+	}
+	\lIf{item == NULL}{\Return bspl-root.default-rule}
+	\caption{Hledání nejdelšího shodného prefixu algoritmem Binary search on prefix length}
+\end{algorithm}
+
+
+\subsection{Hledání řetězců}
+
+Pro hledání řetězců je implementován algoritmus autorů Aho a Corasicové. Tento algoritmus používá pro zjištění shody s podřetězcem konceptu konečného automatu. Při každé iteraci algoritmu se provede přechod o jeden znak.
+
+Algoritmus procházení vstupních dat je rozepsán v \ref{alg:aho} a vychází z \cite{aho}.
+
+\begin{algorithm}
+	\KwData{start-state, text}
+	\KwResult{keyword}
+	state = start-state\;
+	\For{position $\leftarrow$ 0 \KwTo text.length}
+	{
+		\lWhile{goto(state, text[position]) == FAIL}{state $\leftarrow$ state.failure}
+		\lIf{state.isMatch}{\Return state.keyword}
+	}
+	\Return NOT-MATCH\;
+	\caption{Algoritmus procházení textu a hledání podřetězců}
+\end{algorithm}\label{alg:aho}
+
+Při chybě alokace se smaže celá struktura konečeného automatu, neexistuje předpoklad na dynamické přidávání pravidel za běhu programu
+
+\subsection{Hledání regulárních výrazů}
 
 Regulární výrazy slouží pro popis operací nad jazykem.
 Jazek je definovaný jako iterace nad vstupní abecedou.
@@ -154,105 +271,14 @@ které jsou pouze pohodlněji zapsatelná a nijak nerozšiřují výrazové mož
 	\item{$a?$ je definováno jako $0..1$ iterací}
 \end{itemize}
 
-\subsection{Hledání nejdelšího prefixu}
-Hledání nejdelšího shodného prefixu se používá při směrování paketů.
-Pro docílení nejlepší efektivity při přeposílání paketů je nutné znát co nejpřesněji další místo, na které je paket třeba doručit.
-Toho je řešeno prohledáváním routovací tabulky.
-Pro dosažení větší rychlosti je routovací tabulka v paměti směrovače uložena v jiných strukturách, které tabulce neodpovídají.
-V této práci jsou pro uložení routovací tabulky využity algoritmy {\tt Binary search on prefix length} a {\tt TreeBitmap}.
-Oba jsou variací obecně n-árního stromu.
-
-Při chybě alokace dojde na rozdíl od odstatních podúloh k zanechání již vytvořené fungující struktury
-a to z důvodu předpokladu, že routovací tabulka se mění v čase běhu programu
-
-\subsubsection{TreeBitmap}
-\begin{algorithm}
-	\KwData{tbm-root, ip, ip-length}
-	\KwResult{routing rule}
-	node $\leftarrow$ tbm-root\;
-	position $\leftarrow$ 0\;
-	\Repeat{BIT(parent.external, bits)}
-	{
-		bits $\leftarrow$ get-stride-bits(ip, position, prefix-length)\;
-		position $\leftarrow$ position + STRIDE\;
-
-		\If{isRule(node.internal, bits)}
-		{
-			longest-match = node\;
-		}
-
-		index $\leftarrow$ ones(node.external, bits)\;
-		parent $\leftarrow$ node\;
-		node $\leftarrow$ node.external[index]\;
-	}
-	\Return longest-match\;
-	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
-\end{algorithm}
-
-
-Z \cite{tbm} vyplívá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
-na které je sousředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjišténo,
-že tato implementace je funkční až do velikost střídy 13bitů.
-
-\subsubsection{Binary search on prefix length}
-
-\begin{algorithm}
-	\KwData{bspl-root, hash-table, ip, ip-length}
-	\KwResult{routing rule}
-	prefix-length $\leftarrow$ ip-length\;
-	prefix-change $\leftarrow$ ip-length\;
-	\Repeat{prefix-change > 0}
-	{
-		bits $\leftarrow$ get-prefix-bits(ip, prefix-length)\;
-		item $\leftarrow$ hast-table.get(bits)\;
-		prefix-change $\leftarrow$ prefix-change \texttt{>>} 1\;
-
-		\If{item == NULL}{prefix-length $\leftarrow$ prefix-length - prefix-change\;}
-		\ElseIf{item.type == PREFIX}{prefix-length $\leftarrow$ prefix-length + prefix-change\;}
-		\lElse{break}
-	}
-	\lIf{item == NULL}{\Return bspl-root.default-rule}
-	\caption{Hledání nejdelšího shodného prefixu algoritmem Binary search on prefix length}
-\end{algorithm}
-
-
-Operace vyhledání nejdelšího prefixu při využití algoritmu binary search on prefix length má časovou
-složitost $\log{2}{N}$, kde \texttt{N} je počet bitů adresy. V případě IPv4 adresy je to 32 bitů a pro IPv6
-adresu je to 128 bitů. Z principu algoritmu vyplívá, že nejhorší výsledky z časového hlediska bude dosahovat
-při shodě prefixu, který byl zadán s lichou délkou. V tomto případě bude nutné projít všemy kroky.
-Počet kroků v případě IPv4 bude 5 a v případě IPv6 adresy to pak bude 7.
-Zde je vidět že i v připadě čtyřikrát delší adresy se počet kroků pro vyhledání prefixu zvedne pouze o dva,
-což neplatí pro algoritmus TreeBitmap, který musí projít v nejhorším případě až čtyřikrát více
-uzlů aby nalezl odpovídající prefix.
-\cite{bspl}
-
-
-\subsection{Hledání podřetězců}
-Pro hledání potřetězců je implementován algoritmus autorů Aho a Corasicové. Tento algoritmus používá pro zjištění shody s podřetězcem konceptu konečného automatu. Při každé iteraci algoritmu se provede přechod o jeden znak.
-
-\subsubsection{Aho-Corasick}
-Algoritmus procházení vstupních dat je rozepsán v \ref{alg:aho} a vychází z \cite{aho}.
-
-\begin{algorithm}
-	\KwData{start-state, text}
-	\KwResult{keyword}
-	state = start-state\;
-	\For{position $\leftarrow$ 0 \KwTo text.length}
-	{
-		\lWhile{goto(state, text[position]) == FAIL}{state $\leftarrow$ state.failure}
-		\lIf{state.isMatch}{\Return state.keyword}
-	}
-	\Return NOT-MATCH\;
-	\caption{Algoritmus procházení textu a hledání podřetězců}
-\end{algorithm}\label{alg:aho}
-
-Při chybě alokace se smaže celá struktura konečeného automatu, neexistuje předpoklad na dynamické přidávání pravidel za běhu programu
-
-\subsubsection{Regulární výrazy}
-
-
 Při chybě alokace se smaže celá struktura regulárního výrazu, neexistuje předpoklad na
 dynamické přidávání regulárních výrazů za běhu programu.
+
+
+\subsection{Analýza a extrakce hlaviček paketů - Header parsing}
+
+
+
 
 \chapter{Návrh API knihovny}\label{chapter:api}
 Knhovna \texttt{fastnet} je navržena jako množina menších knihoven, kde každá knihovna implementuje
@@ -531,10 +557,16 @@ Závěrečná kapitola obsahuje zhodnocení dosažených výsledků se zvlášť
 
 \section{Další vývoj knihovny}
 
-V následujících krocích tvorby knihovny \texttt{fastnet} bude vhodné implementovat operace
-navržené v kapitole \ref{} s alespoň jedním algoritmem pro každou z uvedených operací.
+\begin{itemize}
+	\item{cílem bylo}
+	\item{nastudoval jsem}
+	\item{podařilo se}
+	\item{může se rozšířit}
+\end{itemize}
 
-Dále je možné provést optimalizace jednotlivých algoritmů z pohledu jak paměťové tak i časové náročnosti.
+Cílem této práce bylo seznámit čtenáře s časově kritickými operacemi, způsobem jejich řešení
+a navrhnout rozhraní knihovny, která bude vybrané operace implementovat. Za tímto účelem
+jsem nastudoval
 
 \subsection{Optimalizace}
 U implementace \texttt{Binary search on prefix length} je možné rozdělit strukturu \texttt{\_bspl\_node}
