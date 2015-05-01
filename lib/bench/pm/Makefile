@@ -14,4 +14,4 @@ bin: .FORCE bin.c
 .FORCE:
 
 clean:
-	rm -rf ac *.png *.pdf output/*/* 2>/dev/null
+	rm -rf ac *.png *.pdf output/* 2>/dev/null
