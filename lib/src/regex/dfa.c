@@ -484,6 +484,7 @@ _Bool _concat(stack * stack_)
 
 	_nfa_block * first;
 	_nfa_block * second;
+	short number;
 
 	second = stack_pop(stack_).pointer;
 	number = stack_pop(stack_).number;
@@ -549,6 +550,7 @@ _Bool _quantificator(stack * stack_, short operation)
 
 	_nfa_block * block;
 	_nfa_state * epsilon;
+	short number;
 	_Bool res;
 
 	number = stack_pop(stack_).number;
