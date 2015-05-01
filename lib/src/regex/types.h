@@ -1,5 +1,3 @@
-#ifdef ALG_dfa
-
 typedef struct _dfa_state
 {
 	char * key;
@@ -34,9 +32,3 @@ typedef struct
 
 typedef struct _nfa_state regex_nfa;
 typedef struct _dfa_state regex_dfa;
-
-#endif
-
-#ifdef ALG_ddfa
-
-#endif

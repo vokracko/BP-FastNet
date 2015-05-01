@@ -92,14 +92,14 @@ int main(int argc, char * argv[])
 	regex_dfa * dfa_root = NULL;
 	regex_nfa * nfa_root = NULL;
 
-	#ifdef dfa
+	#ifdef alg_dfa
 		#define root dfa_root
 		#define DESTROY regex_destroy_dfa
 		#define CONSTRUCT regex_construct_dfa
 		#define MATCH regex_match_dfa
 	#endif
 
-	#ifdef nfa
+	#ifdef alg_nfa
 		#define root nfa_root
 		#define DESTROY regex_destroy_nfa
 		#define CONSTRUCT regex_construct_nfa

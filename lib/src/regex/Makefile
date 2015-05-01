@@ -1,13 +1,12 @@
 CC=gcc
 FLAGS=-std=c99 -Wall -Wextra -g3
-ALG=dfa
 GENERAL=../general
 
 all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
 all: lib
 
 lib: queue dfa.c precompile-headers
-	$(CC) $(FLAGS) -DALG_$(ALG) -c dfa.c -o dfa.o
+	$(CC) $(FLAGS) -c dfa.c -o dfa.o
 	rm -f regex.a
 	ar rcs regex.a dfa.o $(GENERAL)/queue.o
 
