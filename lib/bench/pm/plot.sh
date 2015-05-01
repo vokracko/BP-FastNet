@@ -1,38 +1,11 @@
-if [ $# -ne 4 ]; then
-	printf "Run with 4 parameters: ip version, algorithms, ranges and strides\n"
-	exit 1
-fi
+make bin  > /dev/null 2>&1
+dat_file="./output/output.dat"
+printf "Algorithm Aho-Corasick: $input\n" > $dat_file
 
-IPv=$1
-DEFAULT_RULE=1
-ALGS=$2
-SIZES=$3
-STRIDES=$4
-
-for alg in $ALGS
+for input in `ls input`;
 do
-	if [ $alg = "bspl" ]; then
-		STRIDES=1;
-	else
-		STRIDES=$4
-	fi
-
-	for stride in $STRIDES
-	do
-
-		make bin ALG=$alg STRIDE=$stride > /dev/null 2>&1
-		dat_file="./output/IPv$IPv/$alg-$stride.dat"
-		printf "Algorithm\t$alg-$stride\n" > $dat_file
-
-		for size in $SIZES
-		do
-			printf "benching ALGORITHM: $alg, STRIDE: $stride, SIZE: $size\n"
-			res=$(./$alg -v$IPv $DEFAULT_RULE $size)
-			printf "$size\t$res\n" >> $dat_file
-		done
-
-	done
-
+	printf "benching AC: $input\n"
+	res=$(./ac all input/"$input")
+	printf "$input\t$res\n" >> $dat_file
 done
-
-gnuplot -e "ipv=$IPv; strides='$STRIDES'" plot.plt
+# gnuplot -e "input=$input" plot.plt

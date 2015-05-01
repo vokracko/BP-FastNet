@@ -5,9 +5,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define DATA_COUNT 1000
+extern char * data[];
+
 void free_keywords(pm_keyword * keywords, unsigned  index)
 {
-	for(unsigned i = 0; i <= index; ++i)
+	for(unsigned i = 0; i < index; ++i)
 	{
 		free(keywords[i].content);
 	}
@@ -25,19 +28,20 @@ void fillKeywords(pm_root * root, char * source)
 
 	keywords = malloc(size * sizeof(pm_keyword));
 
-	while(fscanf(f, "%1024s %d\n", keyword, &length, &rule) == 1)
+	while(fscanf(f, "%1024s\n", keyword) == 1)
 	{
-		if(index + 1 == size)
+		if(index + 1 >= size)
 		{
 			size += 10;
 			keywords = realloc(keywords, size * sizeof(pm_keyword));
 		}
 
-		keywords[index].length = length;
-		keywords[index].rule = rule;
-		keywords[index].content = malloc(length);
+		keywords[index].length = strlen(keyword);
+		keywords[index].rule = index+1;
+		keywords[index].content = malloc(strlen(keyword)+1);
+		keywords[index].content[strlen(keyword)] = '\0';
 
-		memcpy(keywords[index].content, keyword, length);
+		memcpy(keywords[index].content, keyword, strlen(keyword));
 
 		index++;
 	}
@@ -56,13 +60,16 @@ double match(pm_root * root, char * file, bool first_only)
 	char input[1500];
 	unsigned length;
 	pm_result * result = NULL;
+	_Bool res;
 
 	FILE * f = fopen(file, "r");
 
-	while(fscanf(f, "%1500s", input, &length) == 2)
+	for(unsigned i = 0; i <DATA_COUNT; ++i)
 	{
+		length = (((unsigned char) data[i][0]) << 8) | ((unsigned char) data[i][1]);
 		time_start = clock();
 		result = pm_match(root, input, length);
+		res = regex_match_TYPE(root, data[i]+2, length);
 		time_end = clock();
 		time_sum += time_end - time_start;
 
@@ -92,9 +99,9 @@ int main(int argc, char * argv[])
 	bool first_only;
 	pm_root * root;
 
-	if(argc != 4)
+	if(argc != 3)
 	{
-		puts("./bench first/all keywords input");
+		puts("./bench first/all keyword-file");
 		return 1;
 	}
 
@@ -102,6 +109,6 @@ int main(int argc, char * argv[])
 	root = pm_init();
 
 	fillKeywords(root, argv[2]);
-	printf("%lf\n", match(root, argv[3], first_only));
+	printf("%lf\n", match(root, argv[2], first_only));
 	pm_destroy(root);
 }
