@@ -1,0 +1,9 @@
+https?://.*\.(com|net|org|cz)
+GET
+POST
+HEAD
+Moved
+301
+PUT
+HTTP
+
