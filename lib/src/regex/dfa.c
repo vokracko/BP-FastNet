@@ -482,7 +482,6 @@ _Bool _concat(stack * stack_)
 	assert(stack_ != NULL);
 	assert(stack_size(stack_) >= 3);
 
-	short number;
 	_nfa_block * first;
 	_nfa_block * second;
 
@@ -548,7 +547,6 @@ _Bool _quantificator(stack * stack_, short operation)
 	assert(stack_ != NULL);
 	assert(stack_size(stack_) >= 2);
 
-	short number;
 	_nfa_block * block;
 	_nfa_state * epsilon;
 	_Bool res;
