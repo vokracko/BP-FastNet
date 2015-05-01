@@ -457,7 +457,7 @@ _Bool pm_add(pm_root * root, pm_keyword keywords[], unsigned count)
 			parent = new;
 		}
 
-		new->rule = keywords[j].rule;
+		if(new != NULL) new->rule = keywords[j].rule;
 	}
 
 	return _ac_construct_failure(root, PM_RULE_NONE);
