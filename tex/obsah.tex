@@ -1,47 +1,62 @@
 %=========================================================================
 
 \chapter{Úvod}
-Žijeme v době kdy se internet stal nedílnou součástí každodenního života.
- Také se stávají populární mobilní zařízení schopná internetové komunikace a na vzestupu je trend
-internetu věcí. Internetem věcí se rozumí vestavěná zařízení schopná komunikace po internetu.
+Žijeme v době kdy se internet stal nedílnou součástí každodenního života a s internetem už nepracují
+pouze klasické počítače, ale do popředí se také dostávají mobilní zařízení, které meziročně
+zaznaménavají více než $50\%$ nárůst. Dalším druhem zařízení jež se začínají připojovat
+jsou vestavěné systémy patřící do trendu nazývaného internet věcí.
 S rychlostí jakou přibývají zařízení vyžadující přístup k internetu ale i s rozšiřováním internetu
 do zemí internetem nedotčených se neustále zvyšují požadavky na rychlost, se kterou data prochází počítačovými
-sítěmi a zejména na zařízeních starajících se o řízení internetového provozu na páteřních linkách
-počítačových sítí. Páteřní spoje v době psaní této práce dosahují rychlosti desítky gigabitů
-za vteřinu a z toho vyplívají požadavky na rychlost zpracování síťových dat. Při těchto rychlostech
-však tradiční procesory stihnou vykonat pouze několik instrukcí. Nicméné je důležité
-aby rychlosti zpracování dosahovaly všechny zařízení na páteřních spojích jinak by došlo ke
-spomalení veškerého provozu a toto zařízení by se stalo tzv. úzkým hrdlem. Z těchto vlastností vychází
-požadavky na stále efektivnější algoritmy zpracovávající tyto operace.
-Tyto operace se nazývají časově kritické operace a jejich rozbor je jedním z témat této práce.
-Dalším tématem této práce je návrh aplikačního programovatelného rozhraní knihovny, která bude implementovat
-právě tyto operace. Z časově kritických operací jsou vybrány a rozvedeny operace hledání nejdelšího shodného prefixu,
-využívaných pro směrování dat v počítačových sítích, prohledávání vstupních dat na přítomnost
-definovaných slov pomocí vyhledávání řetězců nebo hledání regulárních výrazů, analýza a extrakce hlaviček paketů,
-operace používané napříč téměř všemy časově kritickými operacemi a klasifikace paketů,
+sítěmi a z toho vyplívající požadavky na rychlost zpracování síťového provozu a to zejména na zařízeních
+starajících se o řízení internetového provozu na páteřních linkách počítačových sítí. Mezi tyto
+zařízení lze zařadit směrovače (routery), které řídí datové toky mezi jednotlivými sítěmi,
+rozbočovače (switche) starající se o řízení toků dat uvnitř autonomních sítí a
+systémy pro detekci (IDS\footnote{Intrusion detection system}) a prevenci (IPS\footnote{Intrusion prevention system})
+síťových útoků, které analyzují obsah každého paketu, který sítí prochází.
+Páteřní spoje v době psaní této práce dosahují rychlostí v řádech gigabitů
+za sekundu a z toho vyplívají požadavky na rychlost zpracování síťových dat. Při těchto rychlostech
+však tradiční procesory stihnou vykonat pouze desítky instrukcí, které nestačí na provedení včech potřebných
+operací. Nicméné je důležité aby stejné rychlosti zpracování dosahovaly všechna zařízení na páteřních spojích,
+protože v počítačová sít je pouze tak rychlá, jak rychlá je její nejpomalejší část, tzv. úzké hrdlo.
+Z těchto vlastností vycházejí požadavky na stále efektivnější algoritmy zpracovávající časově kritické operace,
+jejichž rozbor je součástí této práce. Z těchto operací jsou vybrány a rozvedeny operace prohledávání vstupních
+dat na přítomnost definovaných slov pomocí vyhledávání řetězců a  hledání regulárních výrazů pro hledání signatur
+útoků v počítačovém provozu, analýza a extrakce hlaviček paketů - operace používané napříč téměř všemi časově kritickými operacemi a klasifikace paketů, speciálně pak jednodimenzionální klasifikace podle cílové IP adresy,
+hledání nejdelšího shodného prefixu, jež je využíváno pro prohledávání směrovací tabulek směrovačů pro
+nalezení takové cesty počítačovou sítí, která bude nejhodnější.
 
-Přínosem této knihovny je vlastní implementace zmíněných operací, která může sloužit jako vzor
-pro hardwarovou implementaci nekritičtějším částí zmíněných operací.
+Přínosem této knihovny je vlastní implementace zmíněných časově kritických operací, která bude
+využita výkumnou skupinou ANT na Fakultě Informačních technologií Vysokého učení technického v Brně
+pro ??????????? a také může sloužit jako vzor pro hardwarovou akceleraci procházení a vyhledávání ve
+zmíněných operací buď syntézou kódu do programovatelných hradlových polí FPGA\footnote{Field Programmable Gate Array}
+nebo pro návrh samostatnéhých integrovanéhých obvodů ASIC\footnote{Application Specific Integrated Circuit}.
+Pro knihovnu je navržen a implementován obecný princip vláknového zpracování použitelný pro všechny
+zmíněné operace, který umožňuje řetězit požadavky na zpracování do vyrovnávacích pamětí a jednotlivé operace
+provádět plynule za sebou bez nutnosti zasahovat do datových struktur nebo toku řízení.
 
-V kapitole \ref{chapter:theoretical} jsou popsány síťové modely, nad nimiž jsou operace této knihovny implementovány,
-formální prostředky pro implementaci zvolených algoritmů a samotné algoritmy. Kapitola \ref{chapter:api} popisuje
-veřejné rozhraní vytvořené knihovny pro operace zmíněné v kapitole \ref{chapter:theoretical},
-způsoby použití a možnosti rozšíření. V kapitole \ref{chapter:results} jsou vizualizovány a popsány
-výsledky implementace. Kapitola \ref{chapter:conclusion} shrnuje dosažené výsledky a nastiňuje možné směry,
-kterými se může vývoj knihovny dále odvíjet.
+V kapitole \ref{chapter:theoretical} jsou popsány síťové modely a vrstvy těchto modelů,
+nad nimiž jsou operace této knihovny implementovány, dále jsou popsány časově kritické operace prováděné
+prvky v počítačových sítích. Kapitola \ref{chapter:api} popisuje návrh veřejného rozhraní vytvořené knihovny
+pro operace zmíněné v kapitole \ref{chapter:theoretical}, způsoby použití potéto knihovny a možnosti rozšíření
+o další časově kritické operace. V kapitole \ref{chapter:results} jsou vizualizovány a diskutovány
+výsledky, jež se podařilo dosáhnout v implementaci této knihovny a to na dvou hlavních platformách, Intel a ARM.
+Kapitola \ref{chapter:conclusion} shrnuje dosažené výsledky a nastiňuje další možný vývoj této knihovny
+a to jak z hlediska rozšiřování repertoáru implementovaných operací tak i z pohledu dalších optimalizací
+a testování v různých scénářích při reálném používání knihovny.
 
 \paragraph{Co zmínit}
 - všchny prvky musí pracovat na stejných rychlostech
 - zvyšuje se rychlost -> nutná optimalizace, fpga
 - požadavky na monitorování a blokování
 - ipv4, ipv6, velikost adresového prostoru
-- pomalé procesory -> směř fpga, jak je na to knihovna přpravena
+- pomalé procesory -> směr fpga, jak je na to knihovna přpravena
 - koncept multithreadingu
 - hlavní síťové prvky
 - páteřní sítě
 - pakety
 - půlstrana motivace proč je to důležité
 - přínos knihovny a operace
+- vlákna - plná fronta nebo timeout pro spuštění
 
 \chapter{Teoretický rozbor}\label{chapter:theoretical}
 
@@ -52,7 +67,6 @@ kterými se může vývoj knihovny dále odvíjet.
 - popsat další kapitoly
 
 \section{Síťové modely}
-
 Zpracování dat síťového provozu je rozděleno do několika úrovní. Tyto úrovně jsou popsány síťovými modely.
 Základním modelem je ISO/OSI, který slouží pro abstraktní rozdělení operací zpracování síťových dat a jeho použití je
 pouze pro akademické účely. V reálných počítačových sítích pak dominuje model TCP/IP, který má oproti
@@ -214,26 +228,16 @@ ořezán na prosté procházení lineárního seznamu.
 
 \subsubsection{TreeBitmap}
 
-Algoritmus TreeBitmap cy
-
-Interní bitmapa zahrnuje všechny všechny prefixy, které je možné vyjádřit na N bitech střídy.
-Jako příklad může posloužit velikost střidy 2 bity.
+Struktura pro uložení prefixu se skládá z položek interní bitmapy, externí bitmapy, ukazatele na potomky
+a ukazatele na pravidla. Interní bitmapa zahrnuje všechny všechny prefixy,
+které je možné vyjádřit na N bitech střídy. Jako příklad může posloužit velikost střidy 2 bity.
 Proto je nutné uložit všechny tyto kombinace: $0*$, $1*$, $00*$, $01*$, $10*$ a $11*$.
 Z toho lze odvodit vzorec pro počet bitů nutných pro reprezentaci všeh možný stříd.
-$$2^{N + 1}$$
-kde N je velikost střídy.
-
-a velikost externí bitmapy jako
-$$2^N$$
-kde N je velikost střídy.
-
-
-Struktura pro uložení prefixu se skládá z položek interní bitmapy, externí bitmapy, ukazatele na potomky
-a ukazatele na pravidla.
+$2^{N + 1}$ kde N je velikost střídy. Velikost externí bitmapy lze vyjádřit vzorcem $2^N$ kde N je velikost střídy.
 
 Interní bitmapa slouží pro zjištění, kolik pravidel existuje v tomto uzlu.
-To se zjistí zavolání funkce \texttt{ones(internal-bitmap, end)}. kde end pozice, která odpovídá
-části prefixu o délce střídy.
+To se zjistí zavolání funkce \texttt{ones(internal-bitmap, end)}. kde end pozice,
+která odpovídá části prefixu o délce střídy.
 To znamená že pokud po vykousnutí střídy z prefixu dostaneme bity
 $11$ pozice end bude stanovena na decimální reprezentaci tohoto čísla, v tomto případě $3$.
 Následuje zjištění, zda se na dané pozici interní bitmapy vykytuje jednička nebo nula.
@@ -286,7 +290,14 @@ Příklad bitmap pro uložení prefixů:
     \caption{Příklad externí bitmapy}
 \end{table}
 
-\begin{algorithm}
+Treebitmap je šetrný k paměti a alokuje si pouze tolik prvků pole ať už pro uložení pravidel
+nebo pro uložení následovník kolik jich je opravdu potřeba.
+
+Z \cite{tbm} vyplívá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
+na které je sousředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjišténo,
+že tato implementace je funkční až do velikost střídy 13bitů.
+
+\begin{algorithm}[H]
 	\label{alg:treebitmap}
 	\KwData{tbm-root, ip, ip-length}
 	\KwResult{routing rule}
@@ -310,19 +321,46 @@ Příklad bitmap pro uložení prefixů:
 	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
 \end{algorithm}
 
-Treebitmap je šetrný k paměti a alokuje si pouze tolik prvků pole ať už pro uložení pravidel
-nebo pro uložení následovník kolik jich je opravdu potřeba.
-
-Z \cite{tbm} vyplívá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
-na které je sousředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjišténo,
-že tato implementace je funkční až do velikost střídy 13bitů.
-
 \paragraph{Co zmínit}
 - procházení interních a externích bitmap, struktura interní a externí bitmapy
 - alokace všech násldovníků a pravidel na jednou v jednom místě
 - funkce jedniček
 
 \subsubsection{Binary search on prefix length}
+Algorimus binary search on prefix length je založen jak již název napovídá na binárním vyhledávání.
+Binaární vyhledávání jiný název pro půlení intervalů. Vyhledávání půlením intervalů
+se ve své první iteraci pokusí vyhledat shodný prefix celé délky, tedy 32 bitů pro IP adresu
+verze protoklou IPv4 a 128 bitů pro IP verze 6.
+
+Mějme směrovací tabulku obsahující tyto informace:
+
+\begin{table}[!htbp]
+	\center
+    \begin{tabular}{|l|l|l|}
+    \hline
+    Prefix        & Délka prefixu & Pravidlo \\ \hline
+    147.228.0.0   & 14            & P1       \\ \hline
+    147.228.128.0 & 17            & P2       \\ \hline
+    \end{tabular}
+    \caption{Příklad směrovací tabulky}
+\end{table}
+
+Vyhledávání směrovací cesty pro adresu 147.229.128.54 bude procházet následujícími kroky
+
+\begin{table}[!htbp]
+	\center
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    Prefix & Délka prefixu  & Změna prefixu & Průběžný výsledek \\ \hline
+    147.228.128.54 & 32 & 16 & Nenalezeno, zmenšit délku \\ \hline
+    147.228.0.0 & 16 & 8 & Nenalezeno, zvětšit délku \\ \hline
+    147.228.128.0 & 24 & 4 & Nenalezeno, zmenšit délku \\ \hline
+    147.228.128.0 & 20 & 2 & Nenalezeno, zmenšit délku \\ \hline
+    147.228.128.0 & 18 & 1 & Nenalezeno, zmenšit délku \\ \hline
+    147.228.128.0 & 17 & 0 & Nalezeno, vrátit P2 \\ \hline
+    \end{tabular}
+    \caption{Příklad vyhledání nejdelšího shodného prefixu}
+\end{table}
 
 Operace vyhledání nejdelšího prefixu při využití algoritmu binary search on prefix length má časovou
 složitost $\log{2}{N}$, kde \texttt{N} je počet bitů adresy. V případě IPv4 adresy je to 32 bitů a pro IPv6
@@ -339,11 +377,11 @@ uzlů aby nalezl odpovídající prefix.
 	\KwResult{routing rule}
 	prefix-length $\leftarrow$ ip-length\;
 	prefix-change $\leftarrow$ ip-length\;
-	\Repeat{prefix-change > 0}
+	\Repeat{prefix-change $>$ 0}
 	{
 		bits $\leftarrow$ get-prefix-bits(ip, prefix-length)\;
 		item $\leftarrow$ hast-table.get(bits)\;
-		prefix-change $\leftarrow$ prefix-change \texttt{>>} 1\;
+		prefix-change $\leftarrow$ prefix-change $\gg$ 1\;
 
 		\If{item == NULL}{prefix-length $\leftarrow$ prefix-length - prefix-change\;}
 		\ElseIf{item.type == PREFIX}{prefix-length $\leftarrow$ prefix-length + prefix-change\;}
@@ -471,6 +509,7 @@ Veřejné rozhraní knihovny se skládá z veřejných rozhraní jednotlivých p
 Tyto rozhraní jsou popsány v následujících podkapitolách.
 
 \section{Vyhledání nejdelšího shodného prefixu}
+
 Pro operaci vyhledání nejdelšího shodného prefixu jsou připraveny funkce pro inicializace datových struktur
 \texttt{lpm\_init}, pro vložení nového prefixu \texttt{lpm\_add}, aktualizaci existujícího prefixu
 \texttt{lpm\_update}, smazání existujícího prefixu \texttt{lpm\_remove} a zrušení všech alokovaných
@@ -490,51 +529,33 @@ prefix $1*$ o délce jedna a prefix $10000*$ o délce pět, neboť tyto prefixu 
 číslem, neboť v binární kódu máme pouze dvě hodnoty a není možné určit třetí stav jako X,
 nezajímá nás/není důležité.
 
+Funkce pro vložení prefixu pracuje s pouze s jedním prefixem a je prováděna okamžitě.
+Tento návrh vychází z předpokladu, že knihovna bude používána i v prostředí s dynamickými routovacími
+protkoly jako například RIP, OSPF nebo BGP, které při změně směrovacích informací v případě OSPF (zjistit jak to je)
+zasílají aktualizace s novými informacemi na všechny sousední routery nebo jsou tyto změny zasílány periodicky
+v případě protokolu RIP.
 
 Hašóvací funkce je v této implementaci použita henkins \ref{}. Volba správné hašovací funkce
 má má velký vliv na rychlost vyhledávání. V případě kolizí je to omezeno zase na procházení lineárního
 seznamu a z časové složitosti $O(\log{2}{N}$, kde N reprezentuje délku adresy, tedy 32 nebo 128 bitů,
 se stává $O(N)$, kde N reprezentuje počet záznumů routovací tabulky.
 
-% LPM IPV4 =================================================================================
-\begin{Verbatim}[commandchars=\\\{\}]
-\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm\PYZus{}add}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}update}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}remove}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
-\end{Verbatim}
-
-% LPM IPV6 =================================================================================
-\begin{Verbatim}[commandchars=\\\{\}]
-\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n+nf}{lpm6\PYZus{}init}\PY{p}{(}\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{default\PYZus{}rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{lpm6\PYZus{}add}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}update}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{,} \PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n}{rule}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}remove}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{prefix}\PY{p}{,} \PY{k+kt}{uint8\PYZus{}t} \PY{n}{prefix\PYZus{}len}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{lpm6\PYZus{}destroy}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-\PY{n}{\PYZus{}LPM\PYZus{}RULE} \PY{n+nf}{lpm6\PYZus{}lookup}\PY{p}{(}\PY{n}{lpm6\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k}{struct} \PY{n}{in6\PYZus{}addr} \PY{o}{*} \PY{n}{key}\PY{p}{)}\PY{p}{;}
-\end{Verbatim}
-
-Proměnné datových typů \texttt{lpm\_root} a \text{lpm6\_root} reprezentují právě jeden kořen
-všech datových struktur. Tím je možné odlišit několik routovací tabulek.
+Přesnou specifikaci rozhraní je možné nalézt v přiloženém CD ve složce \texttt{/lib/src/lpm/lpm.h}
 
 
-\section{Hledání podřetězců}
-Pro hledání podřetězců jsou implementovány následující funkce.
+\section{Hledání řetězců}
 
-%PM API =================================================================================
-\begin{Verbatim}[commandchars=\\\{\}]
-\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n+nf}{pm\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{,} \PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}match\PYZus{}next}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}add}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{n}{pm\PYZus{}keyword} \PY{n}{keywords}\PY{p}{[}\PY{p}{]}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{\PYZus{}Bool} \PY{n+nf}{pm\PYZus{}remove}\PY{p}{(}\PY{n}{pm\PYZus{}root} \PY{o}{*} \PY{n}{root}\PY{p}{,} \PY{k+kt}{char} \PY{o}{*} \PY{n}{text}\PY{p}{,} \PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{)}\PY{p}{;}
-\end{Verbatim}
+Pro hledání řetězců jsou podobně jako pro vyhledání nejdelšího shodného prefixu implemtovány
+funkce pro inicializaci datové struktury \texttt{pm\_init}, vložení klíčových slov do
+dané struktury \texttt{pm\_add}, změnu pravidla odpovídající danému klíčovému slovu
+\texttt{pm\_update}, smazání klíčového slova \texttt{pm\_remove} a funkce pro uvolnění
+paměti alokované pro vyhledávání \texttt{pm\_destroy}.
 
-Proměnné datového typ \texttt{pm\_root} a reprezentují právě jeden kořen konečného automatu a
-díky tomu je možné uchovávat několik odlišných strktur sloužících každá pro jiné účely.
+Všechny výše zmíněné funkce očekávají jako první parametr strukturu typu \texttt{pm\_root},
+která je základním prvkem pro vyhledávání a právě do této struktury
+jsou uložena všechna klíčová slova a jejich pravidla. Důvodem proč tato struktura není globání
+proměnnou uvnitř knihny je požadavek na možnost mít více prohledávacích struktur
+a mít možnost explicitně zvolit oproti jaké struktuře klíčových slov se budou vstupní data porovnávat.
 
 Hledání podřetězců \texttt{pm\_match} skončí svůj průchod konečný automatem v momentě nálezu první shody
 s libovolným podřetězcem zadaným při volání \texttt{pm\_add}. Vpřípadě, že není nalezena žádná shoda
@@ -545,54 +566,29 @@ se vstupními podřetězci je vrácen výsledek \texttt{false}.
 Pokud je zadán odkaz na existující strukturu \texttt{pm\_result} je možné procházet celým textem a ukládat
 všechny nalezené shody s podřetězci. Jednotlivé položky struktury \texttt{pm\_result} jsou.
 
-% PM_RESULT =================================================================================
-\begin{Verbatim}[commandchars=\\\{\}]
-\PY{k}{typedef} \PY{k}{struct}
-\PY{p}{\PYZob{}}
-	\PY{n}{PM\PYZus{}RULE} \PY{o}{*} \PY{n}{rule}\PY{p}{;}
-	\PY{k+kt}{unsigned} \PY{n}{size}\PY{p}{;}
-	\PY{k+kt}{unsigned} \PY{n}{count}\PY{p}{;}
-	\PY{k+kt}{unsigned} \PY{n}{position}\PY{p}{;}
-	\PY{k+kt}{char} \PY{o}{*} \PY{n}{input}\PY{p}{;}
-	\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
-	\PY{n}{\PYZus{}ac\PYZus{}state} \PY{o}{*} \PY{n}{state}\PY{p}{;}
-\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}result}\PY{p}{;}
-\end{Verbatim}
-
-Pro použití programátorem jsou určeny pouze položky
-
-\begin{itemize}
-	\item{count - počet nalezených pravidel}
-	\item{position - pozice v textu, na které došlo k první shodě}
-	\item{rule - pole s uloženými čísly vyhovujících pravidel}
-\end{itemize}
-
 Pro uložení výsledků procházení textu je možné používat různé proměnné typu \texttt{pm\_result}
 a je jen na programátory konkrétní aplikace jaký postup zvolí.
-V knihovně \texttt{pm} jsou implementovány funkce pro vytvoření a zničení této struktury.
 
-% PM_RESULTAPI =================================================================================
-\begin{Verbatim}[commandchars=\\\{\}]
-\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n+nf}{pm\PYZus{}result\PYZus{}init}\PY{p}{(}\PY{p}{)}\PY{p}{;}
-\PY{k+kt}{void} \PY{n+nf}{pm\PYZus{}result\PYZus{}destroy}\PY{p}{(}\PY{n}{pm\PYZus{}result} \PY{o}{*} \PY{n}{result}\PY{p}{)}\PY{p}{;}
-\end{Verbatim}
-
+Pro práci se strukturou \texttt{pm\_result} jsou v knihovně \texttt{pm} implementovány následující operace:
+\texttt{pm\_result\_init} pro vytvoření této struktury a \texttt{pm\_result\_destroy} pro
+uvolnění paměti alokované pro tuto strukturu. Položkami této struktury jsou údaje o pozici v textu,
+kde bylo nalezena klíčová slova uložená v položce \texttt{rule} o velikost \texttt{count},
+aktuální stav, ve které se konečný automat nachází a to z důvodu možného volání
+\texttt{pm\_match\_next}, kdy vyhledávání naváže na místě kde předchozí vyhledávání skončilo.
 
 Pro vkládání podřetězců je vytvořena vlastní datová struktura, a pole těchto struktur je předáváno do funkce
 \texttt{pm\_add}. Důvodem pro tuto implementaci namísto přidávání jednotlivých podřetězců samostatně
 je relativně časově náročné procházení stavového automatu a generování tzv. failure přechodů,
 které je nutné provést po každé změně datové struktury.
 
-% PM_KEYWORD =================================================================================
-\begin{Verbatim}[commandchars=\\\{\}]
-\PY{k}{typedef} \PY{k}{struct}
-\PY{p}{\PYZob{}}
-	\PY{k+kt}{char} \PY{o}{*} \PY{n}{content}\PY{p}{;}
-	\PY{k+kt}{unsigned} \PY{n}{length}\PY{p}{;}
-	\PY{n}{PM\PYZus{}RULE} \PY{n}{rule}\PY{p}{;}
-\PY{p}{\PYZcb{}} \PY{n}{pm\PYZus{}keyword}\PY{p}{;}
-\end{Verbatim}
+Funkce \texttt{pm\_add} očekává jako druhý parametr pole struktur \texttt{pm\_keyword}, kde každá struktura
+obsahuje položky vstupního klíčové slova v binární podobě, délku tohoto slova a pravidlo odpovídající tomuto slovu, oproti kterým se budou porovnávat vstupní data. Důvodem proč je předáváno pole dat a ne jednotlivé položky
+jako u hledání nejdelšího shodného prefixu je z důvodu neexistence synchornizační mechanismů
+v prostředí IPS a IDS. Dalším důvodem pro tento návrh je časově náročná funkce generování
+tzv. failure přechodů, které umožňují detekovat kratší klíčové slovo i v případě, že již je
+zahájeno provnávání delšího slova jak je možno vidět na následujícím příkladu.
 
+Přesnou specifikaci rozhraní je možné nalézt v přiloženém CD ve složce \texttt{/lib/src/pm/pm.h}
 \section{Regulární výrazy}
 Knihovna \texttt{regex} implementující regulární výrazy nabízí dvě možnosti pro procházení
 vstupních dat a to deterministický \texttt{dfa} a nedeterministický konečný automat \texttt{nfa}.
@@ -650,6 +646,8 @@ hlavičkové soubory jsou rozděleny na veřejné a privátní rozhraní, kde pr
 
 Jako výchozí hlavičkový soubor je použit types.h, který obsahuje definice datových struktur pro všechny algoritmy v podknihovně, které musí být viditelné i z veřejného rozhraní. Dalším souborem je types-precompiled.h, který je generován z types.h při překladu když se vybírá používaný algoritmus. common.h je hlavičkový soubor společný pro všechny algoritmy v podknihovně a algortihm.h pak obsahuje deklarace právě pro jeden konkrétní algoritmus.
 sublib.h je pak hlavičkový soubor, který tvoří veřejné rozhraní ke knihovním funkcím.
+
+Přesnou specifikaci rozhraní je možné nalézt v přiloženém CD ve složce \texttt{/lib/src/regex/regex.h}
 
 \section{Použití knihovny}
 Celou knihovnu je možné sestavit příkazem \texttt{make all} v hlavním adresáři knihovny.
@@ -730,7 +728,72 @@ Tato kapitula shrnuje a vizualizuje dosažené výsledky při implementaci jedno
 Benchmarky pro architekturu Intel proběhly na operačním systému Archlinux \footnote{https://www.archlinux.org/} s procesorem Intel(R) Core(TM) i3-2310M CPU @ 2.10GHz.
 
 \section{Hledání nejdelšího shodného prefixu}
+
+Hledání nejdelšího shodného prefixu bylo testováno na celkem pěti vstupních sadách dat, které
+byly převzaty z volně dostupných dat RIPE\footnote{https://www.ripe.net/}.
+Informace o testovaných sadách dat jsou zobrazeny v tabulce \ref{tab:lpm-input}.
+
+\begin{table}[!htb]
+	\center
+	\label{tab:lpm-input}
+	\caption{Informace v routovací tabulce pro benchmarky}
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    Počet adres & Nejkratší prefix & Nejdelší prefix & Verze IP \\ \hline
+    $1000$ & 13 & 31 & IPv4 \\ \hline
+    $10000$ & 8 & 32 & IPv4 \\ \hline
+    $100000$ & 8 & 32 & IPv4 \\ \hline
+    $1000$ & 23 & 128 & IPv6 \\ \hline
+    $10000$ & 19 & 128 & IPv6 \\ \hline
+    \end{tabular}
+\end{table}
+
+Vyhledávání pak bylo testováno oproti sadě velikost $1000$ odpovídající verze IP, která je podmnožnou každé
+rozsáhlejší sady dat.
+
+Testováno bylo jak TreeBitmap ve všech variantách velikosti střídy, tedy $1-8$.
+Jak je vidět na následujících grafech, tak nejlepších výsledků bylo dosaženo pro TreeBitmap s velkostí
+střidy nastavenou na $5$ bitů a to jak pro IPv4 tak i pro IPv6.
+
+Pro testování algoritmu Binary search on prefix length byla zvolena velikost hešovací tabulky
+stejná jako velikost směrovacích dat. Tento přístup byl zvolen z důvodu významného vlivu
+veliskosti hešovací tabulky na rychlost samotného vyhledávání. V nejhorším případě, tedy při
+velikosti hešovací tabulky $1$ byl algortimus pomalejší v až o
 U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu {\tt \_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
+
+Dalším důležitým faktorem pro efektivnost implementace je velikost datových struktur, která je znázroněna v následující tabulce.
+
+\begin{table}[!htb]
+	\center
+	\label{tab:lpm-input}
+	\caption{Velikosti datových struktur pro TreeBitmap}
+    \begin{tabular}{|l|l|l|l|}
+    \hline
+    Velikost střídy & počet bytů \\ \hline
+    1 & 24 \\ \hline
+    2 & 24 \\ \hline
+    3 & 24 \\ \hline
+    4 & 24 \\ \hline
+    5 & 32 \\ \hline
+    6 & 40 \\ \hline
+    7 & 64 \\ \hline
+    8 & 112 \\ \hline
+    \end{tabular}
+\end{table}
+
+Pro Binary search on prefix length pak bude velikost jednoho prvku stromu činit $48B$.
+Pokud by došlo k rozdělení datových struktur pro jednotlivé verze IP protokolu
+tak verze pro IPv4 by měla velikost $36B$.
+
+Jak je vidět ve výše uvedené tabulce tak i přestože nejrychlejší implementací je TreeBitmap s střídou 5,
+tak v případě omezené paměti by bylo vhodnější zvolit kompromis mezi rychlostí a paměťovou náročností v podobě
+TreeBitmap s velikostí střídy 4. Dalším ovlivňujícím faktorem je odhadovaný počet záznamů směrovací tabulky, protože
+nejrychlejší TBM-5 při existenci všech struktur na všech úrovních bude činit rozdíl zabraného místa oproti TBM4
+celých $TODO dopočítat KB$, což je v kontextu FPGA případně ASIC implementace nezanedbatelné množství.
+
+Také je důležité zmínit že z počtu očekávaných vstupních pravidel má také vliv na velikost struktury.
+Do 256 záznamů zabírá pravidlo pouze 1byte, do 65536 záznamů pak 2 byty a pro více než 65536 pak celé čtyři byty pro uložení právě jednoho pravidla. Při uložení $65536$ adres to bude rozdíl mezi uložením $65537$ bude rozdíl činit
+$200KB$
 
 \begin{figure}[!htb]
 	\centering
