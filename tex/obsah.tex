@@ -77,7 +77,7 @@ podstatné pouze první čtyři vrsty. Ty jsou detailněji popsány v kapitolác
 znázorněn průchod dat jednotlivými vrstvamy modelu ISO/OSI. Jak je z obrázku patrné tak ne všechny síťové
 zařízení pracují na stejných vrstvách.
 
-\begin{figure}[!htb]
+\begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=.25]{fig/layers.pdf}
 	\caption{Znázornění průchodu dat počítačovou sítí v modelu ISO/OSI}
@@ -636,7 +636,7 @@ Dalším důvodem je převod implementace do akcelerovaného hardware.
 \PY{p}{\PYZcb{}} \PY{n}{regex\PYZus{}pattern}\PY{p}{;}
 \end{Verbatim}
 
-\begin{figure}[!htb]
+\begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=.25]{fig/header-dependencies.pdf}
 	\caption{Diagram závislostí hlavičkových souborů}
@@ -674,6 +674,37 @@ implementací dané operace.
 
 \subsection{Packer header extraction}
 V knihovně je již navrženo API pro operaci extrakci informací z hlaviček paketů.
+
+
+Funkce dokáže zpracovat variabilní počet argumentů.
+Hodnotami pro variabilní argumenty jsou hodnoty typu \texttt{enum}, kde každá hodnot odpovídá
+právě jedné položce hlavičky IP paketu a její číselná hodnota odpovídá počtu bytů
+od začátku datové struktury IP paketu.
+
+Pro nejefektivně zpracování je nutné volit pořadí těchto parametrů stejné jako je jejich reálná
+posloupnost ve struktuře paketu.
+
+V případě hardwarové akcelerace této operace je pak možné zvolit přístup takový,
+že první parametr bude obsahovat reálnou vzdálenost od začátku paketu a každý další parametr
+pak bude obsahovat pouze reálnou vzdálenost od předcházejícího parametru. Tento rozdíl
+půjde snadno vypočítat jako rozdíl aktuálního parametru a předchozího parametru.
+Některé základní položky využívané při klasifikaci paketů a jejich vzdálenosti v bytech
+jsou uvedeny v tabulce \ref{tab:phe}
+
+\begin{table}[!htbp]
+	\center
+	\label{tab:phe}
+    \begin{tabular}{|l|l|l|}
+    \hline
+    Význam & Název & offset \\ \hline
+    Verze & IP\_VERSION & 0 \\ \hline
+    Zdrojová IP adresa pro IPv4 & IP\_SRC & 12 \\ \hline
+    Cílová IP adresa pro IPv4 & 8 IP\_DST & 16 \\ \hline
+    Cílový port pro IPv4 & PORT\_DST & 22 \\ \hline
+    Protocol pro IPv4 & PROTO & 8 \\ \hline
+    \end{tabular}
+	\caption{Položky IP paketu a jejich pojmenování pro extrakci a analýzu}
+\end{table}
 
 \texttt{pc\_set} je struktura typu union, kde jsou všechny položky uloženy na stejném paměťovém místě
 a jejich interpretace je odvozená dle typu položky, ke které je přistoupeno.
@@ -734,10 +765,9 @@ Hledání nejdelšího shodného prefixu bylo testováno na celkem pěti vstupn�
 byly převzaty z volně dostupných dat RIPE\footnote{https://www.ripe.net/}.
 Informace o testovaných sadách dat jsou zobrazeny v tabulce \ref{tab:lpm-input}.
 
-\begin{table}[!htb]
+\begin{table}[!htbp]
 	\center
 	\label{tab:lpm-input}
-	\caption{Informace v routovací tabulce pro benchmarky}
     \begin{tabular}{|l|l|l|l|}
     \hline
     Počet adres & Nejkratší prefix & Nejdelší prefix & Verze IP \\ \hline
@@ -747,6 +777,7 @@ Informace o testovaných sadách dat jsou zobrazeny v tabulce \ref{tab:lpm-input
     $1000$ & 23 & 128 & IPv6 \\ \hline
     $10000$ & 19 & 128 & IPv6 \\ \hline
     \end{tabular}
+	\caption{Informace v routovací tabulce pro benchmarky}
 \end{table}
 
 Důvod proč není benchmark pro IPv6 se 100 000 záznamy ve směrovací tabulce je ten, že se mi nepovedlo
@@ -755,9 +786,21 @@ sehnat směrovací tabulku takové velikosti, což vzhledem k menší rozšíře
 Vyhledávání pak bylo testováno oproti sadě velikost $1000$ odpovídající verze IP, která je podmnožnou každé
 rozsáhlejší sady dat.
 
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=1]{fig/lpm-ipv4.pdf}
+	\caption{Benchmark pro IPv4}
+\end{figure}\label{fig:lpm-ipv4}
+
 Testováno bylo jak TreeBitmap ve všech variantách velikosti střídy, tedy $1-8$.
 Jak je vidět na následujících grafech, tak nejlepších výsledků bylo dosaženo pro TreeBitmap s velkostí
 střidy nastavenou na $5$ bitů a to jak pro IPv4 tak i pro IPv6.
+
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[scale=1]{fig/lpm-ipv6.pdf}
+	\caption{Benchmark pro IPv6}
+\end{figure}\label{fig:lpm-ipv4}
 
 Pro testování algoritmu Binary search on prefix length byla zvolena velikost hešovací tabulky
 stejná jako velikost směrovacích dat. Tento přístup byl zvolen z důvodu významného vlivu
@@ -768,10 +811,9 @@ U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešo
 
 Dalším důležitým faktorem pro efektivnost implementace je velikost datových struktur, která je znázroněna v následující tabulce.
 
-\begin{table}[!htb]
+\begin{table}[!htbp]
 	\center
 	\label{tab:lpm-input}
-	\caption{Velikosti datových struktur pro TreeBitmap}
     \begin{tabular}{|l|l|l|l|}
     \hline
     Velikost střídy & počet bytů \\ \hline
@@ -784,6 +826,7 @@ Dalším důležitým faktorem pro efektivnost implementace je velikost datovýc
     7 & 64 \\ \hline
     8 & 112 \\ \hline
     \end{tabular}
+	\caption{Velikosti datových struktur pro TreeBitmap}
 \end{table}
 
 Pro Binary search on prefix length pak bude velikost jednoho prvku stromu činit $48B$.
@@ -800,21 +843,20 @@ Také je důležité zmínit že z počtu očekávaných vstupních pravidel má
 Do 256 záznamů zabírá pravidlo pouze 1byte, do 65536 záznamů pak 2 byty a pro více než 65536 pak celé čtyři byty pro uložení právě jednoho pravidla. Při uložení $65536$ adres to bude rozdíl mezi uložením $65537$ bude rozdíl činit
 $200KB$
 
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=1]{fig/lpm-ipv4.pdf}
-	\caption{Benchmark pro IPv4}
-\end{figure}\label{fig:lpm-ipv4}
 
-\begin{figure}[!htb]
-	\centering
-	\includegraphics[scale=1]{fig/lpm-ipv6.pdf}
-	\caption{Benchmark pro IPv6}
-\end{figure}\label{fig:lpm-ipv4}
+
+
 
 \section{Hledání řetězců}
+Jak je možné vyčíst z grafu \ref{fig:pm} tak klíčová slova s vyšším výskytem společných písmen
+mají delší dobu procházení. To vyplívá principu reakce na nenalezený další znak klíčového slova,
+kdy dochází k cyklickému procházení tzv. failure přechodů dokud není nalezena cesta, kterou se je
+možno vydat. To je v nejhorším případě právě kořen klíčových slov, který obsahuje cestu
+pro každý symbol vstupní abecedy. V případě že takovým symbol není první písmeno
+existujícího klíčového slova dojde k přechodu sám do sebe, což umožňuje zpracovat
+právě jeden znak ze vstupních dat.
 
-\begin{figure}[!htb]
+\begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=0.7]{fig/pm.pdf}
 	\caption{Benchmark pro knihovnu pm}
@@ -822,7 +864,17 @@ $200KB$
 
 \section{Hledání regulárních výrazů}
 
-\begin{figure}[!htb]
+Jak je vidět na v grafu \ref{fig:regex} tak hledání regulárních výrazů pomocí deterministického
+konečného automatu je řádově pomalejší. Toto zpomalení je způsobené opakovaným generování
+epsilon přechodů pro všechny vstupní stavy. Vstupní stavy jsou na začátku procházení
+startovní stavy všech výrazů, které byly předány do funkce \texttt{regex\_construct\_nfa}.
+
+Procházení založené na deterministickém konečném automatu tímto problémem netrpí,
+neboť při zpracování každého vstupního symbolu dojde k přechodu do dalšího stavu v připadě
+vstupního symbolu, který se může vyskytnou v aktuálním stavu automatu nebo do počátečního stavu
+pokud vstupní symbol nejde zpracovat v rámci regulárního výrazu.
+
+\begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=0.7]{fig/regex.pdf}
 	\caption{Benchmark pro knihovnu regex}
