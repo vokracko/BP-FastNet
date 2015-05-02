@@ -659,6 +659,7 @@ Dalšími cíly pro program \texttt{make} jsou
 \begin{itemize}
 	\item{\texttt{test} - spustí automatické testování všech částí knihovny}
 	\item{\texttt{bech} - spustí benchmarky všech částí knihovny}
+	\item{\texttt{doc} - vygeneruje programovou dokumentaci ke všem částem knihovny}
 	\item{\texttt{clean} - smaže všechny soubory vytvořené překladem}
 \end{itemize}
 
@@ -758,7 +759,8 @@ střidy nastavenou na $5$ bitů a to jak pro IPv4 tak i pro IPv6.
 Pro testování algoritmu Binary search on prefix length byla zvolena velikost hešovací tabulky
 stejná jako velikost směrovacích dat. Tento přístup byl zvolen z důvodu významného vlivu
 veliskosti hešovací tabulky na rychlost samotného vyhledávání. V nejhorším případě, tedy při
-velikosti hešovací tabulky $1$ byl algortimus pomalejší v až o
+velikosti hešovací tabulky $100$ byl algortimus pomalejší pro hledání v tabulce se $100000$ záznamy pomalejší
+$400\times$.
 U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hešovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu {\tt \_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpodkládané velikosti hešovací tabulky.
 
 Dalším důležitým faktorem pro efektivnost implementace je velikost datových struktur, která je znázroněna v následující tabulce.
