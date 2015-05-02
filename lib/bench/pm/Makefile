@@ -9,7 +9,7 @@ all:
 
 bin: .FORCE bin.c
 	make -C $(LIB) ALG=$(ALG)
-	gcc -std=c99 bin.c  data.c $(LIB)/pm.a -o $(ALG)
+	gcc -std=c99 data.c bin.c -g3  $(LIB)/pm.a -o $(ALG)
 
 .FORCE:
 

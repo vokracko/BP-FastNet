@@ -1,5 +1,5 @@
 set terminal pdf enhanced
-set output "pm.pdf"
+set output "regex.pdf"
 
 set style data histogram
 set style histogram cluster gap 1

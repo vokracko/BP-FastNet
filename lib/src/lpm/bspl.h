@@ -1,6 +1,6 @@
 #include "common.h"
 
-#define _BSPL_HTABLE_SIZE 1000000
+#define _BSPL_HTABLE_SIZE 100000
 #define _BSPL_TREE_OFFSET(bit) ((bit) * sizeof(struct _bspl_node *))
 
 enum _BSPL_NODE_TYPES

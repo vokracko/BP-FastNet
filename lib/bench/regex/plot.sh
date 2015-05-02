@@ -10,4 +10,4 @@ do
 	printf "$alg\t$res\n" >> $dat_file
 done
 
-# gnuplot -e "ipv=$IPv; strides='$STRIDES'" plot.plt
+gnuplot plot.plt
