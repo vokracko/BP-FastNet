@@ -12,8 +12,8 @@ typedef struct
 typedef struct
 {
 	unsigned rule;
-	struct in_addr dst;
-	struct in_addr src;
+	struct in6_addr dst;
+	struct in6_addr src;
 	_Bool protocol;
 	short port;
 } pc6_set;
