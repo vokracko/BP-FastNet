@@ -1,10 +1,10 @@
 https
 http
-put
-head
+PUT
+HEAD
 permanently
-post
+POST
 plain
 packet
-expires
-api
+Expires
+API
