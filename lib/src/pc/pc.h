@@ -1,21 +1,28 @@
 #include <netinet/in.h>
+#include <inttypes.h>
 
 typedef struct
 {
 	unsigned rule;
 	struct in_addr dst;
+	uint8_t dst_length;
 	struct in_addr src;
+	uint8_t src_length;
 	_Bool protocol;
-	short port;
+	short port_start;
+	short port_end;
 } pc_set;
 
 typedef struct
 {
 	unsigned rule;
 	struct in6_addr dst;
+	uint8_t dst_length;
 	struct in6_addr src;
+	uint8_t src_length;
 	_Bool protocol;
-	short port;
+	short port_start;
+	short port_end;
 } pc6_set;
 
 typedef void pc_root;
