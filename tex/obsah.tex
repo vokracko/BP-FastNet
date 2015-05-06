@@ -14,17 +14,17 @@ zařízení lze zařadit směrovače (routery), které řídí datové toky mezi
 přepínače (switche) starající se o řízení toků dat uvnitř autonomních sítí a
 systémy pro detekci (IDS\footnote{Intrusion detection system}) a prevenci (IPS\footnote{Intrusion prevention system})
 síťových útoků, které analyzují obsah každého paketu procházejícího sítí.
+
 Páteřní spoje v době psaní této práce dosahují rychlostí v řádech desítek gigabitů
 za sekundu a z toho vyplývají požadavky na rychlost zpracování síťových dat. Při těchto rychlostech
 jsou tradiční procesory schopny vykonat pouze desítky instrukcí, což nestačí na provedení všech potřebných
 operací. Nicméně je důležité aby stejné rychlosti zpracování dosahovaly všechna zařízení na páteřních spojích,
 protože počítačová sít je pouze tak rychlá, jak rychlá je její nejpomalejší část, tzv. úzké hrdlo.
-Z těchto vlastností vycházejí požadavky na stále efektivnější algoritmy zpracovávající časově kritické operace,
-jejichž rozbor je součástí této práce. Z těchto operací jsou vybrány a rozvedeny operace prohledávání vstupních
-dat na přítomnost definovaných slov pomocí vyhledávání řetězců a  hledání regulárních výrazů pro hledání signatur
-útoků v počítačovém provozu, analýza a extrakce hlaviček paketů - operace používané napříč téměř všemi časově kritickými operacemi a klasifikace paketů, speciálně pak jednodimenzionální klasifikace podle cílové IP adresy,
-hledání nejdelšího shodného prefixu, jež je využíváno pro prohledávání směrovací tabulek směrovačů pro
-nalezení takové cesty počítačovou sítí, která bude nejvhodnější.
+
+Z těchto vlastností vycházejí požadavky na stále efektivnější algoritmy zpracovávající časově kritické operace.
+Časově kritické operace jsou takové operace, jež při zpracování síťového provozu trvají nejdelší dobu a rozbor
+těchto operací je součástí této práce. Z těchto operací jsou vybrány a rozvedeny operace
+hledání řetězců a regulárních výrazů, analýza a extrakce hlaviček paketů a klasifikace paketů, speciálně pak jednodimenzionální klasifikace dle cílové IP adresy, hledání nejdelšího shodného prefixu.
 
 Přínosem této knihovny je vlastní implementace zmíněných časově kritických operací, která bude
 využita výzkumnou skupinou ANT na Fakultě Informačních technologií Vysokého učení technického v Brně
@@ -45,17 +45,10 @@ a testování ve scénářích odpovídajících používání knihovny v reáln
 
 \chapter{Teoretický rozbor}\label{chapter:theoretical} % ###########################################################
 
-Zpracování síťového provozu je náročná a rozsáhlá oblast zahrnující
-klasifikaci paketů
-vyhledání nejdelšího shodného prefixu
-hledání řetězců
-hledání regulárních výrazů
-analýzu a extrakci hlaviček paketů
-
-Síťový provoz je abstrahován do síťových modelů
-
-Kapitola \ref{section:models} čtenáři přiblíží fungování počítačových sítí a zapouzdření dat síťového
-provozu do vrstev abstraktního síťového modelu
+Tato kapitola poskytuje teoretické informace ze kterých vychází další kapitoly.
+V první části je popsán síťový model ISO/OSI a jeho vrstvy důležité z pohledu této práce.
+V druhé části jsou pak podrobněji rozebrány jednotlivé časově kritické operace a největší důraz je
+kladen na jednodimenzionální klasifikaci paketů, vyhledání nejdelšího shodného prefixu.
 
 
 \section{Síťové modely}\label{section:models} % #######################################################################
@@ -76,8 +69,8 @@ znázorněn průchod jednoho datového paketu odeslaného ze stanice A s cílovo
 
 \begin{description}
 \item[Fyzická vrstva / Vrstva síťového rozhraní]\label{layers:physical} % ##################################
-Nejnižší vrstva ISO/OSI modelu pracuje s daty na úrovni bitů a stará se o
-jejich přenos po přenosovém médiu. Protokoly této vrstvy definují signály, které reprezentují data
+je nejnižší vrstva ISO/OSI modelu a pracuje s daty na úrovni bitů. Stará se o
+jejich přenos po přenosovém médiu. Protokoly této vrstvy definují signály reprezentující data
 a tudíž jde o protokoly implementované již v hardware síťových zařízení.
 
 \item[Linková vrstva]\label{layers:link} % ###################################################################
@@ -88,20 +81,18 @@ je to standard IEEE 802.11. Datová jednotka na linkové vrstvě se nazývá rá
 zapouzdřených dat vyšších vrstev také informace o kontrolním součtu dat a adresování pomocí MAC adres.
 MAC adresa je adresa fyzického zařízení, které pracuje na této vrstvě.
 Adresování MAC adresou slouží pro identifikaci zařízení, které se nacházejí ve stejné počítačové síti
-a za hranici této sítě se již používá IP adresace, která je vysvětlena v následující kapitole \ref{layers:network}
+a za hranici této sítě se již používá IP adresace, která je vysvětlena v následujícím odstavci.
 Síťová zařízení pracující na této vrstvě se nazývají přepínače (angl. switch). Úkolem přepínačů je zjistit MAC adresu cílové stanice a přeposlat data portem vedoucím k cílového zařízení.
 
 \item[Síťová vrstva]\label{layers:network} % ###############################################################
-Špatná definice. Co je to IP adresa? Pojem nebyl dříve zaveden.
-Linková sousední body. Síťová komunikaci přes více bodů...
-
-
-Na této vrstvě probíhá komunikace za využití IP adres. Prvky používané na této vrstvě jsou nazývaný směrovače
-(angl. router). Síťová vrstva se stará o komunikaci stanic ležících v oddělených sítích.
-Síťová vrstva umožňuje komunikovat zařízením, které nejsou přímo spojeny jak je tomu o linkové vrstvy.
+se stará o unikátní adresaci zařízení připojených do internetu pomocí IP adres a o směrování paketů.
+Umožňuje tak komunikovat zařízením, které nejsou spojeny přímo, ale existuje mezi nimi jedna nebo více cest.
+Prvky pracující na této vrstvě jsou nazývaný směrovače (angl. router) a pracují s datovou strukturou zvanou
+datagramy, jež obsahují právě IP adresy jednoznačně určující zdrojové a cílové zařízení. Směrování paketů
+je věnována kapitola \ref{section:lpm}
 
 \item[Transportní vrstva]\label{layers:transport} % #########################################################
-Transportní vrstva pracuje s datovou strukturou zvanou segmenty.
+pracuje s datovou strukturou zvanou segmenty.
 Segmenty obsahují informace jako je kontrolní součet pro zajištění integrity dat,
 pořadové číslo rámce pro spojení dat, která byla na cestě k cíli rozdělena na více částí a také obsahuje čísla portů
 pro určení uživatelských aplikací, která data odeslala a která je na druhém konci má přijmout.
@@ -115,21 +106,17 @@ dat těchto vrstev jsou koncová zařízení.
 
 \end{description}
 
-\section{Časově kritické operace} % ##################################################################################
-Pří dnešních rychlostech páteřních linek dosahujících rychlostí v řádech gigabitů dat za sekundu
-je každá prováděná operace časově kritické, neboť jediná operace, kterou by nebylo možné
-provést v takové rychlosti pak bude snižovat výslednou rychlost takového spoje.
-Pro představu pro linku s rychlostí $1Gb/s$ síťové zařízení na této lince
-musí být schopno zpracovat každý paket během $200$ \cite{gigabit-networking} procesorových instrukcí.
-Pro $10Gb/s$ je to poté pouze $20$ instrukcí, což je velmi málo.
-Mezi zařízení vykonávající tyto kritické se řadí směrovače, přepínače, firewally a také systémy
-oddělené od řízení síťového provozu jako například sondy monitorující síťový provoz
-nebo analyzátory, které mohou hledat signatury útoků v datových tocích.
+\section{Časově kritické operace} % ############################################################################
+Pod pojmem časově kritické operace se rozumí takové operace, které zabírají nejvíce výpočetního
+času při zpracování jednoho paketu a typicky je nutné provádět je na více síťových zařízeních.
+Těmito zařizeními mouhou být směrovače, přepínače, firewally a také systémy
+oddělené od řízení síťového provozu jako například sondy pouze monitorující síťový provoz nebo analyzátory,
+které mohou hledat signatury útoků v datových tocích.
 Mezi časově kritické operace rozebrané v této práci patří klasifikace paketů a velký důraz je kladen na
 jednodimenzionální klasifikaci dle cílové IP adresy, vyhledávání nejdelšího shodného prefixu.
-Tato operace je využívána pro prohledávání směrovací tabulky směrovačů pro určení nejvhodnější cesty pro
-směrování dat.
-Dalšími z operací je analýza a extrakce hlaviček paketů, která je využívána v již zmíněné klasifikaci,
+Tato operace je využívána pro prohledávání směrovací tabulky směrovačů pro určení nejvhodnější cesty jakou
+bude paket pokračovat při své cestě k cílovému zařizení.
+Další z operací je analýza a extrakce hlaviček paketů, která je využívána v již zmíněné klasifikaci,
 kde je nutné z hlavičky paketu extrahovat všechny informace dle který bude paket klasifikován.
 Dalšími z rozebíraných operací je hledání podřetězců a hledání regulárních výrazů.
 Poslední dvě zmíněné operace slouží především pro detekci útoků v systémech IDS (intrusion detection system)
@@ -137,11 +124,7 @@ a pro prevenci útoků v systémech IPS (intrusion prevention system). Jedná se
 pro hloubkové prohledávání paketů (Deep Packet Inspection). Toto prohledávání na rozdíl od ostatních operací
 pracuje s datovým obsahem paketů a ne jenom s hlavičkami paketu. Z toho vychází časová náročnost,
 neboť místo vyhodnocení hlavičky paketu jež čítá 19 bytů pro IPv4 a 40 bytů pro IPv6 je nutno
-projít veškerá data, jejichž velikost je variabilní a to od 1 bytu do teoreticky možný 65535 bytů.
-V praxi však velikost dat pohybuje v mezích do 1500 bytů.
-
-rychlost linek, počet operací, každé zařízení, vláknové zpracování, používají se fpga pro akceleraci,
-specializované procesory
+projít veškerá data, jejichž velikost se typicky pohybuje v rozmezí $1 - 1500B$.
 
 \subsection{Klasifikace paketů}
 
@@ -149,33 +132,36 @@ Klasifikace paketů je operace rozhodující o dalším zpracování paketu.
 Výsledkem klasifikace pak může být rozhodnutí, zda daný paket může projít do
 dalšího vyhodnocování nebo zda pochází nebo směřuje do sítě jež není dovolena.
 Této klasifikace se využívá například pro povolení pouze určitého rozsahu zdrojových IP adres
-pro omezení přístupu do podnikové sítě nebo například pro blokování síťového provozu
-mezi poskytovateli síťových spojů, kteří se nedohodli na vzájemné spolupráci.
+pro omezení přístupu do podnikové sítě nebo pro blokování paketů snažících se přistupovat
+ke službám jež jsou zakázány.
 
-Data využívané pro klasifikaci se skládají z ntice klasifikovaných položek, pravidla a priority.
-Nejčastěji využívanou klasifikací je klasifikace skládající ze pětice položek IP hlavičky
+Data využívané pro klasifikaci se skládají z ntice položek hlavičky paketu, pravidla a priority.
+Nejčastěji využívanou klasifikací je klasifikace skládající se z pětice položek IP hlavičky
 a to zdrojové adresy, cílové adresy, zdrojového portu, cílového portu a protokolu transportní vrstvy.
 Obsahem klasifikačních pravidel pak mohou být přesně specifikované hodnoty, rozsahy nebo prefixy.
-Prefixy jsou obecnějším zápis specifických hodnot i rozsahů, neboť rozsah lze přepsat v nejhorším
-případě $2N - 2$, kde N odpovídá počtu bitů reprezentující rozsah. V případě specifické hodnoty
+Prefixy jsou obecnějším zápisem specifických hodnot i rozsahů, neboť rozsah lze přepsat v nejhorším
+případě na $2N - 2$ prefixů, kde N odpovídá počtu bitů reprezentující rozsah. V případě specifické hodnoty
 je to prefix pouze jeden o bitové délce stejné jako reprezentovaná hodnota.
+
+Klasifikace je prováděna jako vyhledání každé definované položky v množině reprezentující hodnoty
+této položky a poté výběr pravidla s nejvyšší priritou z kartézského součinu těchto množin.
 
 Tato práce se zabývá pouze jednodimenzionální klasifikací založenou na cílové IP adrese, hledání
 nejdelšího shodného prefixu, operace sloužící pro prohledávání směrovacích tabulek směrovačů
 rozvedené v následující kapitole.
 
-\subsection{Hledání nejdelšího společného prefixu} % #######################################
+\subsection{Hledání nejdelšího shodného prefixu}\label{section:lpm} % #######################################
 Problém hledání nejdelšího shodného prefixu se rozumí jednodimenzionální klasifikace paketů dle
 jejich cílové IP adresy, která může být jak verze 4, tak verze 6.
-Tato operace je základním stavebním kamenem v počítačových sítích a bez ní by bylo nemožné dosahovat
-gigabitových rychlostí počítačových sítí. Hledání nejdelšího shodného prefixu je operace, která se provádí
+Hledání nejdelšího shodného prefixu je operace, která je prováděna
 na síťových prvcích zvaných směrovače. Tyto prvky jsou umístěny na každém rozhraní dvou a více
 počítačových sítích. Jejich cílem je nalézt nejvhodnější cestu, kterou směrovat příchozí paket.
-Struktura reprezentující uložené směrovací informace se nazývá routovací tabulka. Tato tabulka ukládá
-informace o dostupných sítích (jejich prefixech), délce tohoto prefixu a rozhraní, kterým se lze
-do odpovídající počítačové sítě dostat.
+Struktura reprezentující uložené směrovací informace se nazývá směrovací tabulka.
+Tato tabulka ukládá informace o dostupných sítích (jejich prefixech), délce tohoto prefixu a rozhraní,
+kterým se lze do odpovídající sítě dostat. Příklad směrovací tabulky je zobrazen v tabulce \ref{tab:routing-table}
 
 \begin{table}[!htbp]
+	\label{tab:routing-table}
 	\center
     \begin{tabular}{|l|l|l|}
     \hline
@@ -186,34 +172,32 @@ do odpovídající počítačové sítě dostat.
     \caption{Příklad směrovací tabulky}
 \end{table}
 
-S velkým rozmachem počítačových sítí v poslední dekádě
-dochází k velkému nárůstu směrovacích informací a proto se tímto směrem začal ubírat akademický výzkum.
-Pro zmenšení směrovacích tabulek byl navržen takzvaný supernetting, který sdružuje sítě se stejným
-prefixem o jiných délkách a stejnou cestou do jedné sítě.
-Pokud vezmeme v úvahu výše uvedenou tabulku tak při použití supernettingu by byla dva záznamy sloučeny
+S velkým rozmachem počítačových sítí v poslední dekádě dochází k velkému nárůstu směrovacích informací a
+pro zmenšení směrovacích tabulek byl navržen takzvaný supernetting, který agreguje směrovací záznamy
+sdílející stejné rozhraní a mající společnou část prefixu do jednoho záznamu.
+Pokud vezmeme v úvahu výše uvedenou tabulku tak při použití supernettingu by byly oba záznamy sloučeny
 v jeden, který by vypadal takto: $147.228.0.0/14, eth0$.
-Tím je dosaženo zmenšení směrovacích tabulek,
-nicméně i tak je potřeba v směrovacích tabulkách vyhledávat efektivně.
+Tím je dosaženo zmenšení směrovacích tabulek, nicméně i s využitím supernettingu zůstává hledání nejdelšího shodného
+prefixu časově kritickou operací.
+Pro snadnější porozumění bude v následující části používán binární zápis prefixů.
 
-Pro snadnější porozumění bude požíván binární zápis prefixů.
 Prefix ve směrovací tabulce je reprezentován jako posloupnost nul a jedniček s hvězdičkou na konci,
-která značí ze všechny adresy, jejichž začátek je shodný s částí před hvězdičkou odpovídají tomuto prefixu.
-Jako příklad uvedu prefix $1001*$ jež odpovídá adresám začínajícím $1001$, tedy $10010*$ a $10011*$.
-Nicméně ve směrovací tabulce může být uložen i prefix $10010*$, který sdílí první čtyři bity své adresy
-s výše uvedeným příkladem, a případě, že přijde paket začínající hodnotou $10010$ je z pohledu směrování
-nutno vyhodnotit prefix B jako nejdelší a poté paket správně směrovat. V případě $10011$ je však nejdelším
+která značí že všechny adresy, jejichž začátek je shodný s částí před hvězdičkou, odpovídají tomuto prefixu.
+Jako příklad uvedu prefix A $1001*$ jež odpovídá adresám začínajícím $1001$, tedy $10010*$ i $10011*$.
+Nicméně ve směrovací tabulce může být uložen i prefix B $10010*$, který sdílí první čtyři bity své adresy
+s výše uvedeným prefixem A a v případě, že přijde paket začínající hodnotou $10010$ je z pohledu směrování
+nutno vyhodnotit prefix B jako nejdelší shodný a poté paket správně směrovat. V případě $10011$ je však nejdelším
 shodným prefixem pravidlo A a tudíž nesmí dojít k vyhodnocení prefixu B jako nejdelšího.
 Z toho důvodu je nutné ve směrovací tabulce uchovávat i informace o délce prefixu.
-Tato informace poté slouží pro rozhodnutí, jaký pravidlo směrovací tabulky má nejdelší shodný prefix.
+Tato informace poté slouží pro rozhodnutí, jaké pravidlo směrovací tabulky má nejdelší shodný prefix.
 Délka prefixu může nabývat hodnot $1-32$ pro adresy typu
-IPv4 a $1-128$ pro adresy typu IPv6. Z výše uvedených informací a příkladů vyplývá,
+IPv4 a $1-128$ pro adresy typu IPv6.
+Z výše uvedených informací a příkladů vyplývá,
 že je nutné rozlišovat zda existující prefix reprezentuje adresu verze IPv4 nebo IPv6,
 jinak by mohlo docházet k vyhodnocení nejdelšího shodného prefixu pro adresu IPv4
 jako jiný prefix verze IPv6, což by mělo za následek nevalidní směrování paketů.
 Jako příklad může sloužit následující směrovací tabulka, ve které je první pravidlo
-verze IPv4 a druhé IPv6 ale při vyhledání by bylo zvoleno to, které je uloženo jako
-první což se může lišit v závislosti na tom, jakým algoritmem je směrovací tabulka
-uloženo nebo jaký prefix byl zadán jako první.
+verze IPv4 a druhé IPv6 a při vyhledání by nebylo možné určit jaké pravidlo je to správné.
 
 \begin{table}[!htbp]
 	\center
@@ -228,157 +212,141 @@ uloženo nebo jaký prefix byl zadán jako první.
 
 Pro hledání nejdelšího shodného prefixu existuje velké množství algoritmů, které jsou popsány v \cite{tbm}
 Většina z nich je založena na procházení stromové struktury. Každý algoritmus má jiné paměťové nároky
-a dosahuje jiných rychlostí. Je nutné zvolit kompromis mezi rychlostí a paměťovou náročností.
+a dosahuje jiných rychlostí. Z toho důvodu je při výběru vhodného algoritmu nutné
+volit kompromis mezi rychlostí a paměťovou náročností.
 V případě že jde o implementaci na architektuře FPGA důraz bude pravděpodobně kladen na paměťovou náročnost
-a to z důvodu, že tyto čipy mají specializované paměti. Tady bych zmínil asociativní paměť, kterou
-lze přímo použít pro vyhledávání. Na architekturách vycházejících z x86 je naopak kladen důraz
-na rychlost zpracování z důvodů obecných procesorů, které nejsou specializovány na tyto operace
-ale naopak zase disponují standardními paměti, které jsou snadno škálovatelné a dosahují kapacit
-řádově převyšující nároky jednotlivých algoritmů.
-
-Algoritmy rozebrané v této kapitole vycházejí z obecně n-árního stromu,
-což je rozšíření binárního stromu na více než dva potomky. Těmito algoritmy jsou
-\texttt{Binary search on prefix length}, jehož data jsou uložena v binárním stromu, ale pro vyhledávání
-je využito struktury hašovací tabulky, a \texttt{TreeBitmap}, který je n-árním stromem, kde n je volitelné.
-Dosažené výsledky pro různé n jsou vizualizovány v kapitole \ref{section:results-lpm}.
+a to z důvodu, že tyto čipy mají omezenou kapacitu paměti. Na architekturách vycházejících z x86 je naopak kladen důraz
+na rychlost zpracování z důvodů obecných procesorů, které nejsou specializovány na zpracování těchto operací
+a dosahují tak delší doby zpracování.
 
 První algoritmus hledání nejdelšího shodného prefixu byl založen na naivním procházení lineárního
-seznamu. Jak si čtenář může dovtípit doba vyhledání
-byla závislá na počtu uložených prefixů a její časová složitost byla $O(N)$, což by bylo použitelné
-pouze pro směrovače obsahující pouze jednotky prefixů.
-Algoritmy popsané a implementované v rámci této práce se minimalizují závislost mezi dobou vyhledávání
-a počtem prefixů ve směrovací tabulce. V případě binary search on prefix length je tato závislost
-omezená vlastnostmi hašovací funkce. Pokud je zvolena špatná hašovací funkce bude docházet ke kolizím
-a v případě nefunkční hašovací funkce (generuje stejný výsledky pro různé prefixy)
-ořezán na prosté procházení lineárního seznamu.
-Prohledávání směrovací tabulky algoritmem TreeBitmap je na počtu prefixů úplně nezávislé.
+seznamu. Doba vyhledávání pomocí tohoto algoritmu byla závislá na počtu uložených prefixů a její
+časová složitost byla $O(N)$, což při dnešních rychlostech umožňuje procházet směrovací tabulku
+obsahující pouze malý počet záznamů.
 
-\paragraph{Co zmínit}
-- jaké jsou známené algoritmy
-- hašovací funkce
-- výhody/nevýhody těchto algoritmů
-- první algoritmus
-- směrovací protokoly
-- co obsahuje směrovací tabulka
-- jedna adresa může odpovídat více záznamům
-- příklad směrovací tabulky s stejnými adresami a různou délkou
-- délka je počet bitů adresy sítě
-- umísťění zařízení má vliv na velikost tabulky - nějaký příklad?
-- sekvenční vyhledávání v seznamu
-- TCAM, asociativní paměť?
-- trie struktura?
-- binární trie
-- multibitový trie
-- klíč je určen implicitně pozicí ve stromu a ne explicitně
+Algoritmy rozebrané v této kapitole vycházejí z obecně n-árního stromu,
+jež je rozšířením binárního stromu na více než dva potomky.
+Těmito algoritmy je binární vyhledávání na délce prefixu a TreeBitmap.
+Binární vyhledávání na délce prefixu používá binární strom pro interní reprezentaci směrovacích
+informací a pro vyhledávání využívá struktury hašovací tabulky, ve které jsou uloženy všechny existující uzly
+binárního stromu.
+TreeBitmap je algoritmus založený na obecném n-árním stromu a vyznačuje se tím,
+že pro uložené prefixu využívá zakódované bitmapy, které umožňuje procházet stromem
+po více než jednom bitu a dosahuje tak menší paměťových nároků.
+Dosažené výsledky pro různé n jsou vizualizovány v kapitole \ref{section:results-lpm}.
 
 
 \subsubsection{TreeBitmap} % #####################################################################################
 
-Zjistit časovou a paměťovou složitost
+Algoritmus TreeBitmap je založen na datové struktuře n-ární stromu, v němž jsou uloženy směrovací informace.
+Hlavní myšlenkou je uložení všech uzlů na jednom paměťovém místě, což znamená že stačí uchovávat pouze jednu
+adresu reprezentující paměťové místo, kde se uzly nacházejí, a index pro určení jaký uzel se má vybrat.
+Výhodou tohoto zakódování informací je zmenšení paměťových nároků pro uložení každého uzlu stromové struktury.
+Další specifickou vlastností algoritmu TreeBitmap je zpracování několika bitů adresy v jednom kroku.
+Počet zpracovaných bitů je nazýván střída a právě velikost střídy je stupněm n-árního stromu.
 
-Struktura pro uložení prefixu se skládá z položek interní bitmapy, externí bitmapy, ukazatele na potomky
-a ukazatele na pravidla. Interní bitmapa zahrnuje všechny všechny prefixy,
-které je možné vyjádřit na N bitech střídy. Jako příklad může posloužit velikost střídy 2 bity.
-Proto je nutné uložit všechny tyto kombinace: $0*$, $1*$, $00*$, $01*$, $10*$ a $11*$.
-Z toho lze odvodit vzorec pro počet bitů nutných pro reprezentaci všech možný stříd.
-$2^{N + 1}$ kde N je velikost střídy. Velikost externí bitmapy lze vyjádřit vzorcem $2^N$ kde N je velikost střídy.
-
-Interní bitmapa slouží pro zjištění, kolik pravidel existuje v tomto uzlu.
-To se zjistí zavolání funkce \texttt{ones(internal-bitmap, end)}. kde end pozice,
-která odpovídá části prefixu o délce střídy.
-To znamená že pokud po vykousnutí střídy z prefixu dostaneme bity
-$11$ pozice end bude stanovena na decimální reprezentaci tohoto čísla, v tomto případě $3$.
-Následuje zjištění, zda se na dané pozici interní bitmapy vykytuje jednička nebo nula.
-V případě, že je tam nula se neděje nic a algoritmus pokračuje zjišťováním, zda existuje
-cesta stromem dál z externí bitmapy jak je vysvětleno v následujícím odstavci.
-
-Pokud je tam jednička tak algoritmus spočítá funkci ones na interní bitmapě a uloží si vypočítanou
-hodnotu. Dále si také uloží odkaz do tabulky pravidel.
-
-Pokud tam není jednička, tak se postupně odebírají méně významné bity vykousnuté v prefixu a v cyklu se provádí
-zjišťování zda je tam jednička nebo ne. Tento cyklus je ukončen v případě, že se narazí na nultou pozici
-nebo je nalezena jednička.
-
-V případě že již neexistuje další cesta stromem je algoritmus vyhledávání ukončen a jako výsledek
-je navrácena hodnota uložená ukazateli na nejlepší pravidla s index, který je uložen také.
-
-Externí bitmapa slouží pro zjištění, zda existuje cesta ve stromu, která odpovídá vyzobnutému prefixu.
-Index do pole následovníků je vypočítán jako \texttt{ones(external-bitmap, end)}. V případě,
-že pro vyzobnuté bity neexistuje následovník je navráceno pravidlo, které bylo zjištěno z interní bitmapy.
-
-Funkce \texttt{ones(bitmap, end)} spočítá všechny bity, které jsou nastaveny na jedničku v rozmezí $<0, end)$.
-Toto je implementuje jako bitová operace \texttt{AND} a maskou, která reprezentuje právě počet pozic, které se
-mají vypočítat. Samotné zjištění počtu jedniček lze řešit několika způsoby, v implementaci této knihovny
-je zvoleno volání vestavěné funkce překladače \texttt{popcount}, které se při překladu převede na nejefektivnější
-instrukce cílové platformy.
-
-Algoritmus v pseudokódu je možné vidět v \ref{alg:treebitmap}.
-
-Příklad bitmap pro uložení prefixů:
+Každý uzel stromové struktury obsahuje dvě bitmapy, interní a externí, které slouží pro zakódování indexů.
+Interní bitmapa slouží pro zakódování informací, jaké prefixy se nacházejí v aktuálním uzlu.
+Externí bitmapa pak uchovává informace o existujících cestách do nižších vrstev stromové struktury.
+Příklad zakódovaných bitmap je zobrazen v tabulce \ref{tab:tbm-bitmaps}.
+Dalšími položkami uzlu je ukazatel na pole následujících uzlů a ukazatel na pole obsahující směrovací pravidla.
 
 \begin{table}
 	\center
-	\label{tab:tbm-internal}
+	\label{tab:tbm-bitmaps}
     \begin{tabular}{|l||c|c|c|c|c|c|c|}
     \hline
-    Prefix & $*$ & $0*$ & $1*$ & $00*$ & $01*$ & $10*$ & $11*$ \\ \hline
-    Pravidlo & 0 & 0  & 1  & 0   & 0   & 1   & 1   \\ \hline
+    Prefix & $*$ & $0*$ & $1*$ & $00*$ & $01*$ & $10*$ & $11*$ \\ \hhline{|=#=|=|=|=|=|=|=|}
+    Interní bitmapa & 0 & 1 & 0 & 0 & 0 & 1 & 1 \\ \hline
+    \multicolumn{4}{|l|}{Externí bitmapa} & 1 & 0 & 1 & 0 \\ \hline
     \end{tabular}
-    \caption{Příklad interní bitmapy}
+    \caption{Příklad bitmap algoritmu TreeBitmap}
 \end{table}
 
-\begin{table}
-	\center
-	\label{tab:tbm-external}
-    \begin{tabular}{|l||c|c|c|c|}
-    \hline
-    Prefix & $00*$ & $01*$ & $10*$ & $11*$ \\ \hline
-    Pravidlo & 1 & 0 & 1 & 0 \\ \hline
-    \end{tabular}
-    \caption{Příklad externí bitmapy}
-\end{table}
+Algoritmus vyhledávání spočívá v procházení stromu od kořenu a zjišťování, zda
+existuje prefix odpovídající zpracované části adresy. Částí adresy se rozumí N bitů, jež jsou brány postupně
+od nejvýznamnějších bitů hledané adresy až po nejméně významné.
+Jako první operace hledání nejdelšího shodného prefixu se extrahují bity adresy na pozici odpovídající
+aktuální hloubce zanoření ve stromu a provede se operace zjištění, zda je pro část této adresy uloženo
+směrovací pravidlo. To je zjištěno z interní bitmapy na pozici, jež odpovídá délce a hodnotě extrahovaných bitů.
+Pozice interní bitmapy je vypočítána jako $2^{N} - 1 + x$, kde $N$ reprezentuje hodnotu střídy a $x$
+dekatickou hodnotu extrahovaných bitů.
+Pokud se na této pozici
+nachází hodnota "1", je uloženo pravidlo na indexu spočítatelným jako $ones(bitmap, position)$ v poli pravidel.
+Toto pravidlo pak reprezentuje dočasný nejlepší výsledek. Pokud je na vypočítaném
+pozici v interní bitmapě hodnota "0" je opakován výpočet pozice s hodnotou $N$ sníženou o jedna a bitovou hodnotou
+oříznutou o nejméně významný bit. Tato operace se opakuje tak dlouho, dokud není nalezen existující pozice
+v externí bitmapě s hodnotou "1"
+nebo dokud není N nulové. Jako druhá operace je provedeno hledání následovníků ve stromové struktuře
+reprezentující specifičtější prefixy. To je provedeno jako zjištění přítomnosti hodnoty "1" v externí
+bitmapě na pozici, jejíž hodnota je dekadickou reprezentací extrahovaných bitů. V případě přítomnosti
+"1" na této pozici je proveden přechod do další úrovně stromové struktury a celý postup se opakuje.
+Pokud je na této pozici hodnota "0" je vyhledávání ukončeno a jako výsledek je navrácena hodnota
+dočasného nejlepšího výsledku, která odpovídá pravidlu jež patří k nejdelšímu shodnému nalezenému
+prefixu. Celý algoritmus je popsán v pseudokódu v algoritmu \ref{alg:treebitmap}.
 
-TreeBitmap je šetrný k paměti a alokuje si pouze tolik prvků pole ať už pro uložení pravidel
-nebo pro uložení následovník kolik jich je opravdu potřeba.
+Pro výpočet indexu do polí obsahující pravidla a následovníky se používá funkce
+\texttt{ones(bitmap, position)}, jež
+spočítá počet bitů s hodnotou "1" v dané bitmapě a to od pozice 0 do pozice \texttt{position}.
 
-Z \cite{tbm} vyplývá, že je vhodné nastavit velikost střídy v rozmezí 2 - 8 bitů. Což je také rozmezí,
-na které je soustředěna a otestována implementace TreeBitmap v této knihovně. Experimentálně bylo zjištěno,
-že tato implementace je funkční až do velikost střídy 13bitů.
+Jeden uzel stromu TreeBitmap je vizualizován na obrázku \ref{fig:tbm-node}. Uzly zbarvené černě
+jsou uzly pro které je definováno směrovací pravidlo.
+
+\begin{figure}[!htbp]
+	\label{fig:tbm-node}
+	\centering
+	\includegraphics[scale=.55]{fig/tbm.pdf}
+	\caption{Jeden uzel algortimu TreeBitmap}
+\end{figure}
 
 \begin{algorithm}[H]
 	\label{alg:treebitmap}
 	\KwData{tbm-root, ip, ip-length}
 	\KwResult{routing rule}
 	node $\leftarrow$ tbm-root\;
+	longest-match-node $\leftarrow$ tbm-root\;
+	longest-match-index $\leftarrow$ 0\;
 	position $\leftarrow$ 0\;
 	\Repeat{BIT(parent.external, bits)}
 	{
-		bits $\leftarrow$ get-stride-bits(ip, position, prefix-length)\;
+		bits $\leftarrow$ get-stride-bits(ip, position)\;
 		position $\leftarrow$ position + STRIDE\;
 
-		\If{isRule(node.internal, bits)}
+
+		\If{internal-index(node.internal, bits)}
 		{
-			longest-match = node\;
+			longest-match-node = node\;
+			longest-match-index = internal-index(node.internal, bits)\;
 		}
 
 		index $\leftarrow$ ones(node.external, bits)\;
 		parent $\leftarrow$ node\;
 		node $\leftarrow$ node.external[index]\;
 	}
-	\Return longest-match\;
+	\Return longest-match-node.rule[logest-match-index]\;
 	\caption{Hledání nejdelšího shodného prefixu algoritmem TreeBitmap}
 \end{algorithm}
 
-\paragraph{Co zmínit}
-- procházení interních a externích bitmap, struktura interní a externí bitmapy
-- alokace všech následovníků a pravidel na jednou v jednom místě
-- funkce jedniček
-
 \subsubsection{Binární vyhledávání na délce prefixu - Binary search on prefix length} % ###################################################################
-Zjistit časovou a paměťovou složitost
 
-Algoritmus binary search on prefix length je založen jak již název napovídá na binárním vyhledávání.
-Binární vyhledávání jiný název pro půlení intervalů. Vyhledávání půlením intervalů
+Prefixy jsou pouze v konečných listech
+Hašování:
+	prefix - konec
+	nonprefix - rozšířit
+	nic - zmenšit
+
+\begin{figure}[!htbp]
+	\begin{floatrow}
+		\ffigbox{
+		\includegraphics[scale = 0.5]{fig/bspl-not-pushed.pdf}}
+			{\caption{Strom před leaf-pushingem}\label{bspl-not-pushed}}
+		\ffigbox{\includegraphics[scale = 0.5]{fig/bspl-pushed.pdf}}
+			{\caption{Strom po provedení leaf-pushingu}\label{bspl-pushed}}
+	\end{floatrow}
+\end{figure}
+
+Algoritmus binary search on prefix length je založen binárním vyhledávání neboli na metodě
+půlení intervalů. Vyhledávání půlením intervalů
 se ve své první iteraci pokusí vyhledat shodný prefix celé délky, tedy 32 bitů pro IP adresu
 verze protokolu IPv4 a 128 bitů pro IP verze 6.
 
@@ -973,28 +941,9 @@ testovaných klíčových slov bylo využito klíčových definovaných pro HTTP
 Pří experimentování s regulárními výrazy byly jako vstupní data použita stejná data jako pro hledání řetězců,
 ale jako regulární výraz byly použity matchování URL\footnote{Uniform resource locator} adres.
 
-Část této práce pojednávající o hledání nejdelšího shodného prefixu vychází z publikací
-\cite{tbm}, \cite{bspl}, a dalších. Hledání řetězců vychází z \cite{aho} a hledání regulárních výrazů
- z \cite{meduna}.
-
-\section{Další rozšíření} % #####################################################################################
 Jako kroky navazující na tuto práci je možné implementovat zbývající operace, které implementovány nebyly.
 Těmito operacemi je klasifikace paketů a analýza a extrakce hlaviček paketů.
 
-\subsection{Optimalizace}
-U implementace \texttt{Binary search on prefix length} je možné rozdělit strukturu \texttt{\_bspl\_node}
-na dvě a to jednu pro každou verzi IP protokolu. Tím se dosáhne snížení paměťové náročnosti
-pro implementaci IPv4 o 12B pro každý uzel. To s sebou nese nutnost upravit všechny funkce pracující
-s položkou \texttt{prefix} v rámci této struktury.
-
-Další optimalizací je přepsání leaf-pushing do iterativní průchod za použití Morrisova algoritmu \cite{morris},
-který umožňuje průchod stromovou strukturou bez použití rekurze a zásobníku.
-
-Dále je možné spojit položky \texttt{type} a \texttt{prefix\_length} struktury \texttt{\_bspl\_node}
-do jednoho byte. To je možné z důvodu rozsahu \texttt{prefix\_length} $1-128$ a pouze dvou typů uzlu,
-což je možné reprezentovat jedním bytem.
-
-\subsection{Stress-testing}
 Ze specifikace požadavků na implementaci knihovny v nízkoúrovňovém jazyce C je zřejmé,
 že knihovna bude používána i na vestavěných systémech disponujících omezenou pamětí a z toho
 důvodu by jedním z dalších kroků mohlo být formální testování s nedostatkem paměti.
