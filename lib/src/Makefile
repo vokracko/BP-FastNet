@@ -1,16 +1,20 @@
+REGEX=dfa
+LPM=tbm
+STRIDE=5
+
 PHONY: lpm lpm regex .FORCE
 
 all: lpm regex
 	ar -M < generate.a
 
 lpm: .FORCE
-	make -C lpm/ all
+	make -C lpm/ all ALG=$(LPM) STRIDE=(STRIDE)
 
 pm: .FORCE
 	make -C pm/ all
 
 regex: .FORCE
-	make -C regex/ all
+	make -C regex/ all ALG=$(REGEX)
 
 
 clean:
