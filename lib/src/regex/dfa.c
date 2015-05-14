@@ -1177,22 +1177,47 @@ int regex_match_dfa(regex_dfa * regex, char * input, unsigned length)
 {
 	void * char_position;
 	_dfa_state * state = regex;
+	int res = NOT_MATCH;
+	stack * start = stack_init();
+	stack * end = stack_init();
+	stack * swap;
 
-	if(state->id != ID_NONE) return state->id;
+	if(state->id != ID_NONE)
+	{
+		res = state->id;
+		goto DFA_END;
+	}
 
 	for(unsigned position = 0; position < length; ++position)
 	{
-		if((char_position = memchr(state->key, input[position], state->length)))
+		stack_push(start, regex, POINTER);
+
+		while(!stack_empty(start))
 		{
-			state = state->next[char_position - (void *) state->key];
-		}
-		else
-		{
-			state = regex;
+			state = stack_pop(start).pointer;
+
+			if((char_position = memchr(state->key, input[position], state->length)))
+			{
+				state = state->next[char_position - (void *) state->key];
+
+				if(state->id != ID_NONE)
+				{
+					res = state->id;
+					goto DFA_END;
+				}
+				stack_push(end, state, POINTER);
+			}
 		}
 
-		if(state->id != ID_NONE) return state->id;
+		swap = start;
+		start = end;
+		end = swap;
+
 	}
 
-	return NOT_MATCH;
+DFA_END:
+	stack_destroy(start);
+	stack_destroy(end);
+
+	return res;
 }
