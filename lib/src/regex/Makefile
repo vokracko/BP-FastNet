@@ -14,7 +14,7 @@ queue:
 	make -C $(GENERAL) queue
 
 precompile-headers: types.h
-	gcc -DALG_$(ALG) -E -dU -nostdinc types.h -o types-precompiled.h
+	$(CC) -DALG_$(ALG) -E -dU -nostdinc types.h -o types-precompiled.h
 
 clean:
 	rm -rf *.o *.a *.so 2>/dev/null

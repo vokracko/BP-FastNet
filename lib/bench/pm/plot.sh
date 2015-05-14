@@ -8,4 +8,9 @@ do
 	res=$(./ac all input/"$input")
 	printf "$input\t$res\n" >> $dat_file
 done
-gnuplot plot.plt
+
+which gnuplot > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+	gnuplot plot.plt
+fi
+

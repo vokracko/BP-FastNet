@@ -1,5 +1,5 @@
+CC=gcc
 STRIDE=2
-OUTPUT=""
 LIB=../../src/lpm
 
 .PHONY: .FORCE
@@ -16,7 +16,7 @@ ipv6: .FORCE
 
 bin: .FORCE bin.c
 	make -C $(LIB) ALG=$(ALG) STRIDE=$(STRIDE)
-	gcc -std=c99 bin.c $(LIB)/lpm.a -o $(ALG) -DIPv$(IP)
+	$(CC) -std=c99 bin.c $(LIB)/lpm.a -o $(ALG) -DIPv$(IP)
 
 .FORCE:
 

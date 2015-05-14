@@ -35,4 +35,7 @@ do
 
 done
 
-gnuplot -e "ipv=$IPv; strides='$STRIDES'" plot.plt
+which gnuplot > /dev/null 2>&1
+if [ $? -eq 0 ]; then
+	gnuplot -e "ipv=$IPv; strides='$STRIDES'" plot.plt
+fi

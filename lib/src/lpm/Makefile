@@ -12,7 +12,7 @@ lib: $(ALG).c precompile-headers
 	ar rcs lpm.a $(ALG).o
 
 precompile-headers: types.h
-	gcc -DALG_$(ALG) -DSTRIDE=$(STRIDE) -E -dU -nostdinc types.h -o types-precompiled.h
+	$(CC) -DALG_$(ALG) -DSTRIDE=$(STRIDE) -E -dU -nostdinc types.h -o types-precompiled.h
 
 clean:
 	rm -rf *.o *.a *.so types-precompiled.h 2>/dev/null

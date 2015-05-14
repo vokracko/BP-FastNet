@@ -1,4 +1,4 @@
-OUTPUT=""
+CC=gcc
 LIB=../../src/regex
 ALG="nfa"
 
@@ -9,7 +9,7 @@ all:
 
 bin: .FORCE bin.c
 	make -C $(LIB) lib
-	gcc -std=c99 -g3 data.c bin.c -D$(ALG) $(LIB)/regex.a -o $(ALG)
+	$(CC) -std=c99 -g3 data.c bin.c -D$(ALG) $(LIB)/regex.a -o $(ALG)
 
 .FORCE:
 

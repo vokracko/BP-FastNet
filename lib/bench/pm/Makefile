@@ -1,4 +1,4 @@
-OUTPUT=""
+CC=gcc
 LIB=../../src/pm
 ALG="ac"
 
@@ -9,7 +9,7 @@ all:
 
 bin: .FORCE bin.c
 	make -C $(LIB) ALG=$(ALG)
-	gcc -std=c99 data.c bin.c -g3  $(LIB)/pm.a -o $(ALG)
+	$(CC) -std=c99 data.c bin.c -g3  $(LIB)/pm.a -o $(ALG)
 
 .FORCE:
 

@@ -8,7 +8,7 @@ all: lpm regex
 	ar -M < generate.a
 
 lpm: .FORCE
-	make -C lpm/ all ALG=$(LPM) STRIDE=(STRIDE)
+	make -C lpm/ all ALG=$(LPM) STRIDE=$(STRIDE)
 
 pm: .FORCE
 	make -C pm/ all
