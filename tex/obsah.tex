@@ -2,23 +2,23 @@
 
 \chapter{Úvod} % #####################################################################################
 
-Žijeme v době kdy se internet stal nedílnou součástí každodenního života a s internetem už nepracují
+Žijeme v době, kdy se internet stal nedílnou součástí každodenního života a s internetem už nepracují
 pouze klasické počítače, ale do popředí se také dostávají mobilní zařízení, které meziročně
-zaznamenávají více než $50\%$ nárůst. Dalším druhem zařízení jež se začínají připojovat
+zaznamenávají více než $50\%$ nárůst. Dalším druhem zařízení, jež se začínají připojovat
 jsou vestavěné systémy patřící do trendu nazývaného internet věcí.
-S rychlostí jakou přibývají zařízení vyžadující přístup k internetu ale i s jeho rozšiřováním
-do zemí zatím nedotčených se neustále zvyšují požadavky na rychlost, se kterou data prochází počítačovými
+Rychlostí s jakou přibývají nový uživatelé internetu a zařízení vyžadující přístup k počítačovým sítím
+se neustále zvyšují požadavky na rychlost, se kterou data prochází počítačovými
 sítěmi a z toho vyplývající požadavky na rychlost zpracování síťového provozu a to zejména na zařízeních
 starajících se o řízení internetového provozu na páteřních linkách. Mezi tyto
-zařízení lze zařadit směrovače (routery), které řídí datové toky mezi jednotlivými sítěmi,
-přepínače (switche) starající se o řízení toků dat uvnitř autonomních sítí a
+zařízení lze zařadit směrovače, které řídí datové toky mezi jednotlivými sítěmi,
+přepínače starající se o řízení toků dat uvnitř autonomních sítí a
 systémy pro detekci (IDS\footnote{Intrusion detection system}) a prevenci (IPS\footnote{Intrusion prevention system})
 síťových útoků, které analyzují obsah každého paketu procházejícího sítí.
 
 Páteřní spoje v době psaní této práce dosahují rychlostí v řádech desítek gigabitů
 za sekundu a z toho vyplývají požadavky na rychlost zpracování síťových dat. Při těchto rychlostech
 jsou tradiční procesory schopny vykonat pouze desítky instrukcí, což nestačí na provedení všech potřebných
-operací. Nicméně je důležité aby stejné rychlosti zpracování dosahovaly všechna zařízení na páteřních spojích,
+operací. Nicméně je důležité, aby stejné rychlosti zpracování dosahovaly všechna zařízení na páteřních spojích,
 protože počítačová sít je pouze tak rychlá, jak rychlá je její nejpomalejší část, tzv. úzké hrdlo.
 
 Z těchto vlastností vycházejí požadavky na stále efektivnější algoritmy zpracovávající časově kritické operace.
@@ -26,12 +26,9 @@ Z těchto vlastností vycházejí požadavky na stále efektivnější algoritmy
 těchto operací je součástí této práce. Z těchto operací jsou vybrány a rozvedeny operace
 hledání řetězců a regulárních výrazů, analýza a extrakce hlaviček paketů a klasifikace paketů, speciálně pak jednodimenzionální klasifikace dle cílové IP adresy, hledání nejdelšího shodného prefixu.
 
-Přínosem této knihovny je vlastní implementace zmíněných časově kritických operací, která bude
-využita výzkumnou skupinou ANT na Fakultě Informačních technologií Vysokého učení technického v Brně
-pro vytváření bezpečnostních aplikací a systémů.
-Pro knihovnu je navržen a implementován obecný princip vláknového zpracování použitelný pro všechny
-zmíněné operace, který umožňuje řetězit požadavky na zpracování do vyrovnávacích pamětí a jednotlivé operace
-provádět plynule za sebou bez nutnosti zasahovat do datových struktur nebo toku řízení.
+Přínosem této práce je implementace algoritmů provádějících zmíněných časově kritické operace v podobě knihovny,
+která bude využita výzkumnou skupinou ANT na Fakultě Informačních technologií Vysokého učení technického v Brně
+pro vytváření bezpečnostních systémů a aplikací.
 
 V kapitole \ref{chapter:theoretical} jsou popsány síťové modely a vrstvy těchto modelů,
 nad nimiž jsou operace této knihovny implementovány, dále jsou popsány časově kritické operace prováděné
@@ -39,13 +36,11 @@ prvky v počítačových sítích. Kapitola \ref{chapter:api} popisuje návrh ve
 pro operace zmíněné v kapitole \ref{chapter:theoretical}, způsoby použití této knihovny a možnosti rozšíření
 o další časově kritické operace. V kapitole \ref{chapter:results} jsou vizualizovány a diskutovány
 výsledky, jichž se podařilo dosáhnout v implementaci této knihovny a to na dvou hlavních platformách, Intel a ARM.
-Kapitola \ref{chapter:conclusion} shrnuje dosažené výsledky a nastiňuje další možný vývoj této knihovny
-a to jak z hlediska rozšiřování repertoáru implementovaných operací tak i z pohledu dalších optimalizací
-a testování ve scénářích odpovídajících používání knihovny v reálných systémech.
+Kapitola \ref{chapter:conclusion} shrnuje dosažené výsledky a nastiňuje další možný vývoj této knihovny.
 
 \chapter{Teoretický rozbor}\label{chapter:theoretical} % ###########################################################
 
-Tato kapitola poskytuje teoretické informace ze kterých vychází další kapitoly.
+Tato kapitola poskytuje teoretické informace, ze kterých vychází tato práce.
 V první části je popsán síťový model ISO/OSI a jeho vrstvy důležité z pohledu této práce.
 V druhé části jsou pak podrobněji rozebrány jednotlivé časově kritické operace a největší důraz je
 kladen na jednodimenzionální klasifikaci paketů, vyhledání nejdelšího shodného prefixu.
@@ -70,7 +65,7 @@ znázorněn průchod jednoho datového paketu odeslaného ze stanice A s cílovo
 \begin{description}
 \item[Fyzická vrstva / Vrstva síťového rozhraní]\label{layers:physical} % ##################################
 je nejnižší vrstva ISO/OSI modelu a pracuje s daty na úrovni bitů. Stará se o
-jejich přenos po přenosovém médiu. Protokoly této vrstvy definují signály reprezentující data
+jejich přenos po přenosovém médiu. Protokoly této vrstvy definují signály reprezentující data,
 a tudíž jde o protokoly implementované již v hardware síťových zařízení.
 
 \item[Linková vrstva]\label{layers:link} % ###################################################################
@@ -95,15 +90,15 @@ je věnována kapitola \ref{section:lpm}
 
 \item[Transportní vrstva]\label{layers:transport} % #########################################################
 umožňuje adresovat aplikace zodpovědné za přenášená data. Datová struktura této vrstvy
-je nazývána segment. Mezi dominujíci protokoly patří TCP a UDP. Hlavním rozdílem mezi těmito protokoly
+je nazývána segment. Mezi dominující protokoly patří TCP a UDP. Hlavním rozdílem mezi těmito protokoly
 je zaručení spolehlivého doručení a vytváření trvanlivých spojení, které poskytuje pouze TCP.
-UDP naopak spolehlivé doručení negarantuje, ale díky tomu je tento protokol jednudušší.
-Situace ve kterých pozitiva jako
+UDP naopak spolehlivé doručení negarantuje, ale díky tomu je tento protokol jednodušší.
+Situace, ve kterých pozitiva jako
 nižší režie přebijí zápory je hlavně přenos dat v reálném čase. To je například streamování videa,
 přenos hlasu technologie VoIP nebo přenos informací do online her.
 Zpracování dat na úrovni transportní vrstvy a všech vyšších vrstev není implementováno na síťových
 zařízeních starajících se přenos dat po síti. Jediná zařízení, které implementují zpracování
-dat těchto vrstev jsou koncová zařízení.
+dat těchto vrstev, jsou koncová zařízení.
 
 \end{description}
 
@@ -118,39 +113,39 @@ Mezi časově kritické operace rozebrané v této práci patří klasifikace pa
 jednodimenzionální klasifikaci dle cílové IP adresy, vyhledávání nejdelšího shodného prefixu.
 Tato operace je využívána pro prohledávání směrovací tabulky směrovačů pro určení nejvhodnější cesty jakou
 bude paket pokračovat při své cestě k cílovému zařízení.
-Další z operací je analýza a extrakce hlaviček paketů, která je využívána v již zmíněné klasifikaci,
+Další z operací je analýza a extrakce hlaviček paketů, která je využívána v již zmíněné klasifikaci paketů,
 kde je nutné z hlavičky paketu extrahovat všechny informace dle kterých bude paket klasifikován.
 Dalšími z rozebíraných operací je hledání řetězců a hledání regulárních výrazů.
 Poslední dvě zmíněné operace slouží především pro detekci útoků v systémech IDS (z angl. \textit{intrusion detection system})
 a pro prevenci útoků v systémech IPS (z angl. \textit{intrusion prevention system}). Jedná se o operace sloužící
 pro hloubkové prohledávání paketů (angl. \textit{Deep Packet Inspection}). Toto prohledávání na rozdíl od ostatních operací
 pracuje s datovým obsahem paketů a ne jenom s hlavičkami paketu. Z toho vychází časová náročnost,
-neboť místo vyhodnocení hlavičky paketu jež čítá 19 bytů pro IPv4 a 40 bytů pro IPv6 je nutno
+neboť místo vyhodnocení hlavičky paketu, jež čítá 19 bytů pro IPv4 a 40 bytů pro IPv6 je nutno
 projít veškerá data, jejichž velikost se typicky pohybuje v rozmezí $1 - 1500B$.
+
+Informace zde použité vycházejí z publikací \cite{bspl}, \cite{tbm}, \cite{aho}, \cite{gigabit-networking}, \cite{phe-design} a \cite{meduna}.
 
 \subsection{Klasifikace paketů}
 
 Klasifikace paketů je operace rozhodující o dalším zpracování paketu.
 Výsledkem klasifikace pak může být rozhodnutí, zda daný paket může projít do
-dalšího vyhodnocování nebo zda pochází nebo směřuje do sítě jež není dovolena.
+dalšího vyhodnocování nebo zda pochází nebo směřuje do sítě, která není dovolena.
 Této klasifikace se využívá například pro povolení pouze určitého rozsahu zdrojových IP adres
 pro omezení přístupu do podnikové sítě nebo pro blokování paketů snažících se přistupovat
-ke službám jež jsou zakázány.
+ke službám, které jsou povoleny pouze pro specifická zařízení.
 
-Data využívané pro klasifikaci se skládají z ntice položek hlavičky paketu, pravidla a priority.
+Data využívané pro klasifikaci se skládají z položek hlavičky paketu, pravidla a priority.
 Nejčastěji využívanou klasifikací je klasifikace skládající se z pětice položek IP hlavičky
 a to zdrojové adresy, cílové adresy, zdrojového portu, cílového portu a protokolu transportní vrstvy.
 Obsahem klasifikačních pravidel pak mohou být přesně specifikované hodnoty, rozsahy nebo prefixy.
 Prefixy jsou obecnějším zápisem specifických hodnot i rozsahů, neboť rozsah lze přepsat v nejhorším
-případě na $2N - 2$ prefixů \cite{clasification-prefix}, kde N odpovídá počtu bitů reprezentující rozsah. V případě specifické hodnoty
-je to prefix pouze jeden o bitové délce stejné jako reprezentovaná hodnota.
+případě na $2N - 2$ prefixů \cite{clasification-prefix}, kde $N$ odpovídá počtu bitů reprezentující rozsah. V případě specifické hodnoty je to prefix pouze jeden o bitové délce stejné jako reprezentovaná hodnota.
 
 Klasifikace je prováděna jako vyhledání každé definované položky v množině reprezentující hodnoty
-této položky a poté výběr pravidla s nejvyšší prioritou z kartézského součinu těchto množin.
+této položky definované v klasifikátoru a poté výběr pravidla s nejvyšší prioritou z kartézského součinu těchto množin.
 
-Tato práce se zabývá pouze jednodimenzionální klasifikací založenou na cílové IP adrese, hledání
-nejdelšího shodného prefixu, operace sloužící pro prohledávání směrovacích tabulek směrovačů,
-rozvedené v následující kapitole.
+Tato práce se zabývá pouze jednodimenzionální klasifikací paketů, jež je založena na klasifikaci cílové IP
+adresy, hledání nejdelšího shodného prefixu, operace sloužící pro prohledávání směrovacích tabulek směrovačů.
 
 \subsection{Hledání nejdelšího shodného prefixu}\label{section:lpm} % #######################################
 Problém hledání nejdelšího shodného prefixu se rozumí jednodimenzionální klasifikace paketů dle
@@ -174,34 +169,32 @@ kterým se lze do odpovídající sítě dostat. Příklad směrovací tabulky j
     \label{tab:routing-table}
 \end{table}
 
-S velkým rozmachem počítačových sítí v poslední dekádě dochází k velkému nárůstu směrovacích informací a
-pro zmenšení směrovacích tabulek byl navržen takzvaný supernetting, který agreguje směrovací záznamy
+S velkým rozmachem počítačových sítí v poslední dekádě dochází k velkému nárůstu směrovacích informací a z toho vycházející nárůst velikosti směrovacích tabulek. Jako jedno z řešení pro zmenšení směrovacích tabulek byl navržen takzvaný supernetting, který agreguje směrovací záznamy
 sdílející stejné rozhraní a mající společnou část prefixu do jednoho záznamu.
 Pokud vezmeme v úvahu výše uvedenou tabulku tak při použití supernettingu by byly oba záznamy sloučeny
 v jeden, který by vypadal takto: $147.228.0.0/14, eth0$.
 Tím je dosaženo zmenšení směrovacích tabulek, nicméně i s využitím supernettingu zůstává hledání nejdelšího shodného
 prefixu časově kritickou operací.
-Pro snadnější porozumění bude v následující části používán binární zápis prefixů.
 
-Prefix ve směrovací tabulce je reprezentován jako posloupnost nul a jedniček s hvězdičkou na konci,
-která značí že všechny adresy, jejichž začátek je shodný s částí před hvězdičkou, odpovídají tomuto prefixu.
+Prefix ve směrovací tabulce je interně reprezentován jako posloupnost nul a jedniček (binární vyjádření jeho hodnoty) s hvězdičkou na konci která značí, že všechny adresy, jejichž začátek je shodný s částí před hvězdičkou, odpovídají tomuto prefixu.
 Jako příklad mějme prefix $A = 1001*$ jež odpovídá adresám začínajícím $1001$, tedy $10010*$ i $10011*$.
 Nicméně ve směrovací tabulce může být uložen i prefix B $10010*$, který sdílí první čtyři bity své adresy
-s výše uvedeným prefixem A a v případě, že přijde paket začínající hodnotou $10010$ je z pohledu směrování
+s výše uvedeným prefixem $A$ a v případě, že přijde paket začínající hodnotou $10010$ je z pohledu směrování
 nutno vyhodnotit prefix B jako nejdelší shodný a poté paket správně směrovat. V případě $10011$ je však nejdelším
 shodným prefixem pravidlo A a tudíž nesmí dojít k vyhodnocení prefixu B jako nejdelšího.
 Z toho důvodu je nutné ve směrovací tabulce uchovávat i informace o délce prefixu.
-Tato informace poté slouží pro rozhodnutí, jaké pravidlo směrovací tabulky odpovídá nejdelšímu shodnému prefixu.
+Tato informace slouží pro rozhodnutí, jaké pravidlo směrovací tabulky odpovídá nejdelšímu shodnému prefixu.
 Délka prefixu může nabývat hodnot $1-32$ pro adresy typu
 IPv4 a $1-128$ pro adresy typu IPv6.
 Z výše uvedených informací a příkladů vyplývá,
-že je nutné rozlišovat zda existující prefix reprezentuje adresu verze IPv4 nebo IPv6,
+že je nutné rozlišovat, zda existující prefix reprezentuje adresu verze IPv4 nebo IPv6,
 jinak by mohlo docházet k vyhodnocení nejdelšího shodného prefixu pro adresu IPv4
-jako jiný prefix verze IPv6, což by mělo za následek nevalidní směrování paketů.
+jako prefix verze IPv6, což by mělo za následek nevalidní směrování paketů.
 Jako příklad může sloužit následující směrovací tabulka, ve které je první pravidlo
-verze IPv4 a druhé IPv6 a při vyhledání by nebylo možné určit jaké pravidlo je to správné.
-Pro rozlišení o jaký druh prefixu se jedná je možno použít dva přístupy, rozlišením na úrovni
-záznamů směrovacích tabulek nebo rozlišením na úrovni směrovacích tabulek.
+verze IPv4 a druhé IPv6. Při vyhledání nejdelšího shodného prefixu v této tabulce by nebylo možné určit jaké pravidlo je to správné.
+Pro rozlišení o jaký druh prefixu se jedná je možno použít dva přístupy, rozlišení na úrovni
+záznamů směrovacích tabulek nebo rozlišením na úrovni směrovacích tabulek. V této práci je zvoleno rozlišení
+na úrovní směrovacích tabulek.
 
 \begin{table}[!htbp]
 	\center
@@ -228,34 +221,32 @@ seznamu. Doba vyhledávání pomocí tohoto algoritmu byla závislá na počtu u
 časová složitost byla $O(N)$, což při dnešních rychlostech spojů umožňuje procházet směrovací tabulku
 obsahující pouze malý počet záznamů.
 
-Algoritmy rozebrané v této kapitole vycházejí z obecně n-árního stromu,
+Algoritmy rozebrané v této kapitole vycházejí z obecně multibitového stromu,
 jež je rozšířením binárního stromu na více než dva potomky.
 Těmito algoritmy je binární vyhledávání na délce prefixu a TreeBitmap.
 Binární vyhledávání na délce prefixu používá binární strom pro interní reprezentaci směrovacích
 informací a pro vyhledávání využívá struktury hašovací tabulky, ve které jsou uloženy všechny existující uzly
 binárního stromu.
-TreeBitmap je algoritmus založený na obecném n-árním stromu a vyznačuje se tím,
-že pro uložení prefixu využívá zakódované bitmapy, umožňuje procházet stromem
-po více než jednom bitu a dosahuje tak menší paměťových nároků.
-Dosažené výsledky pro různé n jsou vizualizovány v kapitole \ref{section:results-lpm}.
+TreeBitmap je algoritmus založený na multibitovém stromu a vyznačuje se tím,
+že pro uložení prefixu využívá zakódované bitmapy a každý uzel stromu může uchovávat informace pro větší počet bitů prefixu, díky čemuž dosahuje menší paměťových nároků.
+Dosažené výsledky pro různý počet bitů jsou vizualizovány v kapitole \ref{section:results-lpm}.
 
 
 \subsubsection{TreeBitmap} % #####################################################################################
 
-Algoritmus TreeBitmap je založen na datové struktuře n-ární stromu, v němž jsou uloženy směrovací informace.
-Hlavní myšlenkou je uložení potomků jednoho uzlu na jednom paměťovém místě, což znamená že stačí uchovávat pouze jednu
+Algoritmus TreeBitmap je založen na datové struktuře multibitového stromu, v němž jsou uloženy směrovací informace.
+Hlavní myšlenkou je uložení potomků uzlu na jednom paměťovém místě, což znamená, že stačí uchovávat pouze jednu
 adresu reprezentující paměťové místo, kde se uzly nacházejí, a index pro určení jaký uzel se má vybrat. Právě
 hodnota indexů je zakódovaná do bitmap.
 Výhodou tohoto zakódování informací je zmenšení paměťových nároků pro uložení každého uzlu stromové struktury.
 Další specifickou vlastností algoritmu TreeBitmap je zpracování několika bitů adresy v jednom kroku.
-Počet zpracovaných bitů je nazýván střída a právě velikost střídy je stupněm n-árního stromu.
+Počet zpracovaných bitů je nazýván střída a právě velikost střídy určuje počet bitů zakódovaných do jednoho uzlu stromu.
 
 Každý uzel stromové struktury obsahuje dvě bitmapy, interní a externí, které slouží pro zakódování indexů.
 Interní bitmapa slouží pro zakódování informací, jaké prefixy se nacházejí v aktuálním uzlu.
 Externí bitmapa pak uchovává informace o existujících cestách do nižších vrstev stromové struktury.
 Příklad zakódovaných bitmap pro střídu 2 je zobrazen v tabulce \ref{tab:tbm-bitmaps}.
-Dalšími položkami uzlu je ukazatel na pole následujících uzlů a ukazatel na pole obsahující směrovací pravidla,
-jež odpovídají adresám reprezentovaných tímto uzlem.
+Dalšími položkami uzlu je ukazatel na paměťové místo kde jsou uloženy potomci uzlu a ukazatel na pole obsahující směrovací pravidla, jež odpovídají adresám reprezentovaných tímto uzlem.
 
 \begin{table}
 	\center
@@ -276,10 +267,10 @@ Jako první operace hledání nejdelšího shodného prefixu se extrahují bity 
 aktuální hloubce zanoření ve stromu a provede se operace zjištění, zda je pro část této adresy uloženo
 směrovací pravidlo. To je zjištěno z interní bitmapy na pozici, jež odpovídá délce a hodnotě extrahovaných bitů.
 Pozice v interní bitmapě je vypočítána jako $2^{N} - 1 + x$, kde $N$ reprezentuje hodnotu střídy a $x$
-dekadickou reprezentací extrahovaných bitů.
-Pokud se na této pozici
-nachází hodnota "1", je uloženo pravidlo na indexu spočítatelným jako \texttt{ones(bitmap, position)} v poli pravidel.
-Toto pravidlo pak reprezentuje dočasný nejlepší výsledek. Pokud je na vypočítaném
+je dekadickou reprezentací extrahovaných bitů.
+Pokud je na této pozici
+hodnota "1", je uloženo pravidlo na indexu spočítatelným jako \texttt{ones(bitmap, position)} v poli pravidel.
+Toto pravidlo pak reprezentuje dočasný nejlepší výsledek. Pokud je na vypočítané
 pozici v interní bitmapě hodnota "0" je opakován výpočet pozice s hodnotou $N$ sníženou o jedna a bitovou hodnotou
 oříznutou o nejméně významný bit. Tato operace se opakuje tak dlouho, dokud není nalezena pozice
 s hodnotou "1"
@@ -296,7 +287,7 @@ Pro výpočet indexu do polí obsahující pravidla a následovníky se použív
 spočítá počet bitů s hodnotou "1" v dané bitmapě a to od pozice 0 do pozice \texttt{position}.
 
 Jeden uzel stromu TreeBitmap je vizualizován na obrázku \ref{fig:tbm-node}. Uzly zbarvené černě
-jsou uzly pro které je definováno směrovací pravidlo.
+jsou uzly, pro které je definováno směrovací pravidlo.
 
 \begin{figure}[!htbp]
     \centering
@@ -339,43 +330,38 @@ Algoritmus binárního vyhledávání na délce prefixu vychází z jednobitové
 operaci propagování listů (angl. \textit{leaf-pushing}) a zavádí efektivnější prohledávání založené na hašovací
 tabulce. Hodnota klíče uzlu v obecném binárním stromu není přímo zanesena do uzlu jako jedna z jeho položek,
 ale odpovídá cestě stromem od kořene k aktuálnímu uzlu.
-
 Struktura uzlu je rozšířena o položky prefix, délka prefixu a typ uzlu.
-Typy uzlu jsou dva a to interní uzel a uzel reprezentující pravidlo.
-
+Typy uzlu jsou dva a to interní uzel mající právě dva potomky a uzel reprezentující pravidlo.
 Oproti binárnímu stromu používá tento algoritmus i hašovací tabulku, do které jsou zaneseny všechny uzly
 stromu a jako hodnota pro hašovací funkci je použita hodnota prefixu v daném uzlu.
 
-Tohle přepracovat, není to ůplně jasné %TODO
-Vyhledávání v hašovací tabulce je vyhledání položky v hašovací tabulce reprezentující celou klasifikovanou
-adresu. Pokud je vyhledání úspěšné a nalezený prvek je typu prefix, pak je pravidlo z tohoto uzlu navráceno
-jako nejdelší shodný prefix. V případě že takový prvek není nalezen pak dojde ke snížení délky vyhledávané
-adresy na polovinu a hledání je zopakováno. V případě že nalezený prvek je typu internal dojde ke zvýšení
-délky prefixu o hodnotu XX
-a je opakováno vyhledávání v hašovací tabulce. V případě neúspěšného vyhledávání dojde ke snížení délky hledaného prefixu a vyhledávání je opakováno.
 
-Operace propagace listů zavádí pravidlo, že existují právě dva následovníci uzlu nebo neexistuje žádný.
+Operace propagace listů je operace zaručující, že existují právě dva následovníci uzlu (typ internal) nebo neexistuje žádný (typ prefix).
 Pokud dojde ke stavu, že existuje právě jeden následovník uzlu je operací propagování uzlů
-vytvořen i druhý uzel je do něj zaneseno pravidlo, jež obsahuje přímo nadřazený uzel.
+vytvořen i druhý uzel a je do něj zaneseno pravidlo, jež obsahuje nadřazený uzel.
 Ukázku stromu před operací propagace listů je možno vidět na obrázku \ref{bspl-not-pushed}
 a po provedení této operace na obrázku \ref{bspl-pushed}.
 
 \begin{figure}[!htbp]
-	\begin{floatrow}
-		\ffigbox{
-		\includegraphics[scale = 0.5]{fig/bspl-not-pushed.pdf}}
-			{\caption{Strom před leaf-pushingem}\label{bspl-not-pushed}}
-		\ffigbox{\includegraphics[scale = 0.5]{fig/bspl-pushed.pdf}}
-			{\caption{Strom po provedení leaf-pushingu}\label{bspl-pushed}}
-	\end{floatrow}
+    \begin{floatrow}
+        \ffigbox{
+        \includegraphics[scale = 0.5]{fig/bspl-not-pushed.pdf}}
+            {\caption{Strom před leaf-pushingem}\label{bspl-not-pushed}}
+        \ffigbox{\includegraphics[scale = 0.5]{fig/bspl-pushed.pdf}}
+            {\caption{Strom po provedení leaf-pushingu}\label{bspl-pushed}}
+    \end{floatrow}
 \end{figure}
 
-Algoritmus binary search on prefix length je založen binárním vyhledávání neboli na metodě
-půlení intervalů. Vyhledávání půlením intervalů
-se ve své první iteraci pokusí vyhledat shodný prefix celé délky, tedy 32 bitů pro IP adresu
-verze protokolu IPv4 a 128 bitů pro IP verze 6.
 
-Mějme směrovací tabulku obsahující tyto informace:
+Vyhledávání nejdelšího shodného prefixu v hašovací tabulce se skládá z následujících kroků.
+Jako první je provedeno hledání celé IP adresy, tedy všech 32 bitů v případě IPv4 nebo 128 bitů pro IPv6.
+Pokud je vyhledání úspěšné a nalezený prvek je typu prefix, pak je pravidlo tohoto uzlu navráceno
+jako nejdelší shodný prefix. V případě kdy nalezený prvek je typu internal nebo není nalezen žádný prvek dojde ke změně délky prefixu o hodnotu $2^{N - krok + 1}$, kde $N = 5$ pro IPv4 a $N = 7$ pro IPv6.
+V případě nalezení uzlu typu internal je délka adresy zvýšena o tuto hodnotu.
+Pokud není nalezen žádný prvek tak je délka adresy snížena o tuto hodnotu.
+Tento postup se opakuje dokud není nalezen prvek typu prefix nebo je hodnota změny prefixu rovna nule.
+Algoritmus zapsaný pseudokódem je popsán v \ref{alg:bspl}.
+Příklad vyhledávání konkrétního prefixu je popsán v tabulce \ref{tab:bspl-example} ve směrovací tabulce \ref{tab:bspl-table-example}.
 
 \begin{table}[!htbp]
 	\center
@@ -385,10 +371,9 @@ Mějme směrovací tabulku obsahující tyto informace:
     147.228.0.0   & 14            & P1       \\ \hline
     147.228.128.0 & 17            & P2       \\ \hline
     \end{tabular}
+    \label{tab:bspl-table-example}
     \caption{Příklad směrovací tabulky}
 \end{table}
-
-Vyhledávání směrovací cesty pro adresu 147.228.128.54 bude procházet následujícími kroky
 
 \begin{table}[!htbp]
 	\center
@@ -402,13 +387,14 @@ Vyhledávání směrovací cesty pro adresu 147.228.128.54 bude procházet násl
     147.228.128.0 & 18 & Nenalezen & -1 &  \\ \hline
     147.228.128.0 & 17 & Prefix & 0 & P2 \\ \hline
     \end{tabular}
+    \label{tab:bspl-example}
     \caption{Příklad vyhledání nejdelšího shodného prefixu}
 \end{table}
 
-Operace vyhledání nejdelšího prefixu při využití algoritmu binary search on prefix length má časovou
-složitost $\log_2{N}$, kde \texttt{N} je počet bitů adresy. V případě IPv4 adresy je to 32 bitů a pro IPv6
+Operace vyhledání nejdelšího prefixu při využití binárního vyhledávání na délce prefixu má časovou
+složitost při ideální hašovací funkci $\log_2{N}$, kde \texttt{N} je počet bitů adresy. V případě IPv4 adresy je to 32 bitů a pro IPv6
 adresu je to 128 bitů. Z principu algoritmu vyplývá, že nejhorší výsledky z časového hlediska bude dosahovat
-při shodě prefixu, který byl zadán s lichou délkou. V tomto případě bude nutné projít všemi kroky.
+při shodě prefixu, který byl zadán s lichou délkou. V takovém případě bude nutné projít všemi kroky.
 Počet kroků v případě IPv4 bude 5 a v případě IPv6 adresy to pak bude 7.
 Zde je vidět že i v případě čtyřikrát delší adresy se počet kroků pro vyhledání prefixu zvedne pouze o dva,
 což neplatí pro algoritmus TreeBitmap, který musí projít v nejhorším případě až čtyřikrát více
@@ -438,51 +424,39 @@ uzlů aby nalezl odpovídající prefix.
 
 Jednu z častých operací při zpracování síťového provozu je hledání řetězců, jež je využíváno pro detekci
 signatur útoků na počítačové sítě, detekci malware a blokování dat obsahujících zakázaná klíčová slova.
-
 Hledání řetězců je ověřování, zda se jedno a více definovaných klíčových slov vyskytuje ve vstupních
-datech. V případě počítačových sítí se vstupními daty rozumí obsah datových paketů.
+datech. V případě počítačových sítí se vstupními daty rozumí datových obsah paketů.
 
 Pokud se oprostíme od počítačových sítí, tak dalším využitím hledání řetězců může být
-vyhledávání klíčových slov v textových dokumentech, což byl prvotní impuls pro vznik
+vyhledávání klíčových slov v textových dokumentech, což bylo důvodem pro vznik
 algoritmu autorů Aho a Corasickové, kteří tímto způsobem zrychlili prohledávání
 textových dokumentů až $5\times$. Alternativou k algoritmu Aho-Corasick může být požadován
-algoritmus autorů Rabin–Karp \cite{rabin-karp}, který má ovšem horší průměrnou časovou složitost, $O(m+n)$,
-zatímco Aho-Corasick je tato složitost nejhorší možná. Algoritmem postaveným na Aho-Corasick
+algoritmus autorů Rabin–Karp \cite{rabin-karp}, který má ovšem průměrnou časovou složitost $O(m+n)$,
+zatímco pro Aho-Corasick je tato složitost nejhorší možná. Algoritmem vycházejícím z Aho-Corasick
 a Boyer–Moore \cite{boyer-moore}
-je Commentz-Walter \cite{walter}, jehož časová složitost však v nejhorším případě dosahuje $O(m*n)$
-
+je Commentz-Walter \cite{walter}, jehož časová složitost však v nejhorším případě dosahuje $O(m*n)$.
 Algoritmem na nějž se soustředí část této práce je právě Aho-Corasick.
 Tento algoritmus používá pro zjištění shody s podřetězcem konceptu konečného automatu.
-V každém kroku algoritmu dojde ke zpracování právě jednoho vstupního symbolu.
 
 Konstrukce konečného automatu reprezentujícího klíčová slova je prováděna postupně a to tím způsobem,
-že je v automatu hledána již existující prefix vkládaného klíčového slova. Od výsledku tohoto hledání
+že je v automatu hledán již existující prefix vkládaného klíčového slova. Od výsledku tohoto hledání
 se pak vychází v dalších krocích, jež jsou následující:
 
 \begin{description}
-    \item[Vstup  $\leq$ Existující] v tomto případě je pouze přidělena další pravidlo k danému uzlu.
-
-    \item[Vstup $>$ Existující] v tomto případě je rozšířena již existující cesta a do konečného
+    \item[Vstup  $\leq$ Existující] v tomto případě je pouze vloženo další pravidlo k danému uzlu.
+    \item[Vstup $>$ Existující] v tomto případě je rozšířena již existující cesta a do koncového
     uzlu této cesty je přiřazeno odpovídající pravidlo.
-    \item[Prefix $<$ Existující] pak je vytvořena další cesta z posledního shodného uzlu a neexistující uzly jsou vytvořeny
 \end{description}
 
-Po dokončení operace přidávání klíčových slov je provedeno generování tzv. failure cest.
-Failure cesta je mapováním dalšího přechodu, který je proveden v případě, že pro vstupní symbol neexistuje
-přechod z aktuálního stavu. Failure cesta pak reprezentuje prefix klíčových slov,
-která lze nalézt v podřetězec klíčového slova aktuálně procházeného.
-Generování failure cesty je definováno iterativně a to následujícím způsobem:
+Po dokončení operace přidávání klíčových slov je provedeno generování tzv. \textit{failure} přechodů.
+\textit{Failure} přechod je mapováním dalšího přechodu, který je proveden v případě, že pro vstupní symbol neexistuje
+přechod z aktuálního stavu. \textit{Failure} přechod pak reprezentuje prefix klíčových slov,
+který je podřetězcem aktuálně procházeného klíčového slova.
+Generování \textit{failure} cesty je definováno iterativně a to následujícím způsobem:
 
-Pro startovací uzel je failure cesta definována jako přechod do sebe sama.
-Pro každý uzel v úrovni 1 je failure cesta definována jako přechod do startovního stavu.
-Pro každou další úroveň je pak failure cesta definována jako uzel v hloubce o jedna menší než je aktuální hloubka
-
-procházení failure cestou předchozího uzlu a zkoušení zda existuje validní před pro znak stavu, ze kterého
-
-Další používanou funkcí je funkce goto, která rozhoduje o další stavu z aktuálního stavu a aktuálně
-zpracovaného symbolu. Goto funkce je definována jako cyklus dokud
-je přechod ze stavu s při symbolu a fail tak dej s = s->failure
-a potom přejdi z s při zpracování symbolu a.
+Pro počáteční uzel je failure cesta definována jako přechod do sebe sama.
+Pro každý uzel v úrovni 1 je failure cesta definována jako přechod do počátečního stavu.
+Pro každou další úroveň je možné \textit{failure} přechod zjistit z validních přechodů stavu v nižších úrovních.
 
 Příkladem procházení automatu a hledání slov může sloužit následující příklad reprezentovaný tabulkami
 \ref{tab:pm-keywords} a \ref{tab:pm-match} při vstupních datech \textit{ship}.
@@ -502,14 +476,13 @@ počátečního symbolu do aktuální cesty.
 \end{table}
 
 Automat reprezentující tyto klíčová slova je zobrazen na obrázku \ref{fig:ac}.
-Plnou čarou jsou znázorněny možné přechody, přerušovanou čarou failure přechody a zelenou
-je znázorněn průchod automatem v pro vstupní data \textit{ship}.
-
+Plnou čarou jsou znázorněny možné přechody, přerušovanou čarou \textit{failure} přechody a zelenou
+je znázorněn průchod automatem v pro vstupní data \texttt{ship}.
 
 \begin{figure}[!htbp]
     \centering
     \includegraphics[scale=.55]{fig/ac.pdf}
-    \caption{Automat obsahující klíčová slova \textit{she} a \textit{hi}}
+    \caption{Automat obsahující klíčová slova \texttt{she} a \texttt{hi}}
     \label{fig:ac}
 \end{figure}
 
@@ -528,7 +501,7 @@ je znázorněn průchod automatem v pro vstupní data \textit{ship}.
 \end{table}
 
 
-Algoritmus procházení vstupních dat je rozepsán v \ref{alg:aho} a vychází z \cite{aho}.
+Algoritmus procházení vstupních dat je popsán pseudokódem v \ref{alg:aho} a vychází z \cite{aho}.
 
 \begin{algorithm}[!htbp]
 	\KwData{start-state, text}
@@ -544,20 +517,19 @@ Algoritmus procházení vstupních dat je rozepsán v \ref{alg:aho} a vychází 
     \label{alg:aho}
 \end{algorithm}
 
-\subsection{Hledání regulárních výrazů} % ############################################
+\subsection{Hledání regulárních výrazů}\label{sec:regex} % ############################################
 
 Hledání regulárních výrazů je, podobně jako hledání řetězců, operace sloužící pro detekci signatur
 síťových útoků a detekci škodlivého software v obsahu datových paketů v systémech IDS a IPS.
 Algoritmy pro hledání regulárních výrazů v rámci této práce jsou založeny na transformaci
-regulárních výrazů, což je umožňuje díky ekvivalenci výpočetní síly regulárních výrazů a konečných automatů
-v Chomského hierarchii.
+regulárních výrazů na konečné automaty.
 V této práci jsou rozebrány deterministické a nedeterministické konečné automaty.
 
-Než se dostaneme k popisuje jednotlivých druhů konečných automatů je potřeba definovat co je to regulární
-výraz.
+Než se dostaneme k popisu jednotlivých druhů konečných automatů je potřeba definovat co jsou to regulární
+výrazy a jaké operace je s nimi možno provádět.
 
+Nechť $r$ a $s$ jsou regulární výrazy značící jazyky $L_R$ a $L_S$.
 Regulární výrazy nad abecedou $\Sigma$ a jazyky které značí jsou definovány následovně
-Nechť $r$ a $s$ jsou RV značící jazyky $L_R$ a $L_S$.
 
 \begin{itemize}
     \item{$\emptyset$ je RV značící prázdnou množinu (prázdný jazyk)}
@@ -569,12 +541,15 @@ Nechť $r$ a $s$ jsou RV značící jazyky $L_R$ a $L_S$.
 \end{itemize}
 
 Časová složitost pro jednotlivé varianty je následující
-nedeterministické konečné automaty $O(n*m)$
-deterministické konečné automaty $O(n)$
+
+\begin{itemize}
+\item{nedeterministické konečné automaty $O(n*m)$}
+\item{deterministické konečné automaty $O(n)$}
+\end{itemize}
 
 Průchod deterministický konečným automatem je možné zpracovat právě jeden znak vstupu v
-každé iteraci. Algoritmus se podívá, zda existuje přechod pro aktuální znak na vstupu z aktuálního stavu
-a pokud existuje tak je proveden přechod. V případě že takový přechod neexistuje pak je nastaven
+každé iteraci. Algoritmus se podívá, zda existuje přechod pro aktuální znak na vstupu z aktuálního stavu,
+a pokud existuje tak je proveden přechod. V případě, že takový přechod neexistuje, tak je nastaven
 aktuální stav na počáteční stav konečného automatu a operace je provedena znovu.
 Algoritmus procházení deterministickým konečným automatem je popsán v \ref{alg:dfa},
 procházení nedeterministického automatu je popsán v \ref{alg:nfa}.
@@ -632,12 +607,12 @@ Extrakce hlaviček paketů je operace prováděná na každém síťovém zaří
 neboť právě na základě hodnot položek hlavičky paketu je prováděno rozhodnutí,
 jak má být paket zpracován.
 V případě hledání nejdelšího shodného prefixu je potřeba nejprve provést extrakci
-cílové adresy a až poté je možné zahájit vyhledávaní cesty, kterou bude paket směrován.
-Z toho vyplývá přímá závislost rychlosti všech operací, pracující s položkami hlaviček na linkové, síťové a
+cílové adresy a až poté je možné zahájit vyhledávání cesty, kterou bude paket směrován.
+Z toho vyplývá přímá závislost rychlosti všech operací pracujících s položkami hlaviček na linkové, síťové a
 transportní vrstvě.
 
 Tato operace je celkem komplexní a to z důvodu různé délky jednotlivých hlaviček na vrstvách
-linkové, síťové a transportní v závislosti na použitém protokou na dané vrstvě.
+linkové, síťové a transportní v závislosti na použitém protokolu na dané vrstvě.
 Vstupem operace analýza a extrakce hlaviček paketů je datový paket a výstupem je
 množina hodnot, jež byly cílem analýzy a extrakce.
 
@@ -658,20 +633,14 @@ této hodnoty v závislosti na typu hlavičky a informací, kde se daná položk
 \chapter{Návrh API knihovny}\label{chapter:api} % #################################################################
 
 Cílem návrhu API knihovny \texttt{fastnet} je vhodně zapouzdřit implementované operace a to takovým způsobem,
-aby je bylo možné používat bez znalosti využívaných algoritmů nebo znalosti
-hlubší než je ůroveň vědět k čemu se to používá. Dalším cílem návrhu je připravit API tak,
+aby je bylo možné používat bez znalosti využívaných algoritmů. Dalším cílem návrhu je připravit API tak,
 aby bylo možné rozšiřovat množinu algoritmů implementující dané operace při zachování
-současné struktury funkcí.
-
-Je navrženo API pro operace klasifikace paketů \ref{api:pc}, hledání nejdelšího shodného prefixu
+současného API. Je navrženo API pro operace klasifikace paketů \ref{api:pc}, hledání nejdelšího shodného prefixu
 \ref{api:lpm}, hledání řetězců \ref{api:pm}, hledání regulárních výrazů \ref{api:regex} a analýzu a
-extrakci hlaviček paketů.
-
-V kapitole \ref{api:extension} je rozebrána možnost rozšíření této knihovny o další operace.
-Kapitola \ref{api:usage} je popsáno jakým způsobem je možné sestavit celou knihovnu nebo její jednotlivé
+extrakci hlaviček paketů. V kapitole \ref{api:extension} je rozebrána možnost rozšíření této knihovny o další operace a v kapitole \ref{api:usage} je popsáno jakým způsobem je možné sestavit celou knihovnu nebo její jednotlivé
 části.
 
-Každá knihovna umožňuje pracovat s více datovými strukturami reprezentující
+Každá operace umožňuje pracovat s více datovými strukturami reprezentující
 data dané operace. Toho je dosaženo explicitním uváděním kořenu místo jeho implicitního uložení
 uvnitř knihovny. To byl také jeden z požadavků při návrhu API. Kořenový prvek je
 explicitně předáván do funkcí provádějící jednotlivé operace. Jedinou výjimkou
@@ -681,23 +650,21 @@ Knihovna \texttt{fastnet} je navržena jako množina menších knihoven, kde ka�
 jednu operaci používanou při zpracování síťového provozu.
 Tímto návrhem je dosaženo snadné rozšiřitelnosti o další operace,
 jako například extrakce informací z hlaviček paketů a klasifikaci paketů.
-
-Další výhodou tohoto rozdělení je možnost snadno vytvořit a používat jednotlivé knihovny samostatně.
+Další výhodou tohoto rozdělení je možnost snadno vytvořit a používat jednotlivé knihovny samostatně nebo v různých kombinacích nezahrnující všechny operace.
 To se může hodit pro zařízení, která mají velmi limitované paměťové úložiště a jejich účelem
-je řešit pouze jednu ze zmíněných operací.
+je řešit pouze část ze zmíněných operací.
 
 Veřejné rozhraní celé knihovny se skládá z veřejných rozhraní jednotlivých knihoven.
 Tyto rozhraní jsou popsány v následujících kapitolách.
 
-Pro knihovnu je navržena struktura hlavičkových souborů pro jednotlivé knihovny a tato struktura
-obsahuje následující soubory. Jako výchozí hlavičkový soubor je použit \texttt{types.h},
+Pro knihovnu je navržena struktura hlavičkových souborů pro jednotlivé knihovny.
+Jako výchozí hlavičkový soubor je použit \texttt{types.h},
 který obsahuje definice datových struktur pro všechny algoritmy v knihovně, které musí být
 viditelné i z veřejného rozhraní. Dalším souborem je \texttt{types-precompiled.h},
 který je generován z \texttt{types.h} při překladu když se vybírá používaný algoritmus.
 Soubor \texttt{common.h} je hlavičkový soubor společný pro všechny algoritmy v knihovně a \texttt{<algorithm>.h}
 pak obsahuje deklarace specifické pro právě jeden konkrétní algoritmus.
 Soubor \texttt{<sublib.h>} je pak hlavičkový soubor, který tvoří veřejné rozhraní ke knihovním funkcím.
-
 Závislost jednotlivých souborů je znázorněna na obrázku \ref{fig:header-dependecies}.
 
 \begin{figure}[!htbp]
@@ -712,7 +679,7 @@ Závislost jednotlivých souborů je znázorněna na obrázku \ref{fig:header-de
 
 Pro klasifikaci paketů jsou navrženy čtyři základní funkce a jedna datová struktura.
 Tato struktura je nazvána \texttt{set} a obsahuje položky \texttt{rule} pro uložení pravidla,
-které bude odpovídat kombinaci ostatních položek, \texttt{dst} pro uložení cílové IP adresy,
+které odpovídá kombinaci ostatních položek, \texttt{dst} pro uložení cílové IP adresy,
 \texttt{src} pro uložení zdrojové adresy, \texttt{protocol} pro uložení typu transportního protokolu,
 tedy TCP nebo UDP a \texttt{port} pro uložení cílového portu.
 Důvod proč jsou vybrány pouze tyto položky je to, že tato operace není implementována
@@ -721,19 +688,18 @@ a tyto položky jsou při klasifikaci používány nejčastěji.
 Funkce pro práci se strukturou pro klasifikaci paketů jsou: \texttt{init} pro inicializaci
 vyhledávacích struktur, \texttt{add} pro přidání klasifikačního pravidla, \texttt{update}
 pro aktualizaci odpovídajícího pravidla, \texttt{remove} pro smazání odpovídajícího pravidla
-a nakonec \texttt{destory} pro uvolnění veškeré paměti zabírané strukturami pro provádění klasifikace
+a nakonec \texttt{destroy} pro uvolnění veškeré paměti zabírané strukturami pro provádění klasifikace
 paketů.
 
 Všechny zmíněné funkce a jedna datové struktura jsou navrženy ve dvou verzích a to pro IPv4 a IPv6.
 Tyto funkce se od sebe liší pouze prefixem, kde pro IPv4 je použit prefix \texttt{pc\_} a pro
-IPv6 pak \texttt{pc6\_}. Důvodem proč jsou jednotlivé funkce a struktura rozděleny tímto
-způsobem je odlišná velikost adres, čímž je docíleno menší paměťové náročnosti pro uložení jednotlivých položek
-v případě IPv4 a nutnost rozlišovat pro jako verzi IP protokolu se klasifikace provádí,
-neboť prefixy adres se mohou shodovat pro obě verze IP, ale mohou reprezentovat jiné adresy
+IPv6 pak \texttt{pc6\_}. Důvodem, proč jsou jednotlivé funkce a struktura rozděleny tímto
+způsobem ,je odlišná velikost adres a nutnost rozlišovat pro jako verzi IP protokolu se klasifikace provádí,
+neboť prefixy adres se mohou shodovat pro obě verze IP, ale mohou reprezentovat jiné adresy.
 
 Všechny funkce vyjma \texttt{init} očekávají jako první argument strukturu typu \texttt{root},
-jež obsahuje veškeré informace a konkrétních klasifikačních pravidlech. Jako u ostatních operací
-je tato struktura osamostatněna a to umožňuje vytvářet více klasifikátorů v jednom programu.
+která obsahuje veškeré informace o klasifikačních pravidlech. Jako u ostatních operací
+je tato struktura uváděna explicitně a to umožňuje vytvářet více klasifikátorů v jednom programu.
 
 Přesnou specifikaci rozhraní je možné nalézt v přiloženém CD ve složce \texttt{/lib/src/pc/pc.h}
 
@@ -746,9 +712,9 @@ Pro binární vyhledávání na délce prefixu to je struktura \texttt{\_bspl\_n
 algoritmus TreeBitmap \texttt{\_tbm\_node}.
 
 Funkce \texttt{init} slouží pro vytvoření kořenového uzlu datových struktur a
-nastavení defaultního pravidla, které je vybráno pokud není nalezen žádný odpovídající prefix.
+nastavení výchozího pravidla, které je vybráno, pokud není nalezen žádný odpovídající prefix.
 Návratovou hodnotou této funkce je ukazatel na kořen datové struktury, jež je parametrem
-všech ostatní funkcí provádějící operace v rámci vyhledání nejdelšiho shodného prefixu.
+všech ostatní funkcí provádějící operace v rámci vyhledání nejdelšího shodného prefixu.
 Funkce \texttt{add} slouží pro přidání prefixu a pravidla odpovídajícímu tomuto prefixu.
 Funkce \texttt{update} slouží pro aktualizaci pravidla daného prefixu.
 Funkce \texttt{remove} odstraňuje zvolený prefix z vyhledávací struktury.
@@ -757,12 +723,9 @@ a po provedení této funkce již není možné provádět další operace nad d
 
 Funkce pro vložení, smazání a aktualizaci pravidel a prefixů také obsahují parametr
 prefix, který je buď IPv4 nebo IPv6 adresa. Dalším parametrem těchto funkcí je délka prefixu,
-aby bylo možné odlišit jednotlivé prefixy od sebe. Tam může dojít ke kolizi pokud existuje
-prefix $1*$ o délce jedna a prefix $10000*$ o délce pět, neboť tyto prefixu budou reprezentovány stejným
-číslem, neboť v binární kódu máme pouze dvě hodnoty a není možné určit třetí stav jako X,
-nezajímá nás/není důležité.
+aby bylo možné odlišit jednotlivé prefixy od sebe.
 
-Funkce pro vložení prefixu pracuje s pouze s jedním prefixem a je prováděna okamžitě.
+Funkce pro vložení prefixu pracuje pouze s jedním prefixem a je prováděna okamžitě.
 Tento návrh vychází z předpokladu, že knihovna bude používána i v prostředí s dynamickými routovacími
 protokoly jako například RIP, OSPF nebo BGP, které při změně směrovacích informací v případě BGP
 zasílají aktualizace s novými informacemi na všechny sousední směrovače nebo jsou tyto změny
@@ -771,14 +734,11 @@ zasílány periodicky v případě protokolu RIP.
 Hašovací funkce je v této implementaci použita Jenkins \cite{jenkins}. Volba hašovací funkce
 může mít vliv na rychlost vyhledávání. To je patrné z principu hašovací tabulky, kde se
 kolizní záznamy uchovávají v lineárním seznamu a v případě kdy by hašovací funkce generovala
-stejné hodnoty pro všechny vstupní hodnoty by bylo vyledávání omezeno na procházení
+stejné hodnoty pro všechny vstupní hodnoty by bylo vyhledávání omezeno na procházení
 lineárního seznamu se složitostí v nejhorším případě $O(log_2{N}*M)$, kde $M$ odpovídá počtu záznamů uložených ve směrovací tabulce a $N$ velikosti IP adresy, tedy 32 nebo 128 bitů
 namísto $O(\log_2{N})$, kde N reprezentuje délku IP adresy.
 
-V implementaci obou algoritmů je řešena i reakce na nedostatek paměti,
-kdy je nastavena globální proměnná \texttt{errno} a záznam není přidán.
-
-Volbu algoritmu lze volit při sestavení knihovny pro vyhledání nejdelšího shodného prefixu
+Použitý algoritmus lze volit při sestavení knihovny pro vyhledání nejdelšího shodného prefixu
 zapsáním následujícího příkazu \texttt{make ALG=<alg>}, kde hodnota \texttt{<alg>} může nabývat
 hodnot \texttt{tbm} pro volbu TreeBitmap a \texttt{bspl} pro binární vyhledávání na délce prefixu.
 V případě sestavování celé knihovny je možné zapsat \texttt{make LPM=<alg>} v příslušném adresáři.
@@ -808,7 +768,7 @@ následující funkce.
     \item{\texttt{pm\_add} pro vložení množiny klíčových slov}
     \item{\texttt{pm\_update} pro změnu pravidla odpovídající danému klíčovému slovu}
     \item{\texttt{pm\_remove} pro smazání klíčového slova}
-    \item{\texttt{pm\_destroy} pro uvolnění veškeré alokované paměti touto operací}
+    \item{\texttt{pm\_destroy} pro uvolnění veškeré paměti jež byla alokována}
 \end{itemize}
 
 Všechny výše zmíněné funkce vyjma \texttt{pm\_init} a \texttt{pm\_match\_next} očekávají jako první parametr strukturu typu \texttt{pm\_root},
@@ -823,7 +783,7 @@ s definovanými klíčovými slovy v řetězci je vrácen výsledek \texttt{fals
 Čtvrtým parametrem funkce \texttt{pm\_match} může být hodnota \texttt{NULL} nebo odkaz na datovou strukturu
 \texttt{pm\_result}. V případě \texttt{NULL} argumentu již nelze procházet textem a hledat další shody.
 Pokud je zadán odkaz na existující strukturu \texttt{pm\_result} je možné procházet celým textem a ukládat
-všechny nalezené shody s řetězci funkcí \texttt{pm\_match\_next}.
+všechny nalezené shody s klíčovými slovy funkcí \texttt{pm\_match\_next}.
 
 Jednotlivé položky struktury \texttt{pm\_result} pro veřejné použití jsou
 
@@ -842,10 +802,8 @@ Pro práci se strukturou \texttt{pm\_result} jsou v navrženy a implementovány 
 
 
 Funkce \texttt{pm\_add} očekává jako druhý parametr pole struktur \texttt{pm\_keyword}, kde každá struktura
-obsahuje položky vstupního klíčové slova v binární podobě, délku tohoto slova a pravidlo odpovídající tomuto slovu, oproti kterým se budou porovnávat vstupní data. Důvodem proč je předáváno pole dat a ne jednotlivé položky
-jako u hledání nejdelšího shodného prefixu je z důvodu neexistence synchronizační mechanismů
-v prostředí IPS a IDS. Dalším důvodem pro tento návrh je časově náročná funkce generování
-tzv. failure přechodů, které umožňují detekovat kratší klíčové slovo i v případě, že již je
+obsahuje položky vstupního klíčové slova v binární podobě, délku tohoto slova a pravidlo odpovídající tomuto slovu, oproti kterým se budou porovnávat vstupní data. Důvodem pro tento návrh je časově náročná funkce generování
+\textit{failure} přechodů, které umožňují detekovat kratší klíčové slovo i v případě, že již je
 zahájeno porovnávání delšího slova jak je možno vidět na následujícím příkladu. Tabulka \ref{tab:ac:substr}
 obsahuje definovaná klíčová slova a obrázek \ref{fig:ac:substr} znázorňuje odpovídající konečný automat.
 
@@ -868,13 +826,6 @@ obsahuje definovaná klíčová slova a obrázek \ref{fig:ac:substr} znázorňuj
     \label{fig:ac:substr}
 \end{figure}
 
-V implementaci je řešena reakce na nedostatek volné paměti, jež se sestává z nastavení
-globální proměnné \texttt{errno} a smazání struktury zatím vytvořeného konečného automatu.
-Tento přístup, narozdíl od neprovedení žádné operace v rámci LPM byl zvolen z neexistence
-předpokladu na dynamické přidávání pravidel za běhu programu pracujícího s touto knihovnou.
-
-Tak jak je hledání řetězců implementováno je case-sensitive, to je možné změnit
-přidáním volání ischar a tolower při vytváření konečného automatu a při procházení vstupních dat.
 
 Přesnou specifikaci rozhraní je možné nalézt v přiloženém CD ve složce \texttt{/lib/src/pm/pm.h}
 Specifikaci datových struktur lze nalézt v soubor \texttt{/lib/src/pm/types.h}
@@ -882,26 +833,22 @@ Specifikaci datových struktur lze nalézt v soubor \texttt{/lib/src/pm/types.h}
 \section{Hledání regulárních výrazů}\label{api:regex}  % ##########################################################
 
 Rozhraní pro hledání regulárních výrazů navržené a implementované v knihovně \texttt{fastnet:regex}
-rozšřuje množinu operací prováděných regulárních výrazů zmíněných v \ref{regex} o následující zápisy operací.
+rozšiřuje množinu operací prováděných s regulárnícmi výrazy zmíněných v \ref{sec:regex} o následující zápisy operací.
 
 \begin{itemize}
     \item{$[abc]$ je výčet znaků, které se na vstupu mohou vyskytnout a automat je v aktuální stavu dokáže zpracovat. Je to zkrácený tvar zápisu $(a|b|c)$}
-    \item{$a+$ je definováno jako pozitivní iterace, tedy $1..N$ opakování}
-    \item{$a?$ je definováno jako $0..1$ iterací}
+    \item{$a+$ je definováno jako $1..N$ opakování}
+    \item{$a?$ je definováno jako $0..1$ opakování}
 \end{itemize}
 
 
 Pro hledání regulárních výrazů jsou navrženy a implementovány dva způsoby hledání, a to
 deterministický \texttt{dfa} a nedeterministický konečný automat \texttt{nfa}.
-
 Z toho důvodu jsou odlišeny všechny funkce dle typu konečného automatu, který je použit.
 Pro použití deterministického konečného automatu je to \texttt{dfa} a pro nedeterministický
 je to \texttt{nfa}.
-Oproti hledání nejdelšího shodného prefixu nejsou tyto implementace od sebe odlišeny
-různými soubory neboť deterministické automaty vycházejí z nedeterministický a pouze používají
-determinaci.
 
-Narženy jsou následující funkce
+Navrženy jsou následující funkce
 
 \begin{itemize}
     \item{\texttt{regex\_<type>\_construct} pro vytvoření regulárního výrazu}
@@ -910,57 +857,44 @@ Narženy jsou následující funkce
 \end{itemize}
 % REGEXDFA =================================================================================
 
-Pokud se v definici regulárního výrazu vyskutuje jeden z řídících znaků regulárních výrazů
+Pokud se v definici regulárního výrazu vyskytuje jeden z řídících znaků regulárních výrazů
 je nutno tento znak escapovat, to znamená přidat před něj zpětné lomítko.
 Zpětné lomítko samotné se pak zapíše jako dvě zpětná lomítka.
 
-Pro vytvoření regulárních výrazů je podobně jako u hledání podřetězců
+Pro vytvoření regulárních výrazů je podobně jako u hledání řetězců
 použita pomocná struktura \texttt{regex\_pattern}, která je předávána do funkce \texttt{regex\_<type>\_construct}
-a jež obsahuje pole regulárních výrazů z nichž se má vytvořit jeden konečný automat.
-Výsledný konečný automat, ať už deterministický nebo nedeterministický je výsledek spojení jednotlivých
+a jež obsahuje pole regulárních výrazů, z nichž se má vytvořit jeden konečný automat.
+Výsledný konečný automat, ať už deterministický nebo nedeterministický, je výsledek spojení jednotlivých
 konečných automatů pro každý regulární výraz. Tím je umožněna detekce několika
 regulární výrazů v jednom průchodu vstupními daty i s přesnou identifikací jaký regulární
 výraz byl ve vstupních datech nalezen.
 
-Důvodem proč jsou zvoleny obě možnosti pro regulární výrazy je až teoreticky exponinciální nárůst
-počtu stavů konečného automatu, což může být ve specifických případech nežádoucí a je vhodnější
+Důvodem proč jsou navrženy obě možnosti pro hledání regulárních výrazů je až teoreticky exponenciální nárůst
+počtu stavů deterministického konečného automatu, což může být ve specifických případech nežádoucí a je vhodnější
 vyměnit rychlost deterministického konečného automatu za menší paměťové nároky.
-
-%REGEX PATTERN =================================================================================
-
-Při chybě alokace se smaže celá struktura regulárního výrazu, neexistuje předpoklad na
-dynamické přidávání regulárních výrazů za běhu programu.
-
-Tak jak jsou regulární výrazy implementovány tak jsou case-sensitive, to je možné změnit
-přidáním volání ischar \& tolower při vytváření a procházení výrazů
 
 Přesnou specifikaci rozhraní je možné nalézt v přiloženém CD v souboru \texttt{/lib/src/regex/regex.h}
 Specifikaci datových struktur lze nalézt v soubor \texttt{/lib/src/regex/types.h}
 
 \section{Analýza a extrakce hlaviček paketů}\label{api:phe} %#####################################################
 
-V knihovně je již navrženo API pro operaci extrakci informací z hlaviček paketů. Tyto
-funkce ovšem nejsou implementovány.
-
 Pro tuto operaci byla navržena jedna funkce a jedna struktura.
-Touto strukturou je \texttt{phe\_item}, jež je typu \texttt{enum}, jehož položky
-se vzájemně překrývají a jeho velikost je stejná jako jeho největší položka a
-položku, se kterou se pracuje pak vybírá sám programátor a to pouze určuje způsob reprezentace
-dat uložených uvnitř. Důvodem pro tento návrh je ten, že každá proměnná bude obsahovat právě jednu hodnotu.
+Touto strukturou je \texttt{phe\_item}, jež je typu \texttt{union}, jehož položky
+se vzájemně překrývají. Důvodem pro tento návrh je ten, že každá položka hlavičky paketů obsahuje právě jednu hodnotu.
 
 Navrženou funkcí je funkce \texttt{phe\_get}, jež jako první parametr očekává
 vstupní data, jako druhý délku těchto dat, jako třetí ukazatel na pole \texttt{phe\_item},
-kam se budou ukládat jednolivé extrahované hodnoty.
+kam se budou ukládat jednotlivé extrahované hodnoty.
 
 Funkce dokáže zpracovat variabilní počet argumentů.
 Hodnotami pro variabilní argumenty jsou hodnoty typu \texttt{enum}, kde každá hodnot odpovídá
-právě jedné položce hlavičky IP paketu a její číselná hodnota odpovídá počtu bytů
-od začátku datové struktury IP paketu.
+právě jedné položce hlavičky paketu a její číselná hodnota odpovídá počtu bytů
+od začátku datové struktury paketu.
 
 Pro efektivnější zpracování je vhodné volit pořadí těchto parametrů stejné jako je jejich reálná
 posloupnost ve struktuře paketu.
 
-Některé základní položky využívané při klasifikaci paketů a jejich vzdálenosti v bytech
+Některé základní položky využívané při klasifikaci paketů a jejich vzdálenosti od počátku hlavičky
 jsou uvedeny v tabulce \ref{tab:phe}
 
 \begin{table}[!htbp]
@@ -970,7 +904,7 @@ jsou uvedeny v tabulce \ref{tab:phe}
     Význam & Název & offset \\ \hhline{|=|=|=|}
     Verze & IP\_VERSION & 0 \\ \hline
     Zdrojová IP adresa pro IPv4 & IP\_SRC & 12 \\ \hline
-    Cílová IP adresa pro IPv4 & 8 IP\_DST & 16 \\ \hline
+    Cílová IP adresa pro IPv4 & IP\_DST & 16 \\ \hline
     Cílový port pro IPv4 & PORT\_DST & 22 \\ \hline
     Protokol pro IPv4 & PROTO & 8 \\ \hline
     \end{tabular}
@@ -981,10 +915,10 @@ jsou uvedeny v tabulce \ref{tab:phe}
 Přesnou specifikaci rozhraní je možné nalézt v přiloženém CD ve složce \texttt{/lib/src/phe/phe.h}
 
 
-\section{Použití knihovny} % #####################################################################################
+\section{Použití knihovny}\label{api:usage} % #######################################################################
 Celou knihovnu je možné sestavit příkazem \texttt{make all} v hlavním adresáři knihovny.
-Při tomto příkazu bude celá knihovna sestavena s definovaným NDEBUG, což má za následek vypuštění všech
-volání funkce assert, která slouží pro ověřovaní správné funkčnosti.
+Při provedení tohoto příkazu bude celá knihovna sestavena s definovaným NDEBUG, což má za následek vypuštění všech
+volání funkce assert, která slouží pro ověřování správné funkčnosti.
 
 Dalšími Cíly pro program \texttt{make} jsou
 
@@ -995,26 +929,32 @@ Dalšími Cíly pro program \texttt{make} jsou
 	\item{\texttt{clean} - smaže všechny soubory vytvořené překladem}
 \end{itemize}
 
-\section{Rozšíření knihovny} % #####################################################################################
+Knihovny reprezentující jednotlivé operace je možné sestavit příkazem \texttt{make}
+v odpovídajícím adresáři. Pro překlad s debugovacími informacemi je možno využít cíl sestavení
+\texttt{make lib}.
+
+\section{Rozšíření knihovny}\label{api:extension} % ############################################
 
 Pro rozšíření knihovny je nutné přidat knihovnu implementující danou operaci
 do adresáře \texttt{lib/src} a upravit příslušný soubor \texttt{Makefile} v daném adresáři.
 Dále je vhodné vytvořit testovací program a sadu testů, kterou je možné automatizovaně spouštět a vyhodnocovat.
 Tyto soubory pak umístit do adresáře \texttt{lib/test/<operace>}.
-Další vhodnou součástí knihovny operace je benchmark pro vyhodnocení rychlosti/paměťové náročnosti jednotlivých
+Další vhodnou součástí knihovny operace je benchmark pro vyhodnocení rychlosti jednotlivých
 implementací dané operace.
 
 
 
 \chapter{Výsledky}\label{chapter:results} % ##########################################################################
-Tato kapitula shrnuje a vizualizuje dosažené výsledky při implementaci jednotlivých knihoven.
+Tato kapitola shrnuje a vizualizuje dosažené výsledky při implementaci jednotlivých knihoven.
 Benchmarky pro architekturu Intel proběhly na operačním systému Archlinux \footnote{https://www.archlinux.org/} s procesorem Intel(R) Core(TM) i3-2310M CPU @ 2.10GHz.
 
 \section{Hledání nejdelšího shodného prefixu}\label{section:results-lpm} % ####################################################################
 
 Hledání nejdelšího shodného prefixu bylo testováno na celkem pěti vstupních sadách dat, které
-byly převzaty z volně dostupných dat RIPE\footnote{https://www.ripe.net/}.
-Informace o testovaných sadách dat jsou zobrazeny v tabulce \ref{tab:lpm-input}.
+se liší počtem záznamů směrovací tabulky. Data byla převzata z volně dostupných dat RIPE\footnote{https://www.ripe.net/}.
+Počet záznamů směrovacích tabulek, verze IP adres a délky prefixů jsou popsány v tabulce \ref{tab:lpm-input}.
+Dosažené výsledky pro jednotlivé sady dat jsou vizualizovány na obrázcích \ref{fig:lpm-ipv4} pro sady IPv4 a
+\ref{fig:lpm-ipv6} pro sady IPv6.
 
 \begin{table}[!htbp]
 	\center
@@ -1027,50 +967,44 @@ Informace o testovaných sadách dat jsou zobrazeny v tabulce \ref{tab:lpm-input
     $1000$ & 23 & 128 & IPv6 \\ \hline
     $10000$ & 19 & 128 & IPv6 \\ \hline
     \end{tabular}
-	\caption{Informace v routovací tabulce pro benchmarky}
+	\caption{Směrovací tabulky pro testování}
     \label{tab:lpm-input}
 \end{table}
 
-Důvod proč není benchmark pro IPv6 se 100 000 záznamy ve směrovací tabulce je ten, že se mi nepovedlo
-sehnat směrovací tabulku takové velikosti
-Vyhledávání pak bylo testováno oproti sadě velikost $1000$ odpovídající verze IP, která je podmnožinou každé
-rozsáhlejší sady dat.
+Vyhledávání bylo prováděno oproti $1000$ IP adresám odpovídající verze. Tyto adresy byly vybrány
+ze záznamů směrovacích tabulek použitých pro testy.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{fig/lpm-ipv4.pdf}
 	\caption{Benchmark pro IPv4}
     \label{fig:lpm-ipv4}
 \end{figure}
 
-Testováno bylo jak TreeBitmap ve všech variantách velikosti střídy, tedy $1-8$.
-Jak je vidět na následujících grafech, tak nejlepších výsledků bylo dosaženo pro TreeBitmap s velkostí
-střídy nastavenou na $5$ bitů a to jak pro IPv4 tak i pro IPv6.
+Benchmark byl proveden pro algoritmy TreeBitmap (v grafu označeno jako \texttt{tbm-střída}) ve velikostích střídy $1-8$ a pro binární vyhledávání na délce prefixu (v grafu označeno jako \texttt{bspl-1}).
+Jak je možno vyčíst z uvedených grafů, tak nejlepších výsledků bylo dosaženo pro TreeBitmap s velikostí
+střídy nastavenou na $5$ bitů a to jak pro IPv4 a $6$ bitů pro IPv6.
 
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=1]{fig/lpm-ipv6.pdf}
 	\caption{Benchmark pro IPv6}
-    \label{fig:lpm-ipv4}
+    \label{fig:lpm-ipv6}
 \end{figure}
 
 Pro testování algoritmu Binary search on prefix length byla zvolena velikost hašovací tabulky
-stejná jako velikost směrovacích dat. Tento přístup byl zvolen z důvodu významného vlivu
-velikosti hašovací tabulky na rychlost samotného vyhledávání. V nejhorším případě, tedy při
-velikosti hašovací tabulky $100$ byl algoritmus pomalejší pro hledání v tabulce se $100 000$ záznamy pomalejší
-$400\times$.
-U algoritmu bspl je doba vyhledání prefixu velice závislá na velikosti hašovací tabulky a proto je vhodné odhadnout počet záznamů tabulky alespoň řádově a dle toho pak nastavit velikost konstantu {\tt \_HTABLE\_SIZE} v souboru bspl.h na hodnotu, která alespoň řádově odpovídá předpokládané velikosti hašovací tabulky.
+stejná jako počet záznamů směrovací tabulky pro zvolenou sadu dat. Tento přístup byl zvolen z důvodu významného vlivu
+velikosti hašovací tabulky na rychlost samotného vyhledávání.
+V případě nastavení velikosti hašovací tabulky na $100$ prvků byl algoritmus vyhledávání pomalejší $400\times$
+při použití směrovací tabulky obsahující $100 000$ záznamů.
+
 
 Dalším důležitým faktorem pro efektivnost implementace je velikost datových struktur, která je
 závislá na velikosti střídy pro algoritmus TreeBitmap a také na počtu směrovacích pravidel.
-Jednotlivé velikost jsou zapsány v tabulce \ref{tab:lpm-input}.
-
-Velikost struktury na závislosti v počtu směrovací pravidel je ovlivněna následujícím způsobem:
-Do 256 záznamů zabírá pravidlo pouze 1byte, do 65536 záznamů pak 2 byty a pro více než 65536 pak celé čtyři byty pro uložení právě jednoho pravidla. Při uložení $65536$ adres to bude rozdíl mezi uložením $65537$ bude rozdíl činit
-$200KB$
-
-Velikost pravidle lze nastavit změnou definice pro LPM\_RULE.
-Jako defaultní je nastaveno \texttt{uint8\_t}. Další hodnoty mohou být \texttt{uint16\_t} a \texttt{uint32\_t}.
+Velikost struktury v závislosti na počtu směrovacích pravidel je ovlivněna následujícím způsobem.
+Do 256 záznamů zabírá pravidlo pouze $1B$, do 65536 záznamů pak $2B$ a pro více než 65536 pak celé $4B$ pro uložení právě jednoho pravidla. Rozdíl mezi uložení $65536$ adres a $65537$ adres pak bude činit
+$200KB$. Velikost uzlů stromu pro zvolené algoritmy v závislosti na počtu záznamů směrovací tabulky
+je popsán v tabulce \ref{tab:lpm-input}.
 
 \begin{table}[!htbp]
 	\center
@@ -1092,20 +1026,16 @@ Jako defaultní je nastaveno \texttt{uint8\_t}. Další hodnoty mohou být \text
     \label{tab:lpm-input}
 \end{table}
 
-Jak je vidět ve výše uvedené tabulce tak i přestože nejrychlejší implementací je TreeBitmap se střídou 5,
-tak v případě omezené paměti by bylo vhodnější zvolit kompromis mezi rychlostí a paměťovou náročností v podobě
-TreeBitmap s velikostí střídy 4. Dalším ovlivňujícím faktorem je odhadovaný počet záznamů směrovací tabulky, protože
-nejrychlejší TBM-5 při existenci všech struktur na všech úrovních bude činit rozdíl zabraného místa oproti TBM4
-celých $TODO dopočítat KB$, což je v kontextu FPGA nezanedbatelné množství.
+Jak je možné vyčíst z výše uvedené tabulky, tak i přestože nejrychlejší implementací pro IPv4 je TreeBitmap se střídou 5, tak v případě omezené paměti by bylo vhodnější zvolit kompromis mezi rychlostí a paměťovou náročností v podobě
+TreeBitmap s velikostí střídy 4, který dosahuje nejmneší možné velikosti datové struktury a zároveň nejlepších výsledků pro danou velikost datové struktury.
 
 \section{Hledání řetězců} % #####################################################################################
-Benchmark pro hledání řetězců byl proveden na dvou vstupních testovacích sadách,
-kde první sada \texttt{fallbacks} obsahuje slova s výskytem stejných písmen, tutíž při tvorbě konečného automatu bude
-docházet ke generování failure přechodů, jež budou poté procházeny. Druhá testovací sada \texttt{no-fallbacks}
-obsahuje slova, které nemají stejná písmena. Výsledky dosažené pro jednotlivé testovací sady jsou
-vyzualizovány v grafi \ref{fig:pm}.
+Testování efektity implementace hledání řetězců bylo provedeno na dvou vstupních testovacích sadách,
+kde první sada \texttt{fallbacks} obsahuje slova s výskytem stejných písmen, tudíž při tvorbě konečného automatu bude
+docházet ke generování \textit{failure} přechodů, jež budou poté procházeny. Druhá testovací sada \texttt{no-fallbacks}
+obsahuje slova, která neobsahují stejná písmena. Výsledky dosažené pro jednotlivé testovací sady jsou
+vizualizovány v grafu \ref{fig:pm}. Testování probíhalo na datových paketech odchycených z komunikace osobního počítače. Testovací sady obsahují klíčová slova používaná v protokolu HTTP.
 
-Dopsat na jakých datech byl benchmark proveden
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=0.7]{fig/pm.pdf}
@@ -1113,16 +1043,16 @@ Dopsat na jakých datech byl benchmark proveden
     \label{fig:pm}
 \end{figure}
 
+Jak je možné vyčíst z grafu tak sada obsahující \textit{failure} přechody dosahuje mírně horších výsledků,
+což je způsobeno delším zpracování znaku, pro který neexistuje validní přechod v aktuálním stavu konečného automatu.
+
 Velikost každého stavu konečného automatu je v této implementaci $48B$
-a podobně jako LPM je závislá na počtu vložených pravidel.
+a podobně jako hledání nejdelšího shodného prefixu je závislá na počtu vložených pravidel.
 
 \section{Hledání regulárních výrazů} % ###############################################################################
 
 Jak je vidět na v grafu \ref{fig:regex} tak hledání regulárních výrazů pomocí deterministického
-konečného automatu je řádově pomalejší. Toto zpomalení je způsobené opakovaným generování
-epsilon přechodů pro všechny vstupní stavy. Vstupní stavy jsou na začátku procházení
-startovní stavy všech výrazů, které byly předány do funkce \texttt{regex\_construct\_nfa}.
-
+konečného automatu je řádově pomalejší. Toto zpomalení je způsobené nutností procházení $\epsilon$-přechodů.
 Procházení založené na deterministickém konečném automatu tímto problémem netrpí,
 neboť při zpracování každého vstupního symbolu dojde k přechodu do dalšího stavu v případě
 vstupního symbolu, který se může vyskytnou v aktuálním stavu automatu nebo do počátečního stavu
@@ -1137,7 +1067,7 @@ Dopsat na jakých datech byl benchmark proveden
     \label{fig:regex}
 \end{figure}
 
-Velikost datových struktur pro jednotlivé stavy konečného automato pro deterministický a nedeterministický
+Velikost datových struktur pro jednotlivé stavy konečného automatu pro deterministický a nedeterministický
 automat je znázorněna v tabulce \ref{tab:regex-size}.
 
 \begin{table}[!htbp]
@@ -1153,35 +1083,36 @@ automat je znázorněna v tabulce \ref{tab:regex-size}.
 \end{table}
 
 \chapter{Závěr}\label{chapter:conclusion} % ########################################################################
-Cílem této práce bylo popsat a navrhnout aplikační programové rozhraní časově kritické operace v oblasti počítačových sítí,
-konkrétně vyhledání nejdelšího shodného prefixu za využití algoritmů Binary search on prefix length
-a TreeBitmap. Operace používané na směrovačích pro zjištění jakou cestou směrovat přicházející pakety.
-Dalšími operacemi jsou hledání řetězců a hledání regulárních výrazů v paketech a jejich datech.
-Pro operaci hledání řetězců je to konkrétně algoritmus Aho-Corasick \cite{aho} umožňují v
-při jednom průchodu vstupními daty vyhodnotit zda se v datech nacházejí specifikovaná klíčová slova
-a poté hledání regulárních výrazů. Obě zmíněné operace jsou používané v paketových filtrech,
-které tvoří jádro systémů pro detekci útoků (IDS) a prevenci útoků (IPS). Do skupiny těchto
-systémů patří firewally jak softwarové tak hardwarové. Mezi další operace operace pak patří
-analýza a extrakce hlaviček paketů a obecná klasifikace paketů.
+Cílem této práce bylo popsat a navrhnout aplikační programové rozhraní časově kritických operací využívaných v oblasti
+počítačových sítí.
+Teoretické základy, ze kterých tato práce vychází, jsou rozvedeny v kapitole \ref{chapter:theoretical}.
+Mezi vybrané časově kritické operace patří klasifikace paketů a speciálně pak jednodimenzionální klasifikace paketů
+dle cílové IP adresy, hledání nejdelšího shodného prefixu. Pro tuto operaci jsou popsány
+algoritmy binárního vyhledávání na délce prefixu a TreeBitmap.
+Mezi další rozvedené operace patří hledání řetězců a pro tuto operaci je popsán
+algoritmus autorů Aho a Corasickové. Další z operací je hledání regulárních výrazů
+za použití konečných automatů, konkrétně deterministického a nedeterministického.
+Poslední popsanou operací je analýza a extrakce hlaviček.
+Pro každou popsanou operace je navrženo API popsané v kapitole \ref{chapter:api}.
 
-Dále je to pak implementace operací hledání nejdelšího shodného prefixu, hledání řetězců
-a hledání regulárních výrazů. Při implementaci bylo dosaženo rychlosti zpracování N paketů za sekundu
-při velikosti $100000$ záznamů routovací tabulky pro IP adresy verze 4 a N paketů/sekunda při velikosti
-routovací tabulky $10000$ pro IP adresy verze 6. Pro operaci hledání podřetězců bylo
-do dosaženo rychlosti zpracování N paketů za sekundu v závislosti na počtu shodných písmen
-při lineární náročnosti v závislosti na velikost dat v paketech. Experimentování bylo prováděno
-na vzorku dat odchycených ze standardního síťového provozu jednoho osobního počítače. Jako vzorek
-testovaných klíčových slov bylo využito klíčových definovaných pro HTTP\footnote{Hyper-text transfer protocol}.
-Pří experimentování s regulárními výrazy byly jako vstupní data použita stejná data jako pro hledání řetězců,
-ale jako regulární výraz byly použity matchování URL\footnote{Uniform resource locator} adres.
+V kapitole \ref{chapter:results} jsou diskutovány výsledky dosažené
+při implementaci operací hledání nejdelšího shodného prefixu, hledání řetězců a hledání regulárních
+výrazů. Pro hledání nejdelšího shodného prefixu vychází jako nejrychlejší implementace algoritmu
+TreeBitmap s velikostí střídy 5. Tohoto výsledku bylo dosaženo na několika datových sadách,
+jež vycházejí ze směrovacích tabulek reálný směrovačů.
+Pro operaci hledání řetězců bylo experimentování prováděno na síťovém provozu zachyceném
+při komunikaci osobního počítače. Jako vzorek
+testovaných klíčových slov bylo využito klíčových slov definovaných pro HTTP\footnote{Hyper-text transfer protocol}.
+Při experimentování s regulárními výrazy byly jako vstupní data použita stejná data jako pro hledání řetězců,
+a jako regulární výrazy byly použity takové regulární výrazy, které dokáží identifikovat URL\footnote{Uniform resource locator} adresu a stavový kód HTTP protokolu.
 
-Jako kroky navazující na tuto práci je možné implementovat zbývající operace, které implementovány nebyly.
-Těmito operacemi je klasifikace paketů a analýza a extrakce hlaviček paketů.
+Jako kroky navazující na tuto práci je možné implementovat zbývající operace, pro které bylo navrženo API ale nebyla provedena implementace. Těmito operacemi je klasifikace paketů a analýza a extrakce hlaviček paketů.
 
 Ze specifikace požadavků na implementaci knihovny v nízkoúrovňovém jazyce C je zřejmé,
 že knihovna bude používána i na vestavěných systémech disponujících omezenou pamětí a z toho
-důvodu by jedním z dalších kroků mohlo být formální testování s nedostatkem paměti.
-To by mohlo dát rozsahem na celou další práci. Je nutné ověřit, že knihovna bude
-reagovat správným způsob a nezpůsobí pád systému v rámci kterého je spouštěna.
+důvodu by jedním z dalších kroků mohlo být testování s omezenou operační pamětí.
+Je nutné ověřit, že knihovna bude reagovat správným způsobem na nedostatek paměti a nezpůsobí pád systému,
+v rámci kterého je spouštěna.
 
-zmínit někde vláknové zpracování
+Jedním z dalších možných rozšíření je návrh API a poté implementace vláknového zpracování, které bude
+umožňovat zřetězené zpracování jednotlivých operací.

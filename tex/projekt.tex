@@ -28,6 +28,7 @@
 \usepackage{url}
 \usepackage{hhline}
 \usepackage{floatrow}
+\usepackage[section]{placeins}
 
 \DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
 
@@ -51,6 +52,14 @@
   \pdfcompresslevel=9
 \fi
 \fi
+
+\makeatletter
+\AtBeginDocument{%
+  \expandafter\renewcommand\expandafter\subsection\expandafter{%
+    \expandafter\@fb@secFB\subsection
+  }%
+}
+\makeatother
 
 %Informace o praci/projektu
 %---------------------------------------------------------------------------
@@ -83,11 +92,11 @@
   Tato práce se zabývá časově kritickými operacemi v oblasti počítačových sítích a zahrnuje návrh API pro knihovnu implementující tyto operace. Mezi zpracované operace patří vyhledání nejdelšího shodného prefixu pomocí algoritmů TreeBitmap a binárního vyhledávání na délce prefixu, hledání řetězců algoritmem Aho-Corasick, hledání regulárních výrazů, analýza a extrakce hlaviček paketů a klasifikace paketů. V práci je zhodnocena dosažená rychlost implementace těchto operací na platformách Intel a ARM.
 
 }, % abstrakt v ceskem jazyce
-  abstract.en={This document }, % abstrakt v anglickem jazyce
+  abstract.en={This thesis is focused on time-critical operations in context of computer networks. Processed operations are packet classification, specificaly one-dimensional classification, longest prefix matching using binary search on prefix length and TreeBitmap, pattern matching using Aho-Corasick, regular expression matching and packet header analysis and extraction. Purpose of this work is to design API for library implementing these operations. Implementation speed of these operations is measured on Intel and ARM platforms.}, % abstrakt v anglickem jazyce
   %Prohlaseni
   declaration={Prohlašuji, že jsem tuto bakalářskou práci vypracoval samostatně pod vedením pana Ing. Jana Kořenka, Ph.D.},
   %Podekovani (nepovinne)
-  acknowledgment={Zde je možné uvést poděkování vedoucímu práce a těm, kteří poskytli odbornou pomoc.} % nepovinne
+  acknowledgment={Chtěl bych poděkovat vedoucímu této práce Ing. Janovi Kořenkovi, Ph.D. za jeho odborné vedení, cenné rady a poskytnutý čas.} % nepovinne
 }
 
 %Abstrakt (cesky, anglicky)
