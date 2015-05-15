@@ -19,7 +19,7 @@ void free_keywords(pm_keyword * keywords, unsigned  index)
 void fillKeywords(pm_root * root, char * source)
 {
 	FILE * f = fopen(source, "r");
-	char keyword[1024];
+	char keyword[1024] = {0};
 	pm_keyword * keywords;
 	unsigned rule;
 	unsigned length;
@@ -44,6 +44,8 @@ void fillKeywords(pm_root * root, char * source)
 		memcpy(keywords[index].content, keyword, strlen(keyword));
 
 		index++;
+
+		bzero(keyword, 1024);
 	}
 
 

@@ -1,5 +1,7 @@
 CC=gcc
 STRIDE=2
+ALG=tbm
+IP=4
 LIB=../../src/lpm
 
 .PHONY: .FORCE
