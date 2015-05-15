@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <arpa/inet.h>
+#include <strings.h>
 
 #ifdef IPv4
 	#define ADDR struct in_addr
@@ -69,8 +70,8 @@ void list_insert(list ** start, ADDR addr, _LPM_RULE * rule_max, _LPM_RULE * rul
 void fillTable(lpm_root * root, char * source)
 {
 	FILE * f = fopen(source, "r");
-	char destination[100];
-	char next_hop[100];
+	char destination[100] = {0};
+	char next_hop[100] = {0};
 
 	uint8_t prefix_len;
 	_LPM_RULE rule_max = 1;
@@ -80,7 +81,7 @@ void fillTable(lpm_root * root, char * source)
 
 	ADDR addr;
 
-	while(fscanf(f, "%100s %d %100s", destination, &prefix_len, next_hop) == 3)
+	while(fscanf(f, "%100s %d %100s\n", destination, &prefix_len, next_hop) == 3)
 	{
 		item = start;
 		addr = ip2num(next_hop);
@@ -88,6 +89,9 @@ void fillTable(lpm_root * root, char * source)
 
 		addr = ip2num(destination);
 		ADD(root, &addr, prefix_len, rule);
+
+		bzero(destination, 100);
+		bzero(next_hop, 100);
 	}
 
 	while(start != NULL)
@@ -102,14 +106,14 @@ void fillTable(lpm_root * root, char * source)
 
 double lookup(lpm_root * root, char * file)
 {
-	char lookup_ip[100];
+	char lookup_ip[100] = {0};
 	ADDR lookup_ip_num;
 
 	clock_t time_start, time_end, time_sum = 0;
 	unsigned time_runs = 0;
 	FILE * f = fopen(file, "r");
 
-	while(fscanf(f, "%100s", lookup_ip) == 1)
+	while(fscanf(f, "%100s\n", lookup_ip) == 1)
 	{
 		lookup_ip_num = ip2num(lookup_ip);
 		time_start = clock();
@@ -117,6 +121,8 @@ double lookup(lpm_root * root, char * file)
 		time_end = clock();
 		time_sum += time_end - time_start;
 		time_runs++;
+
+		bzero(lookup_ip, 100);
 	}
 
 	fclose(f);

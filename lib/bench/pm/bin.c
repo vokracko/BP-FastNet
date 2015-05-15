@@ -46,6 +46,7 @@ void fillKeywords(pm_root * root, char * source)
 		index++;
 	}
 
+
 	pm_add(root, keywords, index);
 	free_keywords(keywords, index);
 	free(keywords);

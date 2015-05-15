@@ -31,7 +31,7 @@ void free_keywords(regex_pattern * keywords, unsigned  index)
 void * fillKeywords(char * source, unsigned * index)
 {
 	FILE * f = fopen(source, "r");
-	char keyword[1024];
+	char keyword[1024] = {0};
 	regex_pattern * keywords = NULL;
 	unsigned rule;
 	unsigned length;
@@ -53,6 +53,8 @@ void * fillKeywords(char * source, unsigned * index)
 		memcpy(keywords[*index].input, keyword, strlen(keyword));
 
 		(*index)++;
+
+		bzero(keyword, 1024);
 	}
 
 	fclose(f);
