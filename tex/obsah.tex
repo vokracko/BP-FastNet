@@ -945,8 +945,8 @@ implementací dané operace.
 
 
 \chapter{Výsledky}\label{chapter:results} % ##########################################################################
-Tato kapitola shrnuje a vizualizuje dosažené výsledky při implementaci jednotlivých knihoven.
-Benchmarky pro architekturu Intel proběhly na operačním systému Archlinux \footnote{https://www.archlinux.org/} s procesorem Intel(R) Core(TM) i3-2310M CPU @ 2.10GHz.
+Tato kapitola shrnuje a vizualizuje dosažené výsledky při implementaci jednotlivých operací.
+Benchmarky byly provedeny na procesoru Intel(R) Core(TM) i3-2310M CPU @ 2.10GHz a pro architekturu ARM na desce SoCrates\footnote{http://www.devboards.de/en/home/boards/product-details/article/socrates/} s procesorem ARM Cortex-A9.
 
 \section{Hledání nejdelšího shodného prefixu}\label{section:results-lpm} % ####################################################################
 
@@ -974,11 +974,20 @@ Dosažené výsledky pro jednotlivé sady dat jsou vizualizovány na obrázcích
 Vyhledávání bylo prováděno oproti $1000$ IP adresám odpovídající verze. Tyto adresy byly vybrány
 ze záznamů směrovacích tabulek použitých pro testy.
 
+
+
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=1]{fig/lpm-ipv4.pdf}
-	\caption{Benchmark pro IPv4}
+	\caption{Rychlost hledání nejdlešího shodného prefixu pro IPv4 na platformě Intel}
     \label{fig:lpm-ipv4}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=1]{fig/lpm-ipv4-arm.pdf}
+    \caption{Rychlost hledání nejdlešího shodného prefixu pro IPv4 na platformě ARM}
+    \label{fig:lpm-ipv4-arm}
 \end{figure}
 
 Benchmark byl proveden pro algoritmy TreeBitmap (v grafu označeno jako \texttt{tbm-střída}) ve velikostích střídy $1-8$ a pro binární vyhledávání na délce prefixu (v grafu označeno jako \texttt{bspl-1}).
@@ -988,8 +997,15 @@ střídy nastavenou na $5$ bitů a to jak pro IPv4 a $6$ bitů pro IPv6.
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=1]{fig/lpm-ipv6.pdf}
-	\caption{Benchmark pro IPv6}
+	\caption{Rychlost hledání nejdlešího shodného prefixu pro IPv6 na platformě Intel}
     \label{fig:lpm-ipv6}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[scale=1]{fig/lpm-ipv6-arm.pdf}
+    \caption{Rychlost hledání nejdlešího shodného prefixu pro IPv6 na platformě ARM}
+    \label{fig:lpm-ipv6-arm}
 \end{figure}
 
 Pro testování algoritmu Binary search on prefix length byla zvolena velikost hašovací tabulky
@@ -1039,8 +1055,15 @@ vizualizovány v grafu \ref{fig:pm}. Testování probíhalo na datových paketec
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=0.7]{fig/pm.pdf}
-	\caption{Benchmark pro knihovnu pm}
+	\caption{Rychlost hledání řetězců na platformě Intel}
     \label{fig:pm}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[scale=0.7]{fig/pm-arm.pdf}
+    \caption{Rychlost hledání řetězců na platformě ARM}
+    \label{fig:pm-arm}
 \end{figure}
 
 Jak je možné vyčíst z grafu tak sada obsahující \textit{failure} přechody dosahuje mírně horších výsledků,
@@ -1063,10 +1086,17 @@ Dopsat na jakých datech byl benchmark proveden
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[scale=0.7]{fig/regex.pdf}
-	\caption{Benchmark pro knihovnu regex}
+	\caption{Rychlost hledání regulárních výrazů na platformě Intel}
     \label{fig:regex}
 \end{figure}
 
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[scale=0.7]{fig/regex.pdf}
+    \caption{Rychlost hledání regulárních výrazů na platformě ARM}
+    \label{fig:regex-arm}
+\end{figure}
 Velikost datových struktur pro jednotlivé stavy konečného automatu pro deterministický a nedeterministický
 automat je znázorněna v tabulce \ref{tab:regex-size}.
 
