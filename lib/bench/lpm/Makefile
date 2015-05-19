@@ -17,7 +17,7 @@ ipv6: .FORCE
 	./plot.sh "6" "bspl tbm" "1k 10k" "1 2 3 4 5 6 7 8"
 
 bin: .FORCE bin.c
-	make -C $(LIB) ALG=$(ALG) STRIDE=$(STRIDE)
+	make -C $(LIB) lib ALG=$(ALG) STRIDE=$(STRIDE)
 	$(CC) -std=c99 bin.c $(LIB)/lpm.a -o $(ALG) -DIPv$(IP)
 
 .FORCE:

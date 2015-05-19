@@ -8,7 +8,7 @@ all:
 	./plot.sh
 
 bin: .FORCE bin.c
-	make -C $(LIB) ALG=$(ALG)
+	make -C $(LIB) lib ALG=$(ALG)
 	$(CC) -std=c99 data.c bin.c -g3  $(LIB)/pm.a -o $(ALG)
 
 .FORCE:
