@@ -4,7 +4,7 @@ STRIDE=5
 
 PHONY: lpm lpm regex .FORCE
 
-all: lpm regex
+all: lpm regex pm
 	ar -M < generate.a
 
 lpm: .FORCE
