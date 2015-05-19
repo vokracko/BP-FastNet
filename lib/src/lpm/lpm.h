@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <netinet/in.h>
 #include "types-precompiled.h"
-#include "../general/common.h"
+#include "../common/common.h"
 
 lpm_root * lpm_init(_LPM_RULE default_rule);
 _Bool lpm_add(lpm_root * root, struct in_addr * prefix, uint8_t prefix_len, _LPM_RULE rule);

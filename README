@@ -1,0 +1,18 @@
+Make cíle pro vytvoření a otestování knihovny jsou
+
+	make lib [LPM=[bspl|tbm] [STRIDE=N]] - pro vytvoření knihovny lib/src/fastnet.a
+	make bench - pro vygenerování bechmarků v lib/bench/*/*.pdf
+	make doc - pro vygenerování programové dokumentace
+	make test - pro spuštění testů
+
+Hlavičkový soubor s rozhraním je uložen v lib/src/fastnet.h
+
+
+Jednotlivé knihovny je možno vygerovat příkazem "make <operation>" v adresáři lib/src.
+
+	make lpm [ALG=[bspl|tbm] [STRIDE=N]]
+	make pm
+	make regex
+
+Výsledkem těchto operací je knihovna lib/src/<operation>/<operation>.a implementující danou operaci.
+Hlavičkový soubor s rozhraním je uložen v lib/src/<operation>/<operation>.h

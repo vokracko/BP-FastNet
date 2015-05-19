@@ -27,7 +27,6 @@ uint32_t calculate_hash(uint32_t key)
 void _bspl_leaf_pushing(_bspl_node * node, _LPM_RULE rule_original, _LPM_RULE rule_new)
 {
 	assert(node != NULL);
-	assert(rule_original != rule_new);
 
 	if(node->rule == rule_original)
 	{

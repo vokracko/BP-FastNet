@@ -22,5 +22,6 @@ clean:
 	make -C lpm/ clean
 	make -C pm/ clean
 	make -C regex/ clean
+	make -C common/ clean
 
 .FORCE:

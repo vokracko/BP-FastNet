@@ -3,7 +3,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "types-precompiled.h"
-#include "../general/common.h"
+#include "../common/common.h"
 
 #define GET_BIT_LSB(data, position) ((data >> (position)) & 1)
 #define GET_BIT_MSB(data, position) (((data)[(position) / 32] >> (31 - ((position) % 32))) & 1)

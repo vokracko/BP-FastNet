@@ -1,0 +1,269 @@
+OPEN SOURCE LICENCE VUT V BRNÌ
+Verze 1.
+Copyright (c) 2010, Vysoké uèení technické v Brnì, Antonínská 548/1, PSÈ 601 90
+-------------------------------------------------------------------------------
+INSTALACÍ, KOPÍROVÁNÍM NEBO JINÝM POU®ITÍM SOFTWARE POTVRZUJETE,
+®E SOUHLASÍTE S PODMÍNKAMI TÉTO LICENÈNÍ SMLOUVY. POKUD S TÌMITO
+PODMÍNKAMI NESOUHLASÍTE, SOFTWARE NEINSTALUJTE, NEKOPÍRUJTE ANI
+NEPOU®ÍVEJTE.
+
+JESTLI®E NEMÁTE PLATNOU LICENCI NA SOFTWARE, NEJSTE OPRÁVNÌNI
+SOFTWARE INSTALOVAT, KOPÍROVAT ANI JINAK POU®ÍVAT.
+
+Definice:
+Software se pro úèely této smlouvy rozumí poèítaèový program (skupina
+poèítaèových programù tvoøící jeden funkèní celek) schopný
+autorskoprávní ochrany a s ním související dokumentace.
+
+Dílem zalo¾eným na Software se pro úèely této smlouvy rozumí dílo,
+které obsahuje zcela nebo jen zèásti Software nebo jakoukoli jeho
+èást, popøípadì je ze Software nebo jeho èásti odvozeno. Na èásti
+díla schopného samostatného u¾ití, které neobsahují ¾ádnou èást
+Software ani nejsou ze Software odvozeny, se tato definice nevztahuje,
+pokud jsou ¹íøeny samostatnì.
+
+Zdrojovým kódem se pro úèely této licence rozumí ve¹kerý zdrojový
+kód pro v¹echny moduly, které Software nebo dílo na nìm zalo¾ené
+obsahuje, plus jakékoli dal¹í soubory pro definici rozhraní, plus
+dávkové soubory potøebné pro kompilaci a instalaci spustitelného
+programu. Zvlá¹tní výjimkou jsou v¹ak ty programové komponenty,
+které jsou normálnì ¹íøeny (buï ve zdrojové, nebo binární formì) s
+hlavními souèástmi operaèního systému, na nìm¾ spustitelný program
+bì¾í (tj. s pøekladaèem, jádrem apod.).
+
+Ka¾dý, kdo pou¾ije Software, stává se U¾ivatelem. U¾ivatel se
+zavazuje dodr¾ovat tyto licenèní podmínky.
+
+VUT V BRNÌ UDÌLUJE U®IVATELI LICENCI K U®ÍVÁNÍ SOFTWARE ZA NÁSLEDUJÍCÍCH
+PODMÍNEK:
+
+1. U¾ivatel smí u¾ívat Software zdarma pro vlastní potøebu k jakýmkoli
+úèelùm.
+
+2. U¾ivatel smí kopírovat a ¹íøit doslovné kopie spustitelného
+Software a zdrojového kódu Software tak, jak jej obdr¾el, na
+libovolném médiu, za pøedpokladu, ¾e na ka¾dé kopii viditelnì a
+nále¾itì zveøejní zmínku o autorských právech a absenci záruky,
+ponechá nedotèené v¹echny zmínky vztahující se k této licenci a k
+absenci záruky a dá ka¾dému pøíjemci spolu se Software kopii této
+licenèní smlouvy. Za fyzický akt pøenesení kopie mù¾e U¾ivatel
+¾ádat poplatek a podle vlastního uvá¾ení mù¾e nabídnout za poplatek
+záruèní ochranu.
+
+3. U¾ivatel mù¾e modifikovat svoji kopii èi kopie Software anebo
+kterékoliv jeho èásti, a tak vytvoøit dílo zalo¾ené na Software,
+a kopírovat a roz¹iøovat takové modifikace èi dílo, pokud jasnì
+uvede, ¾e se jedná o modifikované dílo. Tyto modifikace èi dílo lze
+licencovat pouze za podmínek èl. 2 tìchto licenèních podmínek, bez
+ohledu na to, zda jsou ¹íøeny samostatnì nebo ve spojení s jiným
+dílem.
+Ustanovení pøedchozí vìty se v¹ak nepou¾ije na díla, která jsou
+pouhým spojením jiného díla, je¾ není na Software zalo¾eno, se
+Software nebo dílem zalo¾eným na Software na pamì»ovém nebo
+distribuèním médiu.
+
+4. Kopie Software nebo díla na nìm zalo¾eného v objektové anebo
+spustitelné podobì musí U¾ivatel:
+
+a) doprovodit zdrojovým kódem ve strojovì èitelné formì. Zdrojový
+kód musí být roz¹iøován podle ustanovení èl. 2, a to na médiu bì¾nì
+pou¾ívaném pro výmìnu programového vybavení; nebo
+b) doprovodit písemnou nabídkou nejménì na tøi roky, podle ní¾
+poskytne U¾ivatel jakékoli tøetí stranì, za poplatek nepøevy¹ující
+výdaje skuteènì vynalo¾ené na fyzickou výrobu zdrojové distribuce,
+kom pletní strojovì èitelnou kopii odpovídající zdrojovému kódu,
+jen¾ musí být ¹íøen podle ustanovení èl. 2 na médiu bì¾nì pou¾ívaném
+pro výmìnu programového vybavení; nebo
+c) doprovodit informacemi, které dostal ohlednì nabídky na poskytnutí
+zdrojového kódu. (Tato alternativa je povolena jen pro nekomerèní
+¹íøení a jenom tehdy, pokud U¾ivatel obdr¾el program v objektovém
+nebo spustitelném tvaru spolu s takovou nabídkou, v souladu s
+písmenem b vý¹e.)
+
+5. U¾ivatel nesmí kopírovat, modifikovat, poskytovat sublicence
+anebo ¹íøit Software jiným zpùsobem ne¾ výslovnì uvedeným v této
+licenci. Jakýkoli jiný pokus o kopírování, modifikování, poskytnutí
+sublicence anebo ¹íøení Software je neplatný a automaticky ukonèí
+práva daná touto licencí. Tøetí osoby, které od U¾ivatele obdr¾ely
+kopie anebo práva v souladu s touto licencí, v¹ak nemají své
+sublicence ukonèeny, dokud je jejich chování v souladu s tìmito
+licenèními podmínkami.
+
+6. Pokud nemù¾e U¾ivatel ¹íøit Software tak, aby vyhovìl zároveò
+svým závazkùm vyplývajícím z této smlouvy a jiným platným závazkùm,
+nesmí jej v dùsledku toho ¹íøit vùbec.
+
+7. U¾ivatel není odpovìdný za vymáhání dodr¾ování podmínek této
+licence tøetími stranami.
+
+8. VZHLEDEM K BEZPLATNÉMU POSKYTNUTÍ LICENCE K SOFTWARE SE NA
+SOFTWARE NEVZTAHUJE ®ÁDNÁ ZÁRUKA, A TO V MÍØE POVOLENÉ ZÁKONEM.
+POKUD NENÍ PÍSEMNÌ STANOVENO JINAK, POSKYTUJE VUT V BRNÌ SOFTWARE
+"TAK, JAK JE", BEZ ZÁRUKY JAKÉHOKOLIV DRUHU, A« VÝSLOVNÉ NEBO
+KONKLUDENTNÍ, VÈETNÌ, ALE NEJENOM, ZÁRUK ZA KVALITU A VÝKONNOST
+SOFTWARE, ZA PRODEJNOST A VHODNOSTI PRO URÈITÝ ÚÈEL.
+VUT V BRNÌ V ®ÁDNÉM PØÍPADÌ NEODPOVÍDÁ ZA ©KODY, VÈETNÌ V©ECH
+OBECNÝCH, SPECIÁLNÍCH, SKUTEÈNÝCH NEBO U©LÉHO ZISKU VYPLÝVAJÍCÍCH
+Z U®ÍVÁNÍ ANEBO NESCHOPNOSTI U®ÍVAT SOFTWARE (VÈETNÌ ALE NIKOLI
+JEN, ZTRÁTY NEBO ZKRESLENÍ DAT, NEBO TRVALÝCH ©KOD ZPÙSOBENÝCH VÁM
+NEBO TØETÍM STRANÁM, SELHÁNÍ FUNKCE SOFTWARE V SOUÈINNOSTI S JINÝMI
+SOFTWARE, NEBO V PØÍPADÌ, ®E PROGRAM PORU©UJE PRÁVA TØETÍCH OSOB),
+A TO I V PØÍPADÌ, ®E VUT V BRNÌ VÌDÌLO O MO®NOSTI TAKOVÝCH ©KOD,
+TO V©E V NEJ©IR©Í MO®NÉ MÍØE POVOLENÉ ZÁKONEM.
+
+Závìreèná ustanovení:
+
+Nevynutitelnost anebo neplatnost anebo neúèinnost kteréhokoli
+ujednání této smlouvy neovlivní vynutitelnost anebo platnost anebo
+úèinnost jejích ostatních ustanovení.
+
+Tyto licenèní podmínky poskytují stejný rozsah licenèních oprávnìní
+jako licenèní podmínky GNU GPL licencí a Software splòuje podmínky
+pro oznaèení Open Source Software.
+
+Otázky touto smlouvou neupravené vèetnì otázek jejího vzniku a
+zániku se øídí èeským právem.
+
+V pøípadì soudního sporu budou pøíslu¹né èeské obecné soudy.
+
+Instalací, kopírováním nebo jiným pou¾itím Software U¾ivatel
+prohla¹uje, ¾e se s obsahem této smlouvy dùkladnì seznámil, ¾e je
+souhlas s touto smlouvou projevem jeho skuteèné, vá¾né, svobodné a
+urèité vùle prosté omylu a ¾e není uzavøena v tísni za nápadnì
+nevýhodných podmínek.
+
+
+--------------------------------------------------------------------------
+
+BUT OPEN SOURCE LICENCE
+Version 1.
+Copyright (c) 2010, Brno University of Technology, Antonínská 548/1, 601 90, Czech Republic
+--------------------------------------------------------------------------
+BY INSTALLING, COPYING OR OTHER USES OF SOFTWARE YOU ARE DECLARING
+THAT YOU AGREE WITH THE TERMS AND CONDITIONS OF THIS LICENCE
+AGREEMENT. IF YOU DO NOT AGREE WITH THE TERMS AND CONDITIONS, DO
+NOT INSTAL, COPY OR USE THE SOFTWARE.
+
+IF YOU DO NOT POSESS A VALID LICENCE, YOU ARE NOT AUTHORISED TO
+INSTAL, COPY OR OTHERWISE USE THE SOTWARE.
+
+Definitions:
+
+For the purpose of this agreement, Software shall mean a computer
+program (a group of computer programs functional as a unit) capable
+of copyright protection and accompanying documentation.
+
+Work based on Software shall mean a work containing Software or a
+portion of it, either verbatim or with modifications and/or
+translated into another language, or a work based on Software.
+Portions of work not containing a portion of Software or not based
+on Software are not covered by this definition, if it is capable
+of independent use and distributed separately.
+
+Source code shall mean all the source code for all modules of
+Software, plus any associated interface definition files, plus the
+scripts used to control compilation and installation of the executable
+program. Source code distributed with Software need not include
+anything that is normally distributed (in either source or binary
+form) with the major components (compiler, kernel, and so on) of
+the operating system on which the executable program runs.
+
+Anyone who uses Software becomes User. User shall abide by this
+licence agreement.
+
+BRNO UNIVERSITY OF TECHNOLOGY GRANTS TO USER A LICENCE TO USE
+SOFTWARE ON THE FOLLOWING TERMS AND CONDITIONS:
+
+1. User may use Software for any purpose, commercial or noncommercial,
+without a need to pay any licence fee.
+
+2. User may copy and distribute verbatim copies of executable
+Software with source code as he/she received it, in any medium,
+provided that User conspicuously and appropriately publishes on
+each copy an appropriate copyright notice and disclaimer of warranty;
+keeps intact all the notices that refer to this licence and to the
+absence of any warranty; and give any other recipients of Software
+a copy of this licence along with Software. User may charge a fee
+for the physical act of transferring a copy, and may offer warranty
+protection in exchange for a fee.
+
+3. User may modify his/her copy or copies of Software or any portion
+of it, thus forming a work based on Software, and copy and distribute
+such modifications or work, provided that User clearly states this
+work is modified Software. These modifications or work based on
+software may be distributed only under the terms of section 2 of
+this licence agreement, regardless if it is distributed alone or
+together with other work. Previous sentence does not apply to mere
+aggregation of another work not based on software with Software (or
+with a work based on software) on a volume of a storage or distribution
+medium.
+
+4. User shall accompany copies of Software or work based on software
+in object or executable form with:
+
+a) the complete corresponding machine-readable source code, which
+must be distributed on a medium customarily used for software
+interchange; or,
+b) written offer, valid for at least three years, to give any third
+party, for a charge no more than actual cost of physically performing
+source distribution, a complete machine-readable copy of the
+corresponding source code, to be distributed on a medium customarily
+used for software interchange; or,
+c) the information User received as to the offer to distribute
+corresponding source code. (This alternative is allowed only for
+noncommercial distribution and only if User received the program
+in objects code or executable form with such an offer, in accord
+with subsection b above.)
+
+5. User may not copy, modify, grant sublicences or distribute
+Software in any other way than expressly provided for in this
+licence agreement. Any other copying, modifying, granting of
+sublicences or distribution of Software is illegal and will
+automatically result in termination of the rights granted by this
+licence. This does not affect rights of third parties acquired in
+good faith, as long as they abide by the terms and conditions of
+this licence agreement.
+
+6. User may not use and/or distribute Software, if he/she cannot
+satisfy simultaneously obligations under this licence and any other
+pertinent obligations.
+
+7. User is not responsible for enforcing terms of this agreement
+by third parties.
+
+8. BECAUSE SOFTWARE IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR SOFTWARE, TO THE EXTENT PERMITTED BY APPLICABLE LAW. EXCEPT
+WHEN OTHERWISE STATED IN WRITING, BUT PROVIDES SOFTWARE "AS IS"
+WITHOUT WARRANTY OF ANY KIND,EITHER EXPRESSED OR IMPLIED,INCLUDING,BUT
+NOT LIMITED TO,THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE.THE ENTIRE RISK AS TO THE QUALITY AND
+PERFORMANCE OF SOFTWARE IS WITH USER. SHOULD SOFTWARE PROVE
+DEFECTIVE, USER SHALL ASSUME THE COST OF ALL NECESSARY SERVICING,
+REPAIR OR CORRECTION.
+IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL BRNO UNIVERSITY OF TECHNOLOGY BE LIABLE FOR DAMAGES, INCLUDING
+ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
+OUT OF THE USE OR INABILITY TO USE SOFTWARE (INCLUDING BUT NOT
+LIMITED TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES
+SUSTAINED BY YOU OR THIRD PARTIES OR A FAILURE OF SOFTWARE TO OPERATE
+WITH ANY OTHER PROGRAMS).
+
+Final provisions:
+Any provision of this licence agreement that is prohibited,
+unenforceable, or not authorized in any jurisdiction shall, as to
+such jurisdiction, be ineffective to the extent of such prohibition,
+unenforceability, or non-authorization without invalidating or
+affecting the remaining provisions.
+
+This licence agreement provides in essentials the same extent of
+rights as the terms of GNU GPL version 2 and Software fulfils the
+requirements of Open Source software.
+
+This agreement is governed by law of the Czech Republic. In case
+of a dispute, the jurisdiction shall be that of courts in the Czech
+Republic.
+
+By installing, copying or other use of Software User declares he/she
+has read this terms and conditions, understands them and his/her
+use of Software is a demonstration of his/her free will absent of
+any duress.

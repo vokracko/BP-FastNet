@@ -1,4 +1,4 @@
-#include "../general/queue.h"
+#include "../common/queue.h"
 #include "common.h"
 #include <strings.h>
 #include <limits.h>

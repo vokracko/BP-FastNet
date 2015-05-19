@@ -3,7 +3,7 @@
 # E-mail: bidlom AT fit vutbr cz
 #===========================================
 # asi budete chtit prejmenovat:
-CO=projekt
+CO=xvokra00
 
 all: $(CO).pdf
 
@@ -36,4 +36,4 @@ clean:
 	rm -f *~
 
 pack:
-	tar czvf bp-xjmeno.tar.gz *.tex *.bib *.bst ./fig/* ./cls/* Makefile Changelog
+	tar czvf bp-xvokra00.tar.gz *.tex *.bib *.bst ./fig/* ./cls/* Makefile Changelog

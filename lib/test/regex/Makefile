@@ -17,6 +17,6 @@ bin: bin.c
 	$(CC) $(FLAGS) bin.c -Dalg_$(ALG) $(LIB)/regex.a -o $(ALG) -pthread
 
 clean:
-	rm -rf dfa 2>/dev/null
+	rm -rf dfa nfa 2>/dev/null
 
 .FORCE:
