@@ -64,7 +64,7 @@ _Bool queue_insert(queue * root, void * pointer, char value_type)
 		if(root->start >= root->end)
 		{
 			unsigned count = root->size - root->start - _QUEUE_DEFAULT_SIZE;
-			memmove(&(root->data[root->size - count]), &(root->data[root->start]), sizeof(void *) * count);
+			memmove(&(root->data[root->size - count]), &(root->data[root->start]), sizeof(queue_item) * count);
 			root->start = root->size - count;
 		}
 	}

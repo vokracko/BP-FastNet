@@ -1,5 +1,6 @@
 #include "../../src/pm/pm.h"
 #include <string.h>
+#include <strings.h>
 #include <time.h>
 #include <stdbool.h>
 #include <stdlib.h>
