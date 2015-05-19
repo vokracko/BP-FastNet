@@ -3,7 +3,7 @@ FLAGS=-std=c99 -Wall -Wextra -g3
 ALG=ac
 GENERAL=../general
 
-all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
+all: FLAGS=-std=c99 -Wall -Wextra -DNDEBUG
 all: lib
 
 lib: queue $(ALG).c precompile-headers

@@ -2,7 +2,7 @@ CC=gcc
 FLAGS=-std=c99 -Wall -Wextra -g3
 GENERAL=../general
 
-all: FLAGS=-std=c99 -Wall -Wextra -g3 -DNDEBUG
+all: FLAGS=-std=c99 -Wall -Wextra -DNDEBUG
 all: lib
 
 lib: queue dfa.c precompile-headers
